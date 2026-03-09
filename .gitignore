@@ -4,3 +4,7 @@ public/data/
 *.zip.acmi
 __pycache__/
 *.pyc
+public/sdcs_replay_v1.0*.html
+public/sdcs_replay_v1.1*.html
+public/sdcs_replay_v1.2*.html
+public/dcs_replay*.html
