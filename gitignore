@@ -1,0 +1,32 @@
+# ── Raw ACMI recordings (large binary/zip files) ──────────────────────────
+raw/**/*.acmi
+raw/**/*.zip.acmi
+raw/**/*.zip
+
+# ── Parsed session JSON files (generated, not source) ─────────────────────
+public/data/
+
+# ── Python ────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+
+# ── OS junk ───────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Editor ────────────────────────────────────────────────────────────────
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+
+# ── Versioned viewer copies (keep only current) ───────────────────────────
+public/sdcs_replay_v*.html
+
+# ── Node (if ever added) ──────────────────────────────────────────────────
+node_modules/

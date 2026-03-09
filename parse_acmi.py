@@ -68,6 +68,9 @@ def classify_object(obj_type, name, pilot):
     """Determine if object is player aircraft, AI aircraft, ground unit, weapon, etc."""
     t = obj_type or ''
     if 'Weapon' in t or 'Missile' in t or 'Bomb' in t or 'Rocket' in t:
+        # Fired by a human player — retain as player_weapon for map rendering
+        if pilot and not re.match(r'^\d+$', pilot.split()[0]):
+            return 'player_weapon'
         return 'weapon'
     if 'Air' in t:
         # Human player if pilot doesn't look like a pure number
@@ -233,7 +236,7 @@ def parse_acmi(path, sample_interval=SAMPLE_INTERVAL):
         obj = objects.get(obj_id, {})
         cat = obj.get('category', 'other')
 
-        # Skip weapons (too many, short lived, not needed for replay)
+        # Skip AI weapons (too many, short lived). Keep player_weapon for map rendering.
         if cat == 'weapon':
             continue
         # Skip navaids (static, handled separately)
@@ -250,6 +253,8 @@ def parse_acmi(path, sample_interval=SAMPLE_INTERVAL):
         last_alt = None
         last_yaw = None
         next_sample = updates[0][0]  # first sample at first appearance
+        # Player weapons are short-lived — keep every raw update, no subsampling
+        is_player_wpn = (cat == 'player_weapon')
 
         for (t, pos) in updates:
             # Carry forward
@@ -258,7 +263,7 @@ def parse_acmi(path, sample_interval=SAMPLE_INTERVAL):
             if pos['alt'] is not None: last_alt = pos['alt']
             if pos['yaw'] is not None: last_yaw = pos['yaw']
 
-            if t >= next_sample and last_lat is not None and last_lon is not None:
+            if (is_player_wpn or t >= next_sample) and last_lat is not None and last_lon is not None:
                 sampled.append({
                     't': round(t, 1),
                     'lat': round(last_lat, 6),
@@ -266,7 +271,8 @@ def parse_acmi(path, sample_interval=SAMPLE_INTERVAL):
                     'alt': round(last_alt, 1) if last_alt is not None else None,
                     'hdg': round(last_yaw, 1) if last_yaw is not None else None,
                 })
-                next_sample = t + sample_interval
+                if not is_player_wpn:
+                    next_sample = t + sample_interval
 
         if sampled:
             tracks[obj_id] = sampled
@@ -341,6 +347,9 @@ def parse_acmi(path, sample_interval=SAMPLE_INTERVAL):
 
     for obj_id, obj in objects.items():
         if not obj['is_human']:
+            continue
+        # Weapons fired by players are tracked separately — not flights
+        if obj.get('category') == 'player_weapon':
             continue
         callsign = obj['pilot_clean']
         if not callsign:
@@ -434,7 +443,7 @@ def parse_acmi(path, sample_interval=SAMPLE_INTERVAL):
                 'last_seen': round(obj['last_seen'], 1),
             }
             for oid, obj in objects.items()
-            if obj['category'] not in ('weapon',)  # skip weapons
+            if obj['category'] not in ('weapon',)  # skip AI weapons (player_weapon retained)
         },
         'tracks': tracks,
         'events': parsed_kills,
@@ -447,7 +456,20 @@ def parse_acmi(path, sample_interval=SAMPLE_INTERVAL):
 
 def main():
     path = sys.argv[1] if len(sys.argv) > 1 else '/home/claude/20260226_074617.acmi'
-    out_path = sys.argv[2] if len(sys.argv) > 2 else path.replace('.acmi', '.json')
+    if len(sys.argv) > 2:
+        out_path = sys.argv[2]
+    else:
+        # Default: output into public/data/<campaign_folder>/session_*.json
+        # Assumes script is run from project root (folder containing raw/ and public/)
+        import os
+        acmi_abs = os.path.abspath(path)
+        acmi_dir = os.path.dirname(acmi_abs)
+        campaign_folder = os.path.basename(acmi_dir)
+        stem = os.path.basename(path)
+        stem = re.sub(r'(\.zip)?\.acmi$', '', stem, flags=re.I)
+        data_dir = os.path.join('public', 'data', campaign_folder)
+        os.makedirs(data_dir, exist_ok=True)
+        out_path = os.path.join(data_dir, f'session_{stem}.json')
 
     print(f"Parsing: {path}")
     data = parse_acmi(path)
