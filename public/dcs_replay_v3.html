@@ -1,0 +1,1491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Strategic DCS — Campaign Replay</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #0d1117;
+  --panel:    #161b22;
+  --panel2:   #1c2128;
+  --border:   #30363d;
+  --text:     #c9d1d9;
+  --dim:      #8b949e;
+  --blue:     #58a6ff;
+  --red:      #f85149;
+  --green:    #3fb950;
+  --yellow:   #d29922;
+  --purple:   #bc8cff;
+  --accent:   #1f6feb;
+  --radius:   6px;
+}
+
+body {
+  background: var(--bg); color: var(--text);
+  font-family: 'Segoe UI', system-ui, sans-serif; font-size: 13px;
+  height: 100vh; display: flex; flex-direction: column; overflow: hidden;
+}
+
+/* ── TOP BAR ── */
+#topbar {
+  background: var(--panel); border-bottom: 1px solid var(--border);
+  padding: 0 16px; display: flex; align-items: center; gap: 12px;
+  height: 46px; flex-shrink: 0; z-index: 1000;
+}
+#topbar h1 { font-size: 14px; font-weight: 700; color: var(--blue); letter-spacing:.5px; white-space:nowrap; }
+#campaign-selector {
+  background: var(--panel2); border: 1px solid var(--border); color: var(--text);
+  padding: 4px 8px; border-radius: var(--radius); font-size: 12px; cursor: pointer;
+}
+#session-badge {
+  background: var(--panel2); border: 1px solid var(--border);
+  padding: 3px 8px; border-radius: var(--radius); font-size: 11px; color: var(--dim);
+  white-space: nowrap;
+}
+#wallclock {
+  font-size: 13px; font-weight: 700; color: #fff;
+  font-variant-numeric: tabular-nums; margin-left: auto;
+  white-space: nowrap;
+}
+
+/* ── LAYOUT ── */
+#main { display: flex; flex: 1; overflow: hidden; }
+#map  { flex: 1; background: #111; }
+
+/* ── SIDEBAR ── */
+#sidebar {
+  width: 272px; background: var(--panel);
+  border-left: 1px solid var(--border);
+  display: flex; flex-direction: column; overflow: hidden; flex-shrink: 0;
+}
+.sb-section { border-bottom: 1px solid var(--border); padding: 10px 12px; }
+.sb-section h3 {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 1px;
+  color: var(--dim); margin-bottom: 8px;
+}
+.filter-row {
+  display: flex; align-items: center; gap: 7px;
+  margin-bottom: 4px; cursor: pointer; user-select: none;
+}
+.filter-row input[type=checkbox] { accent-color: var(--blue); width:13px; height:13px; }
+.dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+
+/* ── PLAYER CARDS ── */
+#players-list { flex:1; overflow-y:auto; padding:10px; }
+.player-card {
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 9px 10px; margin-bottom: 6px;
+  cursor: pointer; transition: border-color .15s, background .15s;
+}
+.player-card:hover { background: var(--panel2); }
+.player-card.active { border-color: var(--blue); background: rgba(88,166,255,.05); }
+.pc-header { display:flex; align-items:center; gap:6px; margin-bottom:4px; }
+.pc-callsign { font-weight:700; font-size:13px; flex:1; }
+.pc-tag {
+  font-size:10px; padding:1px 6px; border-radius:3px; font-weight:600; flex-shrink:0;
+}
+.tag-blue { background:rgba(88,166,255,.2); color:var(--blue); }
+.tag-red  { background:rgba(248,81,73,.2);  color:var(--red);  }
+.pc-stats { color:var(--dim); font-size:11px; display:flex; gap:8px; flex-wrap:wrap; }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width:4px; }
+::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+
+/* ── TIMELINE BAR ── */
+#timeline-bar {
+  background: var(--panel); border-top: 1px solid var(--border);
+  padding: 8px 14px 10px; flex-shrink: 0;
+}
+#controls { display:flex; align-items:center; gap:8px; margin-bottom:7px; }
+.ctrl-btn {
+  background: var(--border); border: none; color: var(--text);
+  padding: 4px 9px; border-radius: 4px; cursor: pointer; font-size:13px;
+  transition: background .1s; flex-shrink:0;
+}
+.ctrl-btn:hover  { background: #444c56; }
+.ctrl-btn.active { background: var(--accent); color:#fff; }
+#speed-btn { min-width:46px; font-size:11px; font-weight:700; }
+#time-label { color:var(--dim); font-size:11px; font-variant-numeric:tabular-nums; margin-left:auto; white-space:nowrap; }
+
+/* ── SCRUBBER ── */
+#scrubber-wrap { position:relative; height:36px; }
+#scrubber {
+  -webkit-appearance:none; appearance:none; width:100%; height:4px;
+  background: transparent; outline:none; position:absolute; top:16px; cursor:pointer; z-index:3;
+}
+#scrubber::-webkit-slider-thumb {
+  -webkit-appearance:none; width:14px; height:14px; border-radius:50%;
+  background:var(--blue); border:2px solid var(--bg);
+  box-shadow:0 0 5px rgba(88,166,255,.6); cursor:pointer;
+}
+#timeline-bg {
+  position:absolute; top:14px; left:0; right:0; height:8px;
+  background:var(--border); border-radius:4px; pointer-events:none; z-index:1;
+}
+/* Coloured session segments drawn via JS */
+#timeline-sessions {
+  position:absolute; top:14px; left:0; right:0; height:8px;
+  border-radius:4px; pointer-events:none; z-index:2; overflow:hidden;
+}
+#timeline-events {
+  position:absolute; top:0; left:0; right:0; height:36px;
+  pointer-events:none; z-index:4;
+}
+.t-pip {
+  position:absolute; width:3px; border-radius:1px; top:6px; height:22px;
+  transform:translateX(-50%); pointer-events:all; cursor:pointer;
+}
+
+/* ── SESSION LABELS on timeline ── */
+.session-label {
+  position:absolute; top:24px; font-size:9px; color:var(--dim);
+  transform:translateX(-50%); white-space:nowrap; pointer-events:none;
+}
+
+/* ── DETAIL PANEL ── */
+#detail-panel {
+  display:none; position:absolute; top:56px; right:280px;
+  width:264px; background:var(--panel); border:1px solid var(--border);
+  border-radius:8px; padding:14px; z-index:2000;
+  box-shadow:0 6px 24px rgba(0,0,0,.6);
+}
+#detail-panel h2 { font-size:15px; font-weight:700; }
+.dp-sub { color:var(--dim); font-size:11px; margin:3px 0 12px; }
+.dp-section h4 { font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--dim); margin-bottom:5px; }
+.dp-section { margin-bottom:10px; }
+.kill-row {
+  background:var(--bg); border-radius:4px; padding:5px 8px; margin-bottom:3px; font-size:11px;
+}
+.kill-row b { display:block; margin-bottom:1px; }
+.kill-row span { color:var(--dim); }
+.flight-row {
+  background:var(--bg); border-radius:4px; padding:5px 8px; margin-bottom:3px;
+  font-size:11px; display:flex; justify-content:space-between; align-items:center;
+  cursor:pointer;
+}
+.flight-row:hover { background:var(--panel2); }
+.flight-row span { color:var(--dim); }
+#close-dp {
+  float:right; background:none; border:none; color:var(--dim);
+  font-size:18px; cursor:pointer; line-height:1; padding:0; margin-top:-2px;
+}
+
+/* ── BASE OWNERSHIP LEGEND ── */
+#base-legend {
+  position:absolute; bottom:90px; left:10px; z-index:1000;
+  background:var(--panel); border:1px solid var(--border);
+  border-radius:var(--radius); padding:8px 10px; font-size:11px; min-width:120px;
+  display:none;
+}
+#base-legend h4 { font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--dim); margin-bottom:6px; }
+.legend-row { display:flex; align-items:center; gap:6px; margin-bottom:3px; }
+
+/* ── LOADING ── */
+#loading {
+  position:fixed; inset:0; background:var(--bg);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  z-index:9999; gap:14px;
+}
+#loading h2 { color:var(--blue); font-size:18px; }
+#loading p  { color:var(--dim); font-size:12px; }
+.spinner {
+  width:32px; height:32px; border:3px solid var(--border);
+  border-top-color:var(--blue); border-radius:50%;
+  animation:spin .7s linear infinite;
+}
+@keyframes spin { to { transform:rotate(360deg); } }
+
+/* ── LEAFLET OVERRIDES ── */
+.leaflet-tooltip {
+  background:var(--panel) !important; border:1px solid var(--border) !important;
+  color:var(--text) !important; font-size:11px !important;
+  border-radius:4px !important; padding:3px 7px !important;
+  box-shadow:0 2px 8px rgba(0,0,0,.4) !important;
+}
+
+/* ── PLAYER LABELS always-visible on map ── */
+.pilot-label {
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  pointer-events: none;
+}
+.pilot-label-inner {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+.pilot-label-name {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 0 0 3px #000, 0 0 7px #000, 1px 1px 0 #000;
+  white-space: nowrap;
+  letter-spacing: 0.3px;
+}
+.pilot-label-name.active-flight {
+  font-size: 13px;
+  color: #ffe066;
+  text-shadow: 0 0 4px #000, 0 0 10px rgba(255,200,0,0.4), 1px 1px 0 #000;
+}
+.pilot-label-telemetry {
+  font-family: 'Courier New', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  color: #a8d8a8;
+  text-shadow: 0 0 3px #000, 1px 1px 0 #000;
+  white-space: nowrap;
+}
+
+/* ── EXPLOSION ANIMATION ── */
+.explosion-marker {
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  pointer-events: none;
+}
+@keyframes exp-ring1 {
+  0%   { transform: translate(-50%,-50%) scale(0.1); opacity: 1; }
+  60%  { opacity: 0.8; }
+  100% { transform: translate(-50%,-50%) scale(1);   opacity: 0; }
+}
+@keyframes exp-ring2 {
+  0%   { transform: translate(-50%,-50%) scale(0.1); opacity: 0.7; }
+  100% { transform: translate(-50%,-50%) scale(1.4); opacity: 0; }
+}
+@keyframes exp-core {
+  0%   { transform: translate(-50%,-50%) scale(0.2); opacity: 1; }
+  30%  { transform: translate(-50%,-50%) scale(1.1); opacity: 1; }
+  100% { transform: translate(-50%,-50%) scale(0.6); opacity: 0; }
+}
+@keyframes exp-sparks {
+  0%   { transform: translate(-50%,-50%) scale(0) rotate(0deg); opacity: 1; }
+  100% { transform: translate(-50%,-50%) scale(1.2) rotate(15deg); opacity: 0; }
+}
+
+/* ── FLOT filter toggle ── */
+#f-flot-row { margin-top: 2px; }
+</style>
+</head>
+<body>
+
+<div id="loading">
+  <div class="spinner"></div>
+  <h2>Strategic DCS — Campaign Replay</h2>
+  <p id="loading-msg">Initialising…</p>
+</div>
+
+<!-- TOP BAR -->
+<div id="topbar">
+  <h1>🎯 SDCS REPLAY</h1>
+  <select id="campaign-selector"><option>Loading…</option></select>
+  <span id="session-badge">—</span>
+  <div id="wallclock">—</div>
+</div>
+
+<!-- MAIN -->
+<div id="main">
+  <div id="map"></div>
+
+  <div id="sidebar">
+    <!-- Filters -->
+    <div class="sb-section">
+      <h3>Display Layers</h3>
+      <label class="filter-row"><input type="checkbox" id="f-player" checked>
+        <span class="dot" style="background:#58a6ff"></span> Player Aircraft</label>
+      <label class="filter-row"><input type="checkbox" id="f-ai">
+        <span class="dot" style="background:#bc8cff"></span> AI Aircraft</label>
+      <label class="filter-row"><input type="checkbox" id="f-ground" checked>
+        <span class="dot" style="background:#3fb950"></span> Ground Units</label>
+      <label class="filter-row"><input type="checkbox" id="f-trails" checked>
+        <span class="dot" style="background:#555"></span> Flight Trails</label>
+      <label class="filter-row"><input type="checkbox" id="f-kills" checked>
+        <span class="dot" style="background:#f85149"></span> Kill Events</label>
+      <label class="filter-row"><input type="checkbox" id="f-bases" checked>
+        <span class="dot" style="background:#d29922"></span> Bases / Objectives</label>
+      <label class="filter-row"><input type="checkbox" id="f-flot" checked>
+        <span class="dot" style="background:#888;border-radius:2px"></span> Front Line (FLOT)</label>
+    </div>
+
+    <!-- Players -->
+    <div class="sb-section" style="padding-bottom:6px"><h3>Players this Session</h3></div>
+    <div id="players-list"></div>
+  </div>
+</div>
+
+<!-- TIMELINE -->
+<div id="timeline-bar">
+  <div id="controls">
+    <button class="ctrl-btn" id="btn-prev" title="Restart">⏮</button>
+    <button class="ctrl-btn" id="btn-play" title="Play [Space]">▶</button>
+    <button class="ctrl-btn" id="btn-pause" title="Pause [Space]">⏸</button>
+    <button class="ctrl-btn" id="btn-next" title="End">⏭</button>
+    <button class="ctrl-btn" id="speed-btn">60×</button>
+    <span id="time-label">0:00:00 / 0:00:00</span>
+  </div>
+  <div id="scrubber-wrap">
+    <div id="timeline-bg"></div>
+    <div id="timeline-sessions"></div>
+    <div id="timeline-events"></div>
+    <input type="range" id="scrubber" min="0" max="100" value="0" step="0.1">
+  </div>
+</div>
+
+<!-- BASE LEGEND -->
+<div id="base-legend">
+  <h4>Bases</h4>
+  <div class="legend-row"><span class="dot" style="background:#58a6ff;width:12px;height:12px;border-radius:2px"></span> Blue (Friendly)</div>
+  <div class="legend-row"><span class="dot" style="background:#f85149;width:12px;height:12px;border-radius:2px"></span> Red (Hostile)</div>
+  <div class="legend-row"><span class="dot" style="background:#888;width:12px;height:12px;border-radius:2px"></span> Neutral</div>
+</div>
+
+<!-- PLAYER DETAIL PANEL -->
+<div id="detail-panel">
+  <button id="close-dp">×</button>
+  <h2 id="dp-callsign"></h2>
+  <div class="dp-sub" id="dp-sub"></div>
+  <div class="dp-section">
+    <h4>Flights</h4>
+    <div id="dp-flights"></div>
+  </div>
+  <div class="dp-section">
+    <h4>Kill Events</h4>
+    <div id="dp-kills"></div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════════════
+//  CAMPAIGN CONFIG
+//  Point CAMPAIGN at your data. Each entry = one session JSON file.
+//  Sessions are concatenated into one continuous timeline.
+//  The SDCS_API endpoint is called once to get live base ownership.
+// ══════════════════════════════════════════════════════════════════════════
+const CAMPAIGNS = {
+  'Germany — Feb 26 2026': [
+    { label: 'Session 1 · 07:46Z', file: 'session1.json' },
+    // Add more sessions:
+    // { label: 'Session 2 · 13:46Z', file: 'session2.json' },
+    // { label: 'Session 3 · 19:46Z', file: 'session3.json' },
+  ],
+  // Add more campaigns:
+  // 'Germany — Mar 01 2026': [ ... ]
+};
+
+// SDCS Map API — set to your actual endpoint
+// Expected response: array of { name, coalition, lat, lon, type }
+// Set to null to use base ownership data from the ACMI files instead
+const SDCS_API = null; // e.g. 'https://map.strategic-dcs.com/api/bases'
+
+// ══════════════════════════════════════════════════════════════════════════
+//  AIRCRAFT SVG ICON LIBRARY
+//  Each entry: { paths: [...], viewBox, w, h }
+//  All icons are drawn pointing NORTH (up) and rotated by heading at runtime.
+// ══════════════════════════════════════════════════════════════════════════
+const AIRCRAFT_ICONS = {
+
+  // ── Fixed wing fighters / multirole ──
+  'F-16':  { vb:'0 0 20 28', body:`<polygon points="10,1 14,10 13,18 10,20 7,18 6,10" /><polygon points="10,14 17,22 13,18" /><polygon points="10,14 3,22 7,18" /><rect x="8" y="18" width="4" height="6" />` },
+  'FA-18': { vb:'0 0 22 28', body:`<polygon points="11,1 15,9 14,17 11,19 8,17 7,9" /><polygon points="11,13 19,22 14,17" /><polygon points="11,13 3,22 8,17" /><polygon points="6,7 2,14 7,11" /><polygon points="16,7 20,14 15,11" />` },
+  'F-15':  { vb:'0 0 22 28', body:`<polygon points="11,1 15,8 15,17 11,20 7,17 7,8" /><polygon points="11,13 20,23 15,17" /><polygon points="11,13 2,23 7,17" /><polygon points="5,6 1,13 7,10" /><polygon points="17,6 21,13 15,10" />` },
+  'MiG-29':{ vb:'0 0 22 28', body:`<polygon points="11,1 14,8 13,17 11,19 9,17 8,8" /><polygon points="11,12 19,22 13,17" /><polygon points="11,12 3,22 9,17" /><polygon points="6,6 2,13 8,10" /><polygon points="16,6 20,13 14,10" /><rect x="9" y="19" width="4" height="5" />` },
+  'Su-27':  { vb:'0 0 22 28', body:`<polygon points="11,1 14,8 13,17 11,19 9,17 8,8" /><polygon points="11,12 20,23 13,17" /><polygon points="11,12 2,23 9,17" /><polygon points="5,5 1,14 8,10" /><polygon points="17,5 21,14 14,10" /><rect x="9" y="19" width="4" height="5" />` },
+
+  // ── Helicopters ──
+  'AH-64': { vb:'0 0 24 24', body:`<ellipse cx="12" cy="13" rx="4" ry="6" /><line x1="1" y1="6" x2="23" y2="6" stroke-width="2" /><line x1="1" y1="8" x2="23" y2="8" stroke-width="1.5" /><line x1="12" y1="7" x2="12" y2="19" /><line x1="19" y1="17" x2="23" y2="19" stroke-width="1.5" />` },
+  'UH-60': { vb:'0 0 24 24', body:`<ellipse cx="12" cy="13" rx="5" ry="6" /><line x1="0" y1="6" x2="24" y2="6" stroke-width="2" /><line x1="12" y1="7" x2="12" y2="20" /><line x1="18" y1="18" x2="22" y2="20" stroke-width="1.5" />` },
+  'Mi-8':  { vb:'0 0 26 26', body:`<ellipse cx="13" cy="14" rx="6" ry="7" /><line x1="0" y1="7" x2="26" y2="7" stroke-width="2.5" /><line x1="13" y1="8" x2="13" y2="21" /><line x1="20" y1="19" x2="25" y2="21" stroke-width="2" />` },
+  'CH-47': { vb:'0 0 30 24', body:`<ellipse cx="15" cy="12" rx="12" ry="5" /><line x1="0" y1="5" x2="14" y2="5" stroke-width="2" /><line x1="16" y1="5" x2="30" y2="5" stroke-width="2" /><line x1="0" y1="19" x2="14" y2="19" stroke-width="2" /><line x1="16" y1="19" x2="30" y2="19" stroke-width="2" />` },
+
+  // ── ISR / AWACS ──
+  'E-2':   { vb:'0 0 28 22', body:`<polygon points="14,3 18,12 14,15 10,12" /><polygon points="14,8 24,14 18,12" /><polygon points="14,8 4,14 10,12" /><ellipse cx="14" cy="7" rx="10" ry="2.5" />` },
+  'A-10':  { vb:'0 0 24 26', body:`<polygon points="12,1 15,8 14,18 12,20 10,18 9,8" /><polygon points="12,11 22,20 15,16" /><polygon points="12,11 2,20 9,16" /><rect x="10" y="18" width="4" height="6" />` },
+
+  // ── Generic fallback ──
+  'default-air':    { vb:'0 0 16 22', body:`<polygon points="8,1 12,14 8,11 4,14" />` },
+  'default-ground': { vb:'0 0 14 14', body:`<polygon points="7,1 13,7 7,13 1,7" />` },
+};
+
+// Map DCS aircraft names → icon keys
+function getIconKey(name, category) {
+  if (!name) return category === 'ground' ? 'default-ground' : 'default-air';
+  const n = name.toUpperCase();
+  if (n.includes('AH-64') || n.includes('AH64'))  return 'AH-64';
+  if (n.includes('UH-1') || n.includes('UH1'))    return 'UH-60';  // UH-1H uses generic helo shape
+  if (n.includes('UH-60') || n.includes('BLACK'))  return 'UH-60';
+  if (n.includes('CH-47'))                          return 'CH-47';
+  if (n.includes('MI-8') || n.includes('MI8'))     return 'Mi-8';
+  if (n.includes('FA-18') || n.includes('F/A-18')) return 'FA-18';
+  if (n.includes('F-16') || n.includes('F16'))     return 'F-16';
+  if (n.includes('F-15') || n.includes('F15'))     return 'F-15';
+  if (n.includes('MIG-29') || n.includes('MIG29')) return 'MiG-29';
+  if (n.includes('SU-27') || n.includes('SU27'))   return 'Su-27';
+  if (n.includes('A-10') || n.includes('A10'))     return 'A-10';
+  if (n.includes('E-2') || n.includes('E2-'))      return 'E-2';
+  if (category === 'ground') return 'default-ground';
+  return 'default-air';
+}
+
+// Build SVG icon string
+function buildIconSVG(iconKey, color, size, heading, selected) {
+  const ic = AIRCRAFT_ICONS[iconKey] || AIRCRAFT_ICONS['default-air'];
+  const isGround = iconKey === 'default-ground';
+  const rot = (heading != null && !isGround) ? `rotate(${heading} ${size/2} ${size/2})` : '';
+  const selRing = selected ? `<circle cx="${size/2}" cy="${size/2}" r="${size/2-1}" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.7"/>` : '';
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="${ic.vb}">
+    <g transform="${rot}" fill="${color}" stroke="${color}" stroke-width="0.5" opacity="0.92">
+      ${ic.body}
+    </g>
+    ${selRing}
+  </svg>`;
+}
+
+function makeLeafletIcon(category, name, coalition, heading, selected, isHuman) {
+  const isBlue = coalition === 'Friendlies';
+  const color  = isBlue ? '#58a6ff' : '#f85149';
+  const key    = getIconKey(name, category);
+  const size   = (category === 'player_air' || isHuman) ? 22 : 14;
+  const svg    = buildIconSVG(key, color, size, heading, selected);
+  return L.divIcon({
+    html: svg, className: '',
+    iconSize:   [size, size],
+    iconAnchor: [size/2, size/2],
+  });
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+//  MAP
+// ══════════════════════════════════════════════════════════════════════════
+const map = L.map('map', { center:[51.68,10.5], zoom:7, zoomControl:true, attributionControl:false });
+
+L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+  maxZoom:18
+}).addTo(map);
+
+// Subtle label overlay
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png', {
+  maxZoom:18, opacity:0.5, subdomains:'abcd'
+}).addTo(map);
+
+// ══════════════════════════════════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════════════════════════════════
+let SESSIONS      = [];   // merged array of session data, each offset in campaign time
+let currentTime   = 0;
+let campaignDuration = 0;
+let playing       = false;
+let playSpeed     = 60;
+let lastRafTime   = null;
+let animFrame     = null;
+let selectedPlayer = null;
+
+const objectMarkers = {};
+const objectTrails  = {};
+const pilotLabels   = {};   // objId -> L.marker (permanent label)
+const baseCircles   = {};   // baseName -> L.circle (10nm territory ring)
+const trackIndex    = {};
+const baseMarkers   = {};  // name -> L.marker
+
+const SPEEDS = [1, 5, 15, 60, 120, 300];
+let speedIdx = 3;
+
+let filters = { playerAir:true, aiAir:false, ground:true, trails:true, kills:true, bases:true, flot:true };
+
+const shownKills  = new Set();
+const killLayers  = [];
+
+// ── FLOT state ──
+let flotBlueLayer  = null;  // L.Polygon fill
+let flotBlueLine   = null;  // L.Polyline border
+let flotRedLayer   = null;
+let flotRedLine    = null;
+let _mergedRef     = null;  // reference to current merged data
+
+// ══════════════════════════════════════════════════════════════════════════
+//  CAMPAIGN SELECTOR
+// ══════════════════════════════════════════════════════════════════════════
+function populateCampaignSelector() {
+  const sel = document.getElementById('campaign-selector');
+  sel.innerHTML = '';
+  for (const name of Object.keys(CAMPAIGNS)) {
+    const opt = document.createElement('option');
+    opt.value = name; opt.textContent = name;
+    sel.appendChild(opt);
+  }
+  sel.addEventListener('change', () => loadCampaign(sel.value));
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+//  LOAD CAMPAIGN (may be multiple session files)
+// ══════════════════════════════════════════════════════════════════════════
+async function loadCampaign(campaignName) {
+  setLoading('Loading campaign…');
+  document.getElementById('loading').style.display = 'flex';
+
+  // Clear previous state
+  clearMap();
+  SESSIONS = [];
+  currentTime = 0;
+
+  const sessionDefs = CAMPAIGNS[campaignName];
+  let timeOffset = 0;
+
+  for (let i = 0; i < sessionDefs.length; i++) {
+    const def = sessionDefs[i];
+    setLoading(`Loading ${def.label} (${i+1}/${sessionDefs.length})…`);
+    const resp = await fetch(def.file);
+    const data = await resp.json();
+
+    // Offset all times in this session
+    const session = applyTimeOffset(data, timeOffset);
+    session._label     = def.label;
+    session._offset    = timeOffset;
+    session._duration  = data.meta.duration_seconds;
+    SESSIONS.push(session);
+    timeOffset += data.meta.duration_seconds;
+  }
+
+  campaignDuration = timeOffset;
+  document.getElementById('scrubber').max = campaignDuration;
+
+  setLoading('Building merged data…');
+  const merged = mergeSessions(SESSIONS);
+
+  setLoading('Initialising units…');
+  initUnits(merged);   // also sets _mergedRef
+
+  setLoading('Computing front line…');
+  flotLastT = -9999;
+
+  setLoading('Drawing bases…');
+  await initBases(merged);
+
+  setLoading('Building UI…');
+  buildPlayerList(merged);
+  drawTimeline();
+
+  document.getElementById('loading').style.display = 'none';
+  seekTo(0);
+
+  // Badge
+  document.getElementById('session-badge').textContent =
+    `${SESSIONS.length} session${SESSIONS.length>1?'s':''} · ${fmtDuration(campaignDuration)}`;
+}
+
+// Apply a time offset to all 't' values in a parsed session JSON
+function applyTimeOffset(data, offset) {
+  if (offset === 0) return JSON.parse(JSON.stringify(data)); // clone
+
+  const d = JSON.parse(JSON.stringify(data));
+
+  for (const track of Object.values(d.tracks))
+    for (const pt of track) pt.t += offset;
+
+  for (const ev of d.events) ev.t += offset;
+
+  for (const obj of Object.values(d.objects)) {
+    obj.first_seen += offset;
+    obj.last_seen  += offset;
+  }
+
+  for (const [, p] of Object.entries(d.players)) {
+    for (const fl of p.flights) { fl.start_t += offset; fl.end_t += offset; }
+    for (const k of p.kills)    k.t += offset;
+  }
+
+  return d;
+}
+
+// Merge multiple offset sessions into one combined data structure
+function mergeSessions(sessions) {
+  const merged = { objects:{}, tracks:{}, events:[], statics:[], players:{}, _deduped_players:{} };
+  const seenStatics = new Set();
+
+  for (const s of sessions) {
+    Object.assign(merged.objects, s.objects);
+    Object.assign(merged.tracks,  s.tracks);
+    merged.events.push(...s.events);
+
+    // Deduplicate statics by name
+    for (const st of s.statics) {
+      if (!seenStatics.has(st.name)) {
+        seenStatics.add(st.name);
+        merged.statics.push(st);
+      }
+    }
+
+    // Merge players
+    for (const [key, p] of Object.entries(s.players)) {
+      if (!merged.players[key]) merged.players[key] = { callsign:p.callsign, flights:[], kills:[], deaths:0 };
+      merged.players[key].flights.push(...p.flights);
+      merged.players[key].kills.push(...p.kills);
+      merged.players[key].deaths += p.deaths;
+    }
+  }
+
+  // Build deduped players
+  for (const [key, p] of Object.entries(merged.players)) {
+    const base = key.replace(/\s*\(\d+\)$/, '').trim();
+    if (!merged._deduped_players[base])
+      merged._deduped_players[base] = { callsign:base, flights:[], kills:[], deaths:0, coalition:null };
+    const dp = merged._deduped_players[base];
+    dp.flights.push(...p.flights);
+    dp.kills.push(...p.kills);
+    dp.deaths += p.deaths;
+  }
+
+  // Infer coalition for deduped players
+  for (const dp of Object.values(merged._deduped_players)) {
+    const coalitions = dp.flights.map(f=>f.coalition).filter(Boolean);
+    dp.coalition = coalitions[0] || 'Unknown';
+  }
+
+  merged._data = merged; // self-ref for convenience
+  return merged;
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+//  CLEAR MAP
+// ══════════════════════════════════════════════════════════════════════════
+function clearMap() {
+  for (const m of Object.values(objectMarkers)) map.removeLayer(m);
+  for (const t of Object.values(objectTrails))  map.removeLayer(t);
+  for (const l of Object.values(pilotLabels))   map.removeLayer(l);
+  for (const b of Object.values(baseMarkers))   map.removeLayer(b);
+  for (const c of Object.values(baseCircles))   map.removeLayer(c);
+  for (const k of killLayers)                   map.removeLayer(k);
+  if (flotBlueLayer) { map.removeLayer(flotBlueLayer); flotBlueLayer=null; }
+  if (flotBlueLine)  { map.removeLayer(flotBlueLine);  flotBlueLine=null;  }
+  if (flotRedLayer)  { map.removeLayer(flotRedLayer);  flotRedLayer=null;  }
+  if (flotRedLine)   { map.removeLayer(flotRedLine);   flotRedLine=null;   }
+  Object.keys(objectMarkers).forEach(k => delete objectMarkers[k]);
+  Object.keys(objectTrails).forEach(k  => delete objectTrails[k]);
+  Object.keys(pilotLabels).forEach(k   => delete pilotLabels[k]);
+  Object.keys(baseMarkers).forEach(k   => delete baseMarkers[k]);
+  Object.keys(baseCircles).forEach(k   => delete baseCircles[k]);
+  killLayers.length = 0;
+  shownKills.clear();
+  _mergedRef = null;
+  document.getElementById('players-list').innerHTML = '';
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+//  UNIT INIT
+// ══════════════════════════════════════════════════════════════════════════
+function initUnits(merged) {
+  _mergedRef = merged;
+  for (const [objId, track] of Object.entries(merged.tracks)) {
+    if (!track.length) continue;
+    const obj = merged.objects[objId];
+    if (!obj) continue;
+    const cat = obj.category;
+    if (!['player_air','ai_air','ground'].includes(cat)) continue;
+
+    trackIndex[objId] = 0;
+    const pt0 = track[0];
+
+    const marker = L.marker([pt0.lat, pt0.lon], {
+      icon: makeLeafletIcon(cat, obj.name, obj.coalition, pt0.hdg, false, obj.is_human),
+      zIndexOffset: obj.is_human ? 2000 : (cat==='player_air' ? 1000 : 0),
+    });
+
+    const tip = obj.is_human
+      ? `<b>${obj.pilot||obj.name}</b><br>${obj.name}`
+      : `${obj.name} · ${obj.coalition}`;
+    marker.bindTooltip(tip, { direction:'top', offset:[0,-8] });
+
+    if (obj.is_human) {
+      marker.on('click', () => {
+        const base = (obj.pilot||'').replace(/\s*\(\d+\)$/, '').trim();
+        const p = merged._deduped_players[base];
+        if (p) openDetail(base, p);
+      });
+    }
+
+    marker.addTo(map);
+    marker._vis = false;
+    marker.setOpacity(0);
+    objectMarkers[objId] = marker;
+
+    // ── Pilot label (permanent, always visible while unit is active) ──
+    if (obj.is_human) {
+      const labelIcon = L.divIcon({
+        html: `<div class="pilot-label-inner"><span class="pilot-label-name" id="lbl-${objId}">
+          ${obj.pilot||obj.name}</span></div>`,
+        className: 'pilot-label',
+        iconSize: [120, 24],
+        iconAnchor: [-14, 28],   // offset below+right of unit icon
+      });
+      const lblMarker = L.marker([pt0.lat, pt0.lon], { icon:labelIcon, zIndexOffset:3000, interactive:false });
+      lblMarker.addTo(map);
+      lblMarker._vis = false;
+      lblMarker.setOpacity(0);
+      pilotLabels[objId] = lblMarker;
+    }
+
+    const isBlue = obj.coalition === 'Friendlies';
+    const polyline = L.polyline([], {
+      color: isBlue ? '#2a6ab0' : '#a03030',
+      weight: obj.is_human ? 1.5 : 1,
+      opacity: 0.45,
+      smoothFactor: 1,
+    }).addTo(map);
+    objectTrails[objId] = polyline;
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+//  BASE / OBJECTIVE OVERLAY
+// ══════════════════════════════════════════════════════════════════════════
+async function initBases(merged) {
+  let bases = [];
+
+  // Try SDCS API first
+  if (SDCS_API) {
+    try {
+      const resp = await fetch(SDCS_API);
+      const apiData = await resp.json();
+      // Normalise — adapt this to your actual API shape
+      bases = apiData.map(b => ({
+        name:      b.name || b.title || b.id,
+        lat:       parseFloat(b.lat || b.latitude),
+        lon:       parseFloat(b.lon || b.longitude),
+        coalition: b.coalition || b.side || 'Neutral',
+        type:      b.type || 'base',
+      }));
+    } catch(e) {
+      console.warn('SDCS API unavailable, falling back to ACMI data:', e.message);
+    }
+  }
+
+  // Fallback: use statics from ACMI (session-start ownership)
+  if (!bases.length) {
+    // Deduplicate by name, keep only named objectives (codes like MA89: Giessen)
+    const seen = new Set();
+    for (const st of merged.statics) {
+      if (!st.name || seen.has(st.name)) continue;
+      // Filter to just the "primary" entry per base (skip duplicates that are just radar pairs)
+      const parts = st.name.split(':');
+      if (parts.length < 2) continue; // skip unnamed
+      seen.add(st.name);
+      bases.push({
+        name:      st.name.split(':').slice(1).join(':').trim(),
+        code:      st.name.split(':')[0].trim(),
+        lat:       st.lat,
+        lon:       st.lon,
+        coalition: st.coalition,
+        color:     st.color,
+        type:      st.name.toLowerCase().includes(' ab') ? 'airbase' : 'objective',
+      });
+    }
+  }
+
+  // Draw base markers
+  for (const base of bases) {
+    drawBaseMarker(base);
+  }
+
+  document.getElementById('base-legend').style.display = filters.bases ? 'block' : 'none';
+}
+
+function drawBaseMarker(base) {
+  if (!base.lat || !base.lon) return;
+  const isBlue    = base.coalition === 'Friendlies' || base.coalition === 'Blue';
+  const isRed     = base.coalition === 'Hostiles'   || base.coalition === 'Red';
+  const isAirbase = base.type === 'airbase';
+
+  const color  = isBlue ? '#58a6ff' : isRed ? '#f85149' : '#888888';
+  const size   = isAirbase ? 14 : 10;
+  const shape  = isAirbase
+    ? `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 14 14">
+        <rect x="1" y="1" width="12" height="12" rx="2" fill="${color}" opacity="0.85"/>
+        <line x1="7" y1="1" x2="7" y2="13" stroke="#000" stroke-width="1" opacity="0.4"/>
+        <line x1="1" y1="7" x2="13" y2="7" stroke="#000" stroke-width="1" opacity="0.4"/>
+       </svg>`
+    : `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 10 10">
+        <polygon points="5,0 10,5 5,10 0,5" fill="${color}" opacity="0.8"/>
+       </svg>`;
+
+  const icon = L.divIcon({ html:shape, className:'', iconSize:[size,size], iconAnchor:[size/2,size/2] });
+  const marker = L.marker([base.lat, base.lon], { icon, zIndexOffset:-500 });
+
+  const tip = `<b>${base.name}</b>${base.code ? ` <span style="color:var(--dim)">[${base.code}]</span>` : ''}<br>${isBlue?'🔵 Blue':'🔴 Red'} · ${base.type}`;
+  marker.bindTooltip(tip, { direction:'top', offset:[0,-5] });
+
+  if (filters.bases) marker.addTo(map);
+  baseMarkers[base.name] = marker;
+
+  // ── 10nm territory circle (10nm = 18520m) ──
+  const circleColor = isBlue ? '#58a6ff' : isRed ? '#f85149' : '#888888';
+  const circle = L.circle([base.lat, base.lon], {
+    radius: 18520,           // 10 nautical miles in metres
+    color:       circleColor,
+    weight:      2,
+    opacity:     0.55,       // darker border line
+    fillColor:   circleColor,
+    fillOpacity: 0.06,       // very low opacity fill
+    interactive: false,
+    pane:        'shadowPane',
+  });
+  if (filters.bases) circle.addTo(map);
+  baseCircles[base.name] = circle;
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+//  PLAYER SIDEBAR
+// ══════════════════════════════════════════════════════════════════════════
+function buildPlayerList(merged) {
+  const container = document.getElementById('players-list');
+  container.innerHTML = '';
+
+  for (const [callsign, p] of Object.entries(merged._deduped_players)) {
+    // Filter out pure-weapon "pilots" and radar tracks
+    const realFlights = p.flights.filter(f => f.aircraft && !isWeaponName(f.aircraft));
+    if (!realFlights.length) continue;
+
+    const isBlue = p.coalition === 'Friendlies';
+    const card = document.createElement('div');
+    card.className = 'player-card';
+    card.dataset.cs = callsign;
+    card.innerHTML = `
+      <div class="pc-header">
+        <span class="pc-callsign">${callsign}</span>
+        <span class="pc-tag ${isBlue?'tag-blue':'tag-red'}">${isBlue?'BLUE':'RED'}</span>
+      </div>
+      <div class="pc-stats">
+        <span>✈ ${realFlights.length} flight${realFlights.length!==1?'s':''}</span>
+        <span>💥 ${p.kills.length} kill${p.kills.length!==1?'s':''}</span>
+        <span>☠ ${p.deaths} death${p.deaths!==1?'s':''}</span>
+      </div>`;
+    card.addEventListener('click', () => openDetail(callsign, p));
+    container.appendChild(card);
+  }
+}
+
+function isWeaponName(n) {
+  if (!n) return false;
+  const u = n.toUpperCase();
+  return ['AGM','AIM','MIM','AAM','SAM','HARM','MAVERICK','HELLFIRE','HYDRA','ZUNI','MK-','GBU-','JDAM'].some(w=>u.includes(w));
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+//  DETAIL PANEL
+// ══════════════════════════════════════════════════════════════════════════
+function openDetail(callsign, player) {
+  selectedPlayer = callsign;
+  document.querySelectorAll('.player-card').forEach(c => c.classList.toggle('active', c.dataset.cs===callsign));
+
+  document.getElementById('dp-callsign').textContent = callsign;
+  const isBlue = player.coalition === 'Friendlies';
+  document.getElementById('dp-sub').textContent =
+    `${isBlue?'🔵 BLUE':'🔴 RED'} · ${player.flights.filter(f=>!isWeaponName(f.aircraft)).length} flights · ${player.kills.length} kills · ${player.deaths} deaths`;
+
+  // Flights
+  const flightsEl = document.getElementById('dp-flights');
+  flightsEl.innerHTML = '';
+  const realFlights = player.flights.filter(f => !isWeaponName(f.aircraft));
+  if (!realFlights.length) {
+    flightsEl.innerHTML = '<div style="color:var(--dim);font-size:11px">No tracked flights</div>';
+  } else {
+    for (const fl of realFlights) {
+      const d = document.createElement('div');
+      d.className = 'flight-row';
+      d.innerHTML = `<b>${fl.aircraft}</b><span>${fl.duration_min}min · ${fmtTime(fl.start_t)}</span>`;
+      d.addEventListener('click', () => { seekTo(fl.start_t); focusObj(fl.obj_id); });
+      flightsEl.appendChild(d);
+    }
+  }
+
+  // Kills
+  const killsEl = document.getElementById('dp-kills');
+  killsEl.innerHTML = '';
+  if (!player.kills.length) {
+    killsEl.innerHTML = '<div style="color:var(--dim);font-size:11px">No kills this campaign</div>';
+  } else {
+    for (const k of player.kills) {
+      const d = document.createElement('div');
+      d.className = 'kill-row';
+      d.innerHTML = `<b>${k.victim||'?'}</b><span>${k.weapon||'?'} · ${fmtTime(k.t)}</span>`;
+      if (k.lat && k.lon) {
+        d.style.cursor = 'pointer';
+        d.addEventListener('click', () => { seekTo(k.t); map.setView([k.lat,k.lon],12); });
+      }
+      killsEl.appendChild(d);
+    }
+  }
+
+  document.getElementById('detail-panel').style.display = 'block';
+  updateTrailHighlight();
+}
+
+document.getElementById('close-dp').addEventListener('click', () => {
+  document.getElementById('detail-panel').style.display = 'none';
+  selectedPlayer = null;
+  document.querySelectorAll('.player-card').forEach(c => c.classList.remove('active'));
+  updateTrailHighlight();
+});
+
+function updateTrailHighlight() {
+  // Fetch merged data lazily
+  const merged = SESSIONS.length ? mergeSessions(SESSIONS) : null;
+  if (!merged) return;
+
+  for (const [objId, poly] of Object.entries(objectTrails)) {
+    const obj = merged.objects[objId];
+    if (!obj) continue;
+    const base = (obj.pilot||'').replace(/\s*\(\d+\)$/, '').trim();
+    const isSelected = base === selectedPlayer;
+    const isBlue = obj.coalition === 'Friendlies';
+    if (isSelected) {
+      poly.setStyle({ color:'#ffffff', weight:2, opacity:0.9 });
+      poly.bringToFront();
+    } else {
+      poly.setStyle({ color: isBlue?'#2a6ab0':'#a03030', weight: obj.is_human?1.5:1, opacity:0.45 });
+    }
+  }
+}
+
+function focusObj(objId) {
+  const allTracks = SESSIONS.reduce((acc, s) => Object.assign(acc, s.tracks), {});
+  const track = allTracks[objId];
+  if (!track) return;
+  const pt = track.reduce((b,p) => Math.abs(p.t-currentTime)<Math.abs(b.t-currentTime)?p:b);
+  map.setView([pt.lat, pt.lon], 11);
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+//  TIMELINE DRAWING
+// ══════════════════════════════════════════════════════════════════════════
+function drawTimeline() {
+  const wrap = document.getElementById('scrubber-wrap');
+  const W = wrap.offsetWidth;
+
+  // Session colour bands
+  const sessionDiv = document.getElementById('timeline-sessions');
+  sessionDiv.innerHTML = '';
+  const BAND_COLORS = ['#1f3a5c','#2a1f3f','#1f3a2f','#3a2a1f'];
+  SESSIONS.forEach((s, i) => {
+    const x    = (s._offset / campaignDuration) * 100;
+    const w    = (s._duration / campaignDuration) * 100;
+    const band = document.createElement('div');
+    band.style.cssText = `position:absolute;left:${x}%;width:${w}%;height:100%;background:${BAND_COLORS[i%BAND_COLORS.length]};`;
+    sessionDiv.appendChild(band);
+
+    // Session label on timeline
+    const lbl = document.createElement('div');
+    lbl.className = 'session-label';
+    lbl.style.left = `${x + w/2}%`;
+    lbl.textContent = s._label;
+    sessionDiv.appendChild(lbl);
+  });
+
+  // Kill event pips
+  const evDiv = document.getElementById('timeline-events');
+  evDiv.innerHTML = '';
+  const allEvents = SESSIONS.flatMap(s => s.events);
+  for (const ev of allEvents) {
+    if (ev.type !== 'kill' && ev.type !== 'crashed') continue;
+    const pip = document.createElement('div');
+    pip.className = 't-pip';
+    pip.style.left = `${(ev.t / campaignDuration)*100}%`;
+    const isPlayer = ev.victim_category === 'player_air';
+    pip.style.background = isPlayer ? '#f85149' : '#d29922';
+    pip.title = isPlayer
+      ? `${ev.victim_pilot} killed by ${ev.killer||'?'} · ${fmtTime(ev.t)}`
+      : `${ev.victim_name} destroyed · ${fmtTime(ev.t)}`;
+    pip.addEventListener('click', () => seekTo(ev.t));
+    evDiv.appendChild(pip);
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+//  MAIN DISPLAY UPDATE
+// ══════════════════════════════════════════════════════════════════════════
+const TRAIL_SECS = 300;
+
+// Determine which session we're currently in
+function currentSession() {
+  for (let i = SESSIONS.length-1; i >= 0; i--) {
+    if (currentTime >= SESSIONS[i]._offset) return SESSIONS[i];
+  }
+  return SESSIONS[0];
+}
+
+function updateDisplay() {
+  const t = currentTime;
+
+  // Wall clock: compute from session reference time
+  let wallStr = fmtTime(t);
+  if (SESSIONS.length) {
+    const sess = currentSession();
+    if (sess && sess.meta && sess.meta.reference_time) {
+      const refMs = new Date(sess.meta.reference_time).getTime();
+      const wallMs = refMs + (t - sess._offset) * 1000;
+      const d = new Date(wallMs);
+      wallStr = d.toUTCString().slice(5,22) + ' Z';
+    }
+  }
+  document.getElementById('wallclock').textContent = wallStr;
+  document.getElementById('time-label').textContent = `${fmtTime(t)} / ${fmtDuration(campaignDuration)}`;
+  document.getElementById('scrubber').value = t;
+
+  // Merged tracks
+  for (const s of SESSIONS) {
+    for (const [objId, track] of Object.entries(s.tracks)) {
+      updateUnit(objId, track, t);
+    }
+  }
+
+  updateKillMarkers(t);
+  if (filters.flot) updateFLOT(t);
+}
+
+function updateUnit(objId, track, t) {
+  const allObjects = SESSIONS.reduce((acc,s)=>Object.assign(acc,s.objects),{});
+  const obj  = allObjects[objId];
+  if (!obj) return;
+  const cat  = obj.category;
+  const mrk  = objectMarkers[objId];
+  const poly = objectTrails[objId];
+  const lbl  = pilotLabels[objId];
+  if (!mrk) return;
+
+  if (!shouldShow(cat, obj)) {
+    if (mrk._vis) { mrk.setOpacity(0); mrk._vis=false; }
+    if (lbl && lbl._vis) { lbl.setOpacity(0); lbl._vis=false; }
+    if (poly) poly.setLatLngs([]);
+    return;
+  }
+
+  const first = track[0].t, last = track[track.length-1].t;
+  const isActive = t >= first && t <= last + 30;
+
+  if (!isActive) {
+    if (mrk._vis) { mrk.setOpacity(0); mrk._vis=false; }
+    if (lbl && lbl._vis) { lbl.setOpacity(0); lbl._vis=false; }
+    if (poly && filters.trails) poly.setLatLngs([]);
+    return;
+  }
+
+  // Advance index
+  let idx = trackIndex[objId] || 0;
+  if (track[idx] && track[idx].t > t) idx = 0;
+  while (idx < track.length-1 && track[idx+1].t <= t) idx++;
+  trackIndex[objId] = idx;
+
+  const pt = track[idx];
+  mrk.setLatLng([pt.lat, pt.lon]);
+
+  const base = (obj.pilot||'').replace(/\s*\(\d+\)$/, '').trim();
+  const isSel = base === selectedPlayer;
+  mrk.setIcon(makeLeafletIcon(cat, obj.name, obj.coalition, pt.hdg, isSel, obj.is_human));
+  if (!mrk._vis) { mrk.setOpacity(1); mrk._vis=true; }
+
+  // ── Pilot label update ──
+  if (lbl) {
+    lbl.setLatLng([pt.lat, pt.lon]);
+    if (!lbl._vis) { lbl.setOpacity(1); lbl._vis=true; }
+
+    const isFlying = cat === 'player_air' || cat === 'ai_air';
+    const nameEl   = document.getElementById(`lbl-${objId}`);
+    if (nameEl) {
+      nameEl.className = `pilot-label-name${isFlying ? ' active-flight' : ''}`;
+
+      // Build telemetry line for aircraft
+      if (isFlying && pt.alt != null) {
+        const altFt    = Math.round(pt.alt * 3.28084);   // m → ft
+        const altK     = (altFt / 1000).toFixed(1);      // thousands of feet
+        // Speed: ACMI doesn't give speed directly; estimate from position delta
+        let machStr = '';
+        if (idx > 0) {
+          const prev = track[idx-1];
+          const dtSec = pt.t - prev.t;
+          if (dtSec > 0 && dtSec < 30) {
+            const dLat = (pt.lat - prev.lat) * 111320;
+            const dLon = (pt.lon - prev.lon) * 111320 * Math.cos(pt.lat * Math.PI/180);
+            const mps  = Math.sqrt(dLat*dLat + dLon*dLon) / dtSec;
+            const mach = mps / 340;
+            if (mach > 0.01) machStr = ` M${mach.toFixed(2)}`;
+          }
+        }
+
+        // Find or create telemetry child
+        let telemEl = lbl.getElement()?.querySelector('.pilot-label-telemetry');
+        if (!telemEl) {
+          telemEl = document.createElement('span');
+          telemEl.className = 'pilot-label-telemetry';
+          nameEl.parentNode.appendChild(telemEl);
+        }
+        telemEl.textContent = `${altK}k ft${machStr}`;
+      } else {
+        const telemEl = lbl.getElement()?.querySelector('.pilot-label-telemetry');
+        if (telemEl) telemEl.textContent = '';
+      }
+    }
+  }
+
+  if (filters.trails) {
+    const pts = track.filter(p=>p.t>=t-TRAIL_SECS&&p.t<=t).map(p=>[p.lat,p.lon]);
+    poly.setLatLngs(pts);
+  } else {
+    poly.setLatLngs([]);
+  }
+}
+
+function shouldShow(cat, obj) {
+  if (cat==='player_air') return filters.playerAir;
+  if (cat==='ai_air')     return filters.aiAir;
+  if (cat==='ground')     return filters.ground;
+  return false;
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+//  EXPLOSION ANIMATION
+// ══════════════════════════════════════════════════════════════════════════
+function spawnExplosion(lat, lon, isPlayer) {
+  const size   = isPlayer ? 60 : 36;
+  const dur    = isPlayer ? 1800 : 1200;
+  const fc     = isPlayer ? '#ff4422' : '#ffaa22';
+  const ring   = isPlayer ? '#ff8844' : '#ffcc44';
+  const smoke  = isPlayer ? '#886655' : '#998866';
+  const half   = size / 2;
+
+  // Build SVG cartoon explosion
+  const html = `
+  <div style="position:relative;width:${size}px;height:${size}px;pointer-events:none;">
+    <!-- Smoke/shockwave ring -->
+    <div style="position:absolute;left:50%;top:50%;
+      width:${size*0.9}px;height:${size*0.9}px;border-radius:50%;
+      border:${isPlayer?4:3}px solid ${smoke};
+      animation:exp-ring2 ${dur}ms ease-out forwards;">
+    </div>
+    <!-- Main fireball ring -->
+    <div style="position:absolute;left:50%;top:50%;
+      width:${size*0.75}px;height:${size*0.75}px;border-radius:50%;
+      border:${isPlayer?5:3}px solid ${ring};
+      background:radial-gradient(circle,${fc}cc 0%,${fc}55 50%,transparent 75%);
+      animation:exp-ring1 ${dur*0.8}ms ease-out forwards;">
+    </div>
+    <!-- Hot core -->
+    <div style="position:absolute;left:50%;top:50%;
+      width:${size*0.4}px;height:${size*0.4}px;border-radius:50%;
+      background:radial-gradient(circle,#ffffcc 0%,#ffdd44 40%,${fc} 80%);
+      animation:exp-core ${dur*0.7}ms ease-out forwards;
+      box-shadow:0 0 ${isPlayer?18:10}px #ffaa33;">
+    </div>
+    <!-- Spark lines -->
+    <svg style="position:absolute;left:50%;top:50%;
+      width:${size}px;height:${size}px;overflow:visible;
+      animation:exp-sparks ${dur*0.9}ms ease-out forwards;"
+      viewBox="-${half} -${half} ${size} ${size}">
+      ${[0,45,90,135,180,225,270,315].map(a => {
+        const r = half*0.55, r2 = half*0.85;
+        const x1 = Math.cos(a*Math.PI/180)*r, y1 = Math.sin(a*Math.PI/180)*r;
+        const x2 = Math.cos(a*Math.PI/180)*r2, y2 = Math.sin(a*Math.PI/180)*r2;
+        return `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}"
+          stroke="${ring}" stroke-width="${isPlayer?2.5:1.5}" stroke-linecap="round"/>`;
+      }).join('')}
+    </svg>
+  </div>`;
+
+  const icon = L.divIcon({
+    html,
+    className: 'explosion-marker',
+    iconSize:   [size, size],
+    iconAnchor: [half, half],
+  });
+  const m = L.marker([lat, lon], { icon, zIndexOffset:5000, interactive:false }).addTo(map);
+  killLayers.push(m);
+  setTimeout(() => map.removeLayer(m), dur + 100);
+}
+
+function updateKillMarkers(t) {
+  if (!filters.kills) return;
+  const allEvents = SESSIONS.flatMap(s => s.events);
+  for (const ev of allEvents) {
+    if (ev.type!=='kill' && ev.type!=='crashed') continue;
+    if (!ev.lat || !ev.lon) continue;
+    const age = t - ev.t;
+    if (age < 0 || age > 25) continue;
+
+    const key = `${ev.t}_${ev.victim_id}`;
+    if (shownKills.has(key)) continue;
+    shownKills.add(key);
+
+    const isPlayer = ev.victim_category==='player_air' && ev.victim_pilot;
+
+    // Spawn cartoon explosion
+    spawnExplosion(ev.lat, ev.lon, isPlayer);
+
+    // Also add a persistent small marker with tooltip that fades after 20s
+    const color = isPlayer ? '#f85149' : '#d29922';
+    const dot = L.circleMarker([ev.lat, ev.lon], {
+      radius:3, color, fillColor:color, fillOpacity:0.8, weight:1, interactive:true,
+    }).addTo(map);
+    const tip = isPlayer
+      ? `💥 <b>${ev.victim_pilot}</b> (${ev.victim_name})<br>Killed by ${ev.killer||'?'} · ${ev.weapon||'?'}`
+      : `💥 ${ev.victim_name} destroyed`;
+    dot.bindTooltip(tip, { sticky:true });
+    killLayers.push(dot);
+
+    const fadeMs = Math.max(5000, 25000 / Math.max(playSpeed,1));
+    setTimeout(() => { try { map.removeLayer(dot); } catch(e){} shownKills.delete(key); }, fadeMs);
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+//  FLOT — Forward Line of Troops
+//  Computes a convex-hull-based front line from active ground unit positions.
+//  Recomputed every FLOT_INTERVAL seconds of game time.
+// ══════════════════════════════════════════════════════════════════════════
+const FLOT_INTERVAL  = 30;   // recompute every 30 game-seconds
+let   flotLastT      = -9999;
+
+function updateFLOT(t) {
+  if (!filters.flot) return;
+  if (Math.abs(t - flotLastT) < FLOT_INTERVAL) return;
+  flotLastT = t;
+
+  if (!_mergedRef) return;
+
+  // Collect current positions of ground units by coalition
+  const bluePts = [], redPts = [];
+
+  for (const s of SESSIONS) {
+    for (const [objId, track] of Object.entries(s.tracks)) {
+      const obj = _mergedRef.objects[objId];
+      if (!obj || obj.category !== 'ground') continue;
+      if (track[0].t > t || track[track.length-1].t < t - 60) continue;
+
+      // Find current position
+      let idx = trackIndex[objId] || 0;
+      if (idx >= track.length) idx = track.length - 1;
+      const pt = track[idx];
+      if (!pt) continue;
+
+      if (obj.coalition === 'Friendlies') bluePts.push([pt.lat, pt.lon]);
+      else if (obj.coalition === 'Hostiles') redPts.push([pt.lat, pt.lon]);
+    }
+  }
+
+  if (bluePts.length < 3 || redPts.length < 3) return;
+
+  // Compute convex hull for each side
+  const blueHull = convexHull(bluePts);
+  const redHull  = convexHull(redPts);
+
+  if (!blueHull.length || !redHull.length) return;
+
+  // Remove old layers
+  if (flotBlueLayer) { try{map.removeLayer(flotBlueLayer);}catch(e){} flotBlueLayer=null; }
+  if (flotBlueLine)  { try{map.removeLayer(flotBlueLine); }catch(e){} flotBlueLine=null;  }
+  if (flotRedLayer)  { try{map.removeLayer(flotRedLayer); }catch(e){} flotRedLayer=null;  }
+  if (flotRedLine)   { try{map.removeLayer(flotRedLine);  }catch(e){} flotRedLine=null;   }
+
+  // Draw filled hull polygons (very low opacity)
+  flotBlueLayer = L.polygon(blueHull, {
+    color:'#1a4a8a', weight:0, fillColor:'#3399ff', fillOpacity:0.10,
+    interactive:false, pane:'shadowPane',
+  }).addTo(map);
+
+  flotRedLayer = L.polygon(redHull, {
+    color:'#8a1a1a', weight:0, fillColor:'#ff4433', fillOpacity:0.10,
+    interactive:false, pane:'shadowPane',
+  }).addTo(map);
+
+  // Draw the frontier edge line — find the hull edge segments closest to the opposing force
+  const blueFront = frontierEdge(blueHull, redPts);
+  const redFront  = frontierEdge(redHull,  bluePts);
+
+  if (blueFront.length >= 2) {
+    flotBlueLine = L.polyline(blueFront, {
+      color:'#4488ff', weight:3, opacity:0.75,
+      interactive:false, dashArray: null,
+    }).addTo(map);
+  }
+  if (redFront.length >= 2) {
+    flotRedLine = L.polyline(redFront, {
+      color:'#ff4433', weight:3, opacity:0.75,
+      interactive:false, dashArray: null,
+    }).addTo(map);
+  }
+}
+
+// Convex hull (Andrew's monotone chain)
+function convexHull(points) {
+  if (points.length < 3) return points;
+  const pts = points.slice().sort((a,b) => a[1]!==b[1] ? a[1]-b[1] : a[0]-b[0]);
+  const cross = (o,a,b) => (a[1]-o[1])*(b[0]-o[0]) - (a[0]-o[0])*(b[1]-o[1]);
+  const lower=[], upper=[];
+  for (const p of pts) {
+    while (lower.length>=2 && cross(lower[lower.length-2],lower[lower.length-1],p)<=0) lower.pop();
+    lower.push(p);
+  }
+  for (let i=pts.length-1;i>=0;i--) {
+    const p=pts[i];
+    while (upper.length>=2 && cross(upper[upper.length-2],upper[upper.length-1],p)<=0) upper.pop();
+    upper.push(p);
+  }
+  upper.pop(); lower.pop();
+  return lower.concat(upper);
+}
+
+// Find hull vertices that form the "frontier" edge facing the enemy centroid
+function frontierEdge(hull, enemyPts) {
+  if (!hull.length || !enemyPts.length) return [];
+
+  // Enemy centroid
+  const ec = enemyPts.reduce((a,p)=>[a[0]+p[0],a[1]+p[1]],[0,0]);
+  const eCentroid = [ec[0]/enemyPts.length, ec[1]/enemyPts.length];
+
+  // Own centroid
+  const oc = hull.reduce((a,p)=>[a[0]+p[0],a[1]+p[1]],[0,0]);
+  const oCentroid = [oc[0]/hull.length, oc[1]/hull.length];
+
+  // Direction from own centroid toward enemy
+  const dx = eCentroid[1] - oCentroid[1];
+  const dy = eCentroid[0] - oCentroid[0];
+
+  // Select hull vertices in the half facing the enemy (dot product > 0)
+  const front = hull.filter(p => {
+    const px = p[1] - oCentroid[1];
+    const py = p[0] - oCentroid[0];
+    return (px*dx + py*dy) > 0;
+  });
+
+  if (front.length < 2) return hull; // fallback: full hull
+
+  // Sort front points by angle around centroid
+  front.sort((a,b) => {
+    const aA = Math.atan2(a[0]-oCentroid[0], a[1]-oCentroid[1]);
+    const bA = Math.atan2(b[0]-oCentroid[0], b[1]-oCentroid[1]);
+    return aA - bA;
+  });
+
+  return front;
+}
+
+function clearFLOT() {
+  if (flotBlueLayer) { try{map.removeLayer(flotBlueLayer);}catch(e){} flotBlueLayer=null; }
+  if (flotBlueLine)  { try{map.removeLayer(flotBlueLine); }catch(e){} flotBlueLine=null;  }
+  if (flotRedLayer)  { try{map.removeLayer(flotRedLayer); }catch(e){} flotRedLayer=null;  }
+  if (flotRedLine)   { try{map.removeLayer(flotRedLine);  }catch(e){} flotRedLine=null;   }
+  flotLastT = -9999;
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+//  PLAYBACK
+// ══════════════════════════════════════════════════════════════════════════
+function tick(raf) {
+  if (!playing) return;
+  if (lastRafTime !== null) {
+    const dt = (raf - lastRafTime) / 1000;
+    currentTime = Math.min(currentTime + dt * playSpeed, campaignDuration);
+    if (currentTime >= campaignDuration) { currentTime=campaignDuration; playing=false; updatePlayBtn(); }
+    updateDisplay();
+  }
+  lastRafTime = raf;
+  if (playing) animFrame = requestAnimationFrame(tick);
+}
+
+function startPlay() {
+  if (currentTime >= campaignDuration) currentTime=0;
+  playing=true; lastRafTime=null; updatePlayBtn();
+  animFrame = requestAnimationFrame(tick);
+}
+function pausePlay() {
+  playing=false; lastRafTime=null; updatePlayBtn();
+  if (animFrame) cancelAnimationFrame(animFrame);
+}
+function updatePlayBtn() {
+  document.getElementById('btn-play').classList.toggle('active', playing);
+}
+function seekTo(t) {
+  currentTime = Math.max(0, Math.min(t, campaignDuration));
+  updateDisplay();
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+//  CONTROLS
+// ══════════════════════════════════════════════════════════════════════════
+document.getElementById('btn-play') .addEventListener('click', ()=>{ if(!playing) startPlay(); });
+document.getElementById('btn-pause').addEventListener('click', pausePlay);
+document.getElementById('btn-prev') .addEventListener('click', ()=>{ pausePlay(); seekTo(0); });
+document.getElementById('btn-next') .addEventListener('click', ()=>{ pausePlay(); seekTo(campaignDuration); });
+
+document.getElementById('speed-btn').addEventListener('click', () => {
+  speedIdx = (speedIdx+1) % SPEEDS.length;
+  playSpeed = SPEEDS[speedIdx];
+  document.getElementById('speed-btn').textContent = playSpeed+'×';
+});
+
+document.getElementById('scrubber').addEventListener('input', e => {
+  pausePlay(); seekTo(parseFloat(e.target.value));
+});
+
+document.getElementById('f-player').addEventListener('change', e=>{ filters.playerAir=e.target.checked; updateDisplay(); });
+document.getElementById('f-ai')    .addEventListener('change', e=>{ filters.aiAir=e.target.checked;     updateDisplay(); });
+document.getElementById('f-ground').addEventListener('change', e=>{ filters.ground=e.target.checked;    updateDisplay(); });
+document.getElementById('f-trails').addEventListener('change', e=>{ filters.trails=e.target.checked;    updateDisplay(); });
+document.getElementById('f-kills') .addEventListener('change', e=>{ filters.kills=e.target.checked; });
+document.getElementById('f-bases') .addEventListener('change', e=>{
+  filters.bases = e.target.checked;
+  for (const m of Object.values(baseMarkers)) {
+    if (filters.bases) m.addTo(map); else map.removeLayer(m);
+  }
+  for (const c of Object.values(baseCircles)) {
+    if (filters.bases) c.addTo(map); else map.removeLayer(c);
+  }
+  document.getElementById('base-legend').style.display = filters.bases ? 'block':'none';
+});
+
+document.getElementById('f-flot').addEventListener('change', e=>{
+  filters.flot = e.target.checked;
+  if (!filters.flot) clearFLOT();
+  else { flotLastT=-9999; updateFLOT(currentTime); }
+});
+
+document.addEventListener('keydown', e => {
+  if (e.target.tagName==='SELECT') return;
+  if (e.code==='Space')       { e.preventDefault(); playing ? pausePlay() : startPlay(); }
+  if (e.code==='ArrowRight')  seekTo(currentTime + 60);
+  if (e.code==='ArrowLeft')   seekTo(currentTime - 60);
+  if (e.code==='ArrowUp')     seekTo(currentTime + 300);
+  if (e.code==='ArrowDown')   seekTo(currentTime - 300);
+});
+
+// ══════════════════════════════════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════════════════════════════════
+function fmtTime(s) {
+  const h=Math.floor(s/3600), m=Math.floor((s%3600)/60), sec=Math.floor(s%60);
+  return `${h}:${pad(m)}:${pad(sec)}`;
+}
+function fmtDuration(s) {
+  const h=Math.floor(s/3600), m=Math.floor((s%3600)/60);
+  return h ? `${h}h ${pad(m)}m` : `${m}m`;
+}
+function pad(n) { return String(n).padStart(2,'0'); }
+function setLoading(msg) { document.getElementById('loading-msg').textContent = msg; }
+
+// ══════════════════════════════════════════════════════════════════════════
+//  BOOT
+// ══════════════════════════════════════════════════════════════════════════
+populateCampaignSelector();
+loadCampaign(Object.keys(CAMPAIGNS)[0]).catch(err => {
+  setLoading('Error: ' + err.message);
+  console.error(err);
+});
+</script>
+</body>
+</html>

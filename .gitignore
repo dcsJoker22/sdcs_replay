@@ -1,0 +1,6 @@
+raw/
+public/data/
+*.acmi
+*.zip.acmi
+__pycache__/
+*.pyc

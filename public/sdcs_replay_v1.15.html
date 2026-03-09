@@ -1,0 +1,2286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Strategic DCS — Campaign Replay v1.15</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d1117;--panel:#161b22;--panel2:#1c2128;--border:#30363d;
+  --text:#c9d1d9;--dim:#8b949e;--blue:#58a6ff;--red:#f85149;
+  --green:#3fb950;--yellow:#d29922;--accent:#1f6feb;--r:6px;
+}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;
+  font-size:13px;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+
+#topbar{background:var(--panel);border-bottom:1px solid var(--border);
+  padding:0 14px;display:flex;align-items:center;gap:10px;height:44px;flex-shrink:0;z-index:1000}
+#topbar h1{font-size:13px;font-weight:700;color:var(--blue);letter-spacing:.5px;white-space:nowrap}
+#campaign-selector,#session-selector{background:var(--panel2);border:1px solid var(--border);
+  color:var(--text);padding:3px 7px;border-radius:var(--r);font-size:12px;cursor:pointer}
+#campaign-selector{max-width:220px}
+#session-selector{max-width:260px}
+#session-badge{background:var(--panel2);border:1px solid var(--border);padding:2px 7px;
+  border-radius:var(--r);font-size:11px;color:var(--dim);white-space:nowrap}
+.sel-label{font-size:10px;color:var(--dim);white-space:nowrap}
+#wallclock{font-size:13px;font-weight:700;color:#fff;font-variant-numeric:tabular-nums;
+  margin-left:auto;white-space:nowrap}
+
+#main{display:flex;flex:1;overflow:hidden}
+#map{flex:1;background:#111;position:relative}
+
+/* SIDEBAR — split into players (scroll) + kill feed (scroll) */
+#sidebar{width:268px;background:var(--panel);border-left:1px solid var(--border);
+  display:flex;flex-direction:column;overflow:hidden;flex-shrink:0}
+.sb-sec{border-bottom:1px solid var(--border);padding:9px 11px;flex-shrink:0}
+.sb-sec h3{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--dim);margin-bottom:7px}
+.frow{display:flex;align-items:center;gap:7px;margin-bottom:3px;cursor:pointer;user-select:none;font-size:14px}
+.frow input[type=checkbox]{accent-color:var(--blue);width:12px;height:12px}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* Players section — fixed height, scrollable */
+#players-section{flex:0 0 auto;display:flex;flex-direction:column;min-height:0;max-height:45%;border-bottom:1px solid var(--border)}
+#players-header{padding:7px 11px 5px;flex-shrink:0;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--dim)}
+#players-list{overflow-y:auto;padding:5px 9px 9px}
+.pcard{background:var(--bg);border:1px solid var(--border);border-radius:var(--r);
+  padding:8px 9px;margin-bottom:5px;cursor:pointer;transition:border-color .15s,background .15s}
+.pcard:hover{background:var(--panel2)}
+.pcard.active{border-color:var(--blue);background:rgba(88,166,255,.05)}
+.pc-hd{display:flex;align-items:center;gap:5px;margin-bottom:3px}
+.pc-cs{font-weight:700;font-size:13px;flex:1}
+.pc-tag{font-size:10px;padding:1px 5px;border-radius:3px;font-weight:600;flex-shrink:0}
+.tag-blue{background:rgba(88,166,255,.2);color:var(--blue)}
+.tag-red{background:rgba(248,81,73,.2);color:var(--red)}
+.pc-st{color:var(--dim);font-size:11px;display:flex;gap:7px;flex-wrap:wrap}
+
+/* Kill feed — flex:1 scrollable */
+#killfeed-section{flex:1;display:flex;flex-direction:column;min-height:0}
+#killfeed-header{padding:7px 11px 5px;flex-shrink:0;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--dim);border-bottom:1px solid var(--border)}
+#killfeed-list{flex:1;overflow-y:auto;padding:5px 9px 9px}
+.kf-row{background:var(--bg);border:1px solid var(--border);border-radius:5px;
+  padding:5px 8px;margin-bottom:4px;font-size:11px;transition:opacity 2s ease,box-shadow .3s}
+.kf-row.pvp-blue{border-color:rgba(88,166,255,.5);background:rgba(88,166,255,.07);
+  animation:pvp-flash-blue 1.4s ease-out}
+.kf-row.pvp-red{border-color:rgba(248,81,73,.5);background:rgba(248,81,73,.07);
+  animation:pvp-flash-red 1.4s ease-out}
+@keyframes pvp-flash-blue{
+  0%,20%,40%,60%{box-shadow:0 0 10px 2px rgba(88,166,255,.7)}
+  10%,30%,50%,70%{box-shadow:0 0 3px rgba(88,166,255,.1)}
+  100%{box-shadow:none}
+}
+@keyframes pvp-flash-red{
+  0%,20%,40%,60%{box-shadow:0 0 10px 2px rgba(248,81,73,.7)}
+  10%,30%,50%,70%{box-shadow:0 0 3px rgba(248,81,73,.1)}
+  100%{box-shadow:none}
+}
+.kf-killer{font-weight:700}
+.kf-ac{color:var(--dim);font-size:10px}
+.kf-victim{color:var(--text);font-style:italic}
+.kf-weapon{color:var(--dim);font-size:10px}
+.kf-time{color:var(--dim);font-size:10px;float:right}
+
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+#timeline-bar{background:var(--panel);border-top:1px solid var(--border);
+  padding:7px 13px 9px;flex-shrink:0}
+#tl-controls{display:flex;align-items:center;gap:5px;margin-bottom:6px}
+.cbtn{background:var(--border);border:none;color:var(--text);padding:3px 8px;
+  border-radius:4px;cursor:pointer;font-size:12px;transition:background .1s;flex-shrink:0}
+.cbtn:hover{background:#444c56}
+.cbtn.active{background:var(--accent);color:#fff}
+.spdbtn{font-size:11px;font-weight:700;min-width:36px;padding:3px 5px}
+#tl-time{color:var(--dim);font-size:11px;font-variant-numeric:tabular-nums;margin-left:auto;white-space:nowrap}
+#scrubber-wrap{position:relative;height:34px}
+#tl-bg{position:absolute;top:13px;left:0;right:0;height:8px;background:var(--border);border-radius:4px;pointer-events:none;z-index:1}
+#tl-sessions{position:absolute;top:13px;left:0;right:0;height:8px;border-radius:4px;pointer-events:none;z-index:2;overflow:hidden}
+#tl-events{position:absolute;top:0;left:0;right:0;height:34px;pointer-events:none;z-index:4}
+.tpip{position:absolute;width:3px;border-radius:1px;top:5px;height:22px;transform:translateX(-50%);pointer-events:all;cursor:pointer;opacity:.85}
+.sess-lbl{position:absolute;top:23px;font-size:9px;color:var(--dim);transform:translateX(-50%);white-space:nowrap;pointer-events:none}
+#scrubber{-webkit-appearance:none;appearance:none;width:100%;height:4px;background:transparent;
+  outline:none;position:absolute;top:15px;cursor:pointer;z-index:3}
+#scrubber::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;
+  background:var(--blue);border:2px solid var(--bg);box-shadow:0 0 5px rgba(88,166,255,.6);cursor:pointer}
+
+#detail-panel{display:none;position:absolute;top:54px;right:276px;width:258px;
+  background:var(--panel);border:1px solid var(--border);border-radius:8px;
+  padding:13px;z-index:2000;box-shadow:0 6px 24px rgba(0,0,0,.6)}
+#detail-panel h2{font-size:14px;font-weight:700}
+.dp-sub{color:var(--dim);font-size:11px;margin:3px 0 11px}
+.dp-sec{margin-bottom:9px}
+.dp-sec h4{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--dim);margin-bottom:4px}
+.kill-row{background:var(--bg);border-radius:4px;padding:4px 7px;margin-bottom:3px;font-size:11px}
+.kill-row b{display:block;margin-bottom:1px}
+.kill-row span{color:var(--dim)}
+.fl-row{background:var(--bg);border-radius:4px;padding:4px 7px;margin-bottom:3px;
+  font-size:11px;display:flex;justify-content:space-between;align-items:center;cursor:pointer}
+.fl-row:hover{background:var(--panel2)}
+.fl-row span{color:var(--dim)}
+#close-dp{float:right;background:none;border:none;color:var(--dim);font-size:17px;cursor:pointer;line-height:1;padding:0;margin-top:-2px}
+
+#loading{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;
+  align-items:center;justify-content:center;z-index:9999;gap:13px}
+#loading h2{color:var(--blue);font-size:18px}
+#obj-counter{position:absolute;bottom:15px;left:15px;z-index:900;pointer-events:none;
+  background:rgba(10,12,18,.82);border:1px solid rgba(255,255,255,.1);
+  border-radius:7px;padding:11px 16px;min-width:264px;backdrop-filter:blur(4px)}
+.obj-title{font-size:13px;font-weight:700;letter-spacing:.5px;margin-bottom:3px}
+.obj-title.blue{color:#58a6ff}.obj-title.red{color:#f85149}
+.obj-bar-wrap{background:rgba(255,255,255,.08);border-radius:3px;height:8px;margin-bottom:8px;overflow:hidden}
+.obj-bar{height:100%;border-radius:3px;transition:width .6s ease}
+.obj-bar.blue{background:#4499ff}.obj-bar.red{background:#ff4433}
+#loading p{color:var(--dim);font-size:12px}
+.spin{width:30px;height:30px;border:3px solid var(--border);border-top-color:var(--blue);
+  border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.leaflet-tooltip{background:var(--panel)!important;border:1px solid var(--border)!important;
+  color:var(--text)!important;font-size:11px!important;border-radius:4px!important;
+  padding:3px 7px!important;box-shadow:0 2px 8px rgba(0,0,0,.4)!important}
+
+/* PILOT LABELS — only show when airborne */
+.plabel{background:none!important;border:none!important;box-shadow:none!important;padding:0!important;pointer-events:none}
+.plabel-inner{display:inline-flex;flex-direction:column;align-items:flex-start;gap:1px;padding-left:5px}
+.plabel-name{font-family:'Segoe UI',system-ui,sans-serif;font-size:16px;font-weight:800;
+  white-space:nowrap;letter-spacing:0.2px;
+  text-shadow:0 0 4px #000,0 0 8px #000,-1px -1px 0 #000,1px 1px 0 #000,0 1px 0 #000,0 -1px 0 #000}
+.plabel-name.blue{color:#58a6ff}
+.plabel-name.red{color:#f85149}
+.plabel-telem{font-family:'Courier New',monospace;font-size:12px;font-weight:700;color:#ffffff;
+  white-space:nowrap;text-shadow:0 0 3px #000,1px 1px 0 #000}
+
+/* BASE NAME LABELS */
+.blabel{background:none!important;border:none!important;box-shadow:none!important;padding:0!important;pointer-events:none}
+.blabel-name{font-family:'Segoe UI',system-ui,sans-serif;font-size:14px;font-weight:700;
+  white-space:nowrap;letter-spacing:0.2px;
+  text-shadow:0 0 4px #000,0 0 8px #000,-1px -1px 0 #000,1px 1px 0 #000,0 1px 0 #000,0 -1px 0 #000}
+.blabel-name.blue{color:#58a6ff}
+.blabel-name.red{color:#f85149}
+.blabel-name.neutral{color:#aaaaaa}
+.glabel{background:none!important;border:none!important;box-shadow:none!important;padding:0!important;pointer-events:none}
+.glabel-name{font-family:'Segoe UI',system-ui,sans-serif;font-size:11px;font-weight:600;
+  text-shadow:0 0 3px #000,0 0 3px #000,-1px -1px 2px #000,1px 1px 2px #000;white-space:nowrap}
+.glabel-name.blue{color:#58a6ff}.glabel-name.red{color:#f85149}
+
+/* EXPLOSION */
+.expmark{background:none!important;border:none!important;box-shadow:none!important;pointer-events:none}
+@keyframes er1{0%{transform:translate(-50%,-50%) scale(.1);opacity:1}60%{opacity:.8}100%{transform:translate(-50%,-50%) scale(1);opacity:0}}
+@keyframes er2{0%{transform:translate(-50%,-50%) scale(.1);opacity:.7}100%{transform:translate(-50%,-50%) scale(1.4);opacity:0}}
+@keyframes ec{0%{transform:translate(-50%,-50%) scale(.2);opacity:1}30%{transform:translate(-50%,-50%) scale(1.1);opacity:1}100%{transform:translate(-50%,-50%) scale(.6);opacity:0}}
+@keyframes esk{0%{transform:translate(-50%,-50%) scale(0) rotate(0deg);opacity:1}100%{transform:translate(-50%,-50%) scale(1.2) rotate(15deg);opacity:0}}
+</style>
+</head>
+<body>
+<div id="loading"><div class="spin"></div><h2>Strategic DCS — Campaign Replay</h2><p id="load-msg">Initialising…</p></div>
+
+<div id="topbar">
+  <h1>🎯 SDCS REPLAY <span style="color:var(--dim);font-size:10px;font-weight:400">v1.15</span></h1>
+  <span class="sel-label">CAMPAIGN</span>
+  <select id="campaign-selector"><option>Loading…</option></select>
+  <span class="sel-label">SESSION</span>
+  <select id="session-selector" disabled><option>—</option></select>
+  <span id="session-badge">—</span>
+  <div id="wallclock">—</div>
+</div>
+
+<div id="main">
+  <div id="map">
+  <div id="obj-counter">
+    <div class="obj-title blue" id="obj-blue-title">Blue team controls — / — Objectives</div>
+    <div class="obj-bar-wrap"><div class="obj-bar blue" id="obj-blue-bar" style="width:0%"></div></div>
+    <div class="obj-title red" id="obj-red-title">Red team controls — / — Objectives</div>
+    <div class="obj-bar-wrap"><div class="obj-bar red" id="obj-red-bar" style="width:0%"></div></div>
+  </div>
+</div>
+  <div id="sidebar">
+    <div class="sb-sec">
+      <h3>Display Layers</h3>
+      <label class="frow"><input type="checkbox" id="f-player" checked><span class="dot" style="background:#58a6ff"></span>Player Aircraft</label>
+      <label class="frow"><input type="checkbox" id="f-ai"><span class="dot" style="background:#bc8cff"></span>AI Aircraft</label>
+      <label class="frow"><input type="checkbox" id="f-ground" checked><span class="dot" style="background:#3fb950"></span>Ground Vehicles</label>
+      <label class="frow" style="padding-left:18px"><input type="checkbox" id="f-ground-labels"><span class="dot" style="background:#3fb950;opacity:.6"></span>Ground Labels</label>
+      <label class="frow"><input type="checkbox" id="f-trails" checked><span class="dot" style="background:#555"></span>Trails</label>
+      <label class="frow"><input type="checkbox" id="f-kills" checked><span class="dot" style="background:#f85149"></span>Kill Events</label>
+      <label class="frow"><input type="checkbox" id="f-bases" checked><span class="dot" style="background:#d29922"></span>Bases / FARPs</label>
+      <!-- FLOT disabled — code intact, re-enable by restoring this label and uncommenting updateFLOT call
+      <label class="frow"><input type="checkbox" id="f-flot" checked><span class="dot" style="background:#aaa;border-radius:2px"></span>Front Line (FLOT)</label>
+      -->
+    </div>
+    <!-- Players section -->
+    <div id="players-section">
+      <div id="players-header">Players</div>
+      <div id="players-list"></div>
+    </div>
+    <!-- Kill Feed section -->
+    <div id="killfeed-section">
+      <div id="killfeed-header">Kill Feed</div>
+      <div id="killfeed-list"><div style="color:var(--dim);font-size:11px;padding:4px 0">No kills yet</div></div>
+    </div>
+  </div>
+</div>
+
+<div id="timeline-bar">
+  <div id="tl-controls">
+    <button class="cbtn" id="btn-prev">⏮</button>
+    <button class="cbtn" id="btn-play">▶</button>
+    <button class="cbtn" id="btn-pause">⏸</button>
+    <button class="cbtn" id="btn-next">⏭</button>
+    <button class="cbtn spdbtn" data-spd="1">1×</button>
+    <button class="cbtn spdbtn" data-spd="5">5×</button>
+    <button class="cbtn spdbtn" data-spd="10">10×</button>
+    <button class="cbtn spdbtn active" data-spd="30">30×</button>
+    <button class="cbtn spdbtn" data-spd="100">100×</button>
+    <button class="cbtn spdbtn" data-spd="300">300×</button>
+    <span id="tl-time">0:00:00 / 0:00:00</span>
+  </div>
+  <div id="scrubber-wrap">
+    <div id="tl-bg"></div>
+    <div id="tl-sessions"></div>
+    <div id="tl-events"></div>
+    <input type="range" id="scrubber" min="0" max="100" value="0" step="0.1">
+  </div>
+</div>
+
+<div id="detail-panel">
+  <button id="close-dp">×</button>
+  <h2 id="dp-cs"></h2><div class="dp-sub" id="dp-sub"></div>
+  <div class="dp-sec"><h4>Flights</h4><div id="dp-flights"></div></div>
+  <div class="dp-sec"><h4>Kill Events</h4><div id="dp-kills"></div></div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════════════
+//  CONFIG
+//  Campaigns are loaded from campaigns.json at startup (managed by watch_acmi.py).
+//  SDCS_API: set to your map API URL if you have one.
+// ════════════════════════════════════════════════════════════════════
+let CAMPAIGNS_DATA = null;   // populated by loadCampaignsJSON()
+const SDCS_API = null;
+
+// Hardcoded names for orphan Shelter3 units (unnamed bases with no CODE: static)
+// Identified by matching Shelter3 lat/lon clusters to known geography
+const CAMPAIGN_GEODATA = {
+  bases: {
+    189: [
+      {id:1, name:'AbuMusaIsland', lat:25.86804, lon:55.01224},
+      {id:2, name:'BandarAbbasIntl', lat:27.23215, lon:56.41922},
+      {id:3, name:'BandarLengeh', lat:26.52695, lon:54.81673},
+      {id:5, name:'DubaiIntl', lat:25.24761, lon:55.33977},
+      {id:7, name:'FujairahIntl', lat:25.11355, lon:56.33348},
+      {id:8, name:'TunbIslandAFB', lat:26.25527, lon:55.31302},
+      {id:10, name:'Khasab', lat:26.17658, lon:56.26049},
+      {id:11, name:'Lar', lat:27.67516, lon:54.40279},
+      {id:13, name:'QeshmIsland', lat:26.75994, lon:55.92494},
+      {id:15, name:'SirriIsland', lat:25.89939, lon:54.50473},
+      {id:16, name:'TunbKochak', lat:26.23828, lon:55.13786},
+      {id:23, name:'AlBateen', lat:24.40871, lon:54.37516},
+      {id:24, name:'KishIntl', lat:26.5212, lon:53.95226},
+      {id:25, name:'AlAinIntl', lat:24.24984, lon:55.57103},
+      {id:26, name:'LavanIsland', lat:26.80821, lon:53.32086},
+      {id:27, name:'Jiroft', lat:28.77222, lon:57.74399},
+      {id:28, name:'RasAlKhaimahIntl', lat:25.61308, lon:55.94028},
+      {id:29, name:'LiwaAFB', lat:23.62547, lon:53.68622},
+    ],
+    190: [
+      {id:12, name:'AnapaVityazevo', lat:45.0438, lon:37.4741},
+      {id:16, name:'MaykopKhanskaya', lat:44.65669, lon:40.05854},
+      {id:18, name:'SochiAdler', lat:43.43594, lon:39.91256},
+      {id:20, name:'SukhumiBabushara', lat:42.84558, lon:41.07552},
+      {id:24, name:'Kobuleti', lat:41.92048, lon:41.8034},
+      {id:25, name:'Kutaisi', lat:42.16671, lon:42.43717},
+      {id:26, name:'MineralnyeVody', lat:44.20533, lon:43.03615},
+      {id:27, name:'Nalchik', lat:43.50464, lon:43.59643},
+      {id:28, name:'Mozdok', lat:43.80073, lon:44.5562},
+      {id:31, name:'Vaziani', lat:41.65956, lon:45.05603},
+      {id:32, name:'Beslan', lat:43.21795, lon:44.57539},
+    ],
+    192: [
+      {id:165, name:'Ramstein',     lat:49.473883, lon:7.604176},
+      {id:161, name:'Haina',        lat:50.99621,  lon:10.634813},
+      {id:160, name:'Schweinfurt',  lat:50.053363, lon:10.317841},
+      {id:154, name:'Fritzlar',     lat:51.126527, lon:9.419007},
+      {id:107, name:'Braunschweig', lat:52.323761, lon:10.705356},
+      {id:101, name:'Sperenberg',   lat:52.169738, lon:13.437246},
+      {id:27,  name:'Stendal',      lat:52.637951, lon:11.948581},
+      {id:20,  name:'Laage',        lat:53.929189, lon:12.350189},
+      {id:1,   name:'Wittstock',    lat:53.218103, lon:12.612841},
+      {id:166, name:'Fulda',        lat:50.547563, lon:9.775011},
+      {id:140, name:'Hasselfelde',  lat:51.710139, lon:11.03311},
+      {id:29,  name:'Tempelhof',    lat:52.504909, lon:13.512637},
+      {id:163, name:'Frankfurt',    lat:50.059887, lon:8.647306},
+      {id:159, name:'Giebelstadt',  lat:49.652623, lon:10.10318},
+      {id:5,   name:'Bremen',       lat:53.069437, lon:8.983989},
+      {id:11,  name:'Fassberg',     lat:52.925586, lon:10.344235},
+      {id:16,  name:'Gutersloh',    lat:51.952219, lon:8.455524},
+      {id:17,  name:'Hamburg',      lat:53.634686, lon:10.1554},
+    ],
+    193: [
+      {id:32, name:'Beslan', lat:43.21795, lon:44.57539},
+      {id:31, name:'Vaziani', lat:41.65956, lon:45.05603},
+      {id:28, name:'Mozdok', lat:43.80073, lon:44.5562},
+      {id:27, name:'Nalchik', lat:43.50464, lon:43.59643},
+      {id:26, name:'MineralnyeVody', lat:44.20533, lon:43.03615},
+      {id:25, name:'Kutaisi', lat:42.16671, lon:42.43717},
+      {id:24, name:'Kobuleti', lat:41.92048, lon:41.8034},
+      {id:20, name:'SukhumiBabushara', lat:42.84558, lon:41.07552},
+      {id:18, name:'SochiAdler', lat:43.43594, lon:39.91256},
+      {id:16, name:'MaykopKhanskaya', lat:44.65669, lon:40.05854},
+      {id:12, name:'AnapaVityazevo', lat:45.0438, lon:37.4741},
+    ],
+  },
+  objectives: {
+    189: [
+      {id:1, name:'AbuMusaIsland', lat:25.86804, lon:55.01224},
+      {id:2, name:'BandarAbbasIntl', lat:27.23215, lon:56.41922},
+      {id:3, name:'BandarLengeh', lat:26.52695, lon:54.81673},
+      {id:5, name:'DubaiIntl', lat:25.24761, lon:55.33977},
+      {id:7, name:'FujairahIntl', lat:25.11355, lon:56.33348},
+      {id:8, name:'TunbIslandAFB', lat:26.25527, lon:55.31302},
+      {id:10, name:'Khasab', lat:26.17658, lon:56.26049},
+      {id:11, name:'Lar', lat:27.67516, lon:54.40279},
+      {id:13, name:'QeshmIsland', lat:26.75994, lon:55.92494},
+      {id:15, name:'SirriIsland', lat:25.89939, lon:54.50473},
+      {id:16, name:'TunbKochak', lat:26.23828, lon:55.13786},
+      {id:23, name:'AlBateen', lat:24.40871, lon:54.37516},
+      {id:24, name:'KishIntl', lat:26.5212, lon:53.95226},
+      {id:25, name:'AlAinIntl', lat:24.24984, lon:55.57103},
+      {id:26, name:'LavanIsland', lat:26.80821, lon:53.32086},
+      {id:27, name:'Jiroft', lat:28.77222, lon:57.74399},
+      {id:28, name:'RasAlKhaimahIntl', lat:25.61308, lon:55.94028},
+      {id:29, name:'LiwaAFB', lat:23.62547, lon:53.68622},
+    ],
+    190: [
+      {id:12, name:'AnapaVityazevo', lat:45.0438, lon:37.4741},
+      {id:16, name:'MaykopKhanskaya', lat:44.65669, lon:40.05854},
+      {id:18, name:'SochiAdler', lat:43.43594, lon:39.91256},
+      {id:20, name:'SukhumiBabushara', lat:42.84558, lon:41.07552},
+      {id:24, name:'Kobuleti', lat:41.92048, lon:41.8034},
+      {id:25, name:'Kutaisi', lat:42.16671, lon:42.43717},
+      {id:26, name:'MineralnyeVody', lat:44.20533, lon:43.03615},
+      {id:27, name:'Nalchik', lat:43.50464, lon:43.59643},
+      {id:28, name:'Mozdok', lat:43.80073, lon:44.5562},
+      {id:31, name:'Vaziani', lat:41.65956, lon:45.05603},
+      {id:32, name:'Beslan', lat:43.21795, lon:44.57539},
+    ],
+    192: [
+      {code:'ND50', name:'Hannover', lat:52.379129, lon:9.902733},
+      {code:'NA84', name:'Schweinfurt', lat:50.073386, lon:10.285035},
+      {code:'PB65', name:'Weimar', lat:50.9994, lon:11.491619},
+      {code:'NB40', name:'Fulda', lat:50.568831, lon:9.813185},
+      {code:'NB16', name:'Fritzlar', lat:51.124825, lon:9.416769},
+      {code:'MC30', name:'Soest', lat:51.55099, lon:8.185818},
+      {code:'MC82', name:'Paderborn', lat:51.734716, lon:8.874099},
+      {code:'NC34', name:'Hotzwinden', lat:51.859524, lon:9.631164},
+      {code:'MA89', name:'Giessen', lat:50.550901, lon:8.864813},
+      {code:'ND01', name:'Stolzenau', lat:52.535339, lon:9.19549},
+      {code:'MA74', name:'Frankfurt', lat:50.090922, lon:8.753965},
+      {code:'MB55', name:'Erndtebrück', lat:51.022221, lon:8.456843},
+      {code:'NC61', name:'Gottingen', lat:51.55842, lon:10.074974},
+      {code:'PC87', name:'Magdeburg', lat:52.150056, lon:11.792564},
+      {code:'QC00', name:'Halle', lat:51.494336, lon:12.118764},
+      {code:'ND76', name:'Fassberg', lat:52.954718, lon:10.295264},
+      {code:'PD45', name:'Salzwedel', lat:52.876021, lon:11.292643},
+      {code:'PE41', name:'Hagenow', lat:53.404121, lon:11.385247},
+      {code:'UU81', name:'Tempelhof', lat:52.52504, lon:13.514103},
+      {code:'PD93', name:'Stendal', lat:52.641488, lon:11.989599},
+      {code:'UU39', name:'Wittstock', lat:53.21624, lon:12.676262},
+      {code:'NE63', name:'Hamburg', lat:53.58991, lon:10.105482},
+      {code:'PB20', name:'Meiningen', lat:50.625668, lon:10.936532},
+      {code:'PB39', name:'Obermehler Schlotheim', lat:51.371854, lon:11.022813},
+      {code:'UT34', name:'Lutherstadt Wittenberg', lat:51.870666, lon:12.791922},
+      {code:'PC23', name:'Hasselfelde', lat:51.728823, lon:10.996252},
+    ],
+    193: [
+      {id:32, name:'Beslan', lat:43.21795, lon:44.57539},
+      {id:31, name:'Vaziani', lat:41.65956, lon:45.05603},
+      {id:28, name:'Mozdok', lat:43.80073, lon:44.5562},
+      {id:27, name:'Nalchik', lat:43.50464, lon:43.59643},
+      {id:26, name:'MineralnyeVody', lat:44.20533, lon:43.03615},
+      {id:25, name:'Kutaisi', lat:42.16671, lon:42.43717},
+      {id:24, name:'Kobuleti', lat:41.92048, lon:41.8034},
+      {id:20, name:'SukhumiBabushara', lat:42.84558, lon:41.07552},
+      {id:18, name:'SochiAdler', lat:43.43594, lon:39.91256},
+      {id:16, name:'MaykopKhanskaya', lat:44.65669, lon:40.05854},
+      {id:12, name:'AnapaVityazevo', lat:45.0438, lon:37.4741},
+    ],
+  },
+};
+const SCORE_EXCLUDE_KEYS = new Set(['LA44','QE40']); // Ramstein + Laage excluded from objective count
+const ORPHAN_BASE_NAMES = [
+  { lat:53.049, lon:8.789,  name:'Bremen',           code:'NO12' },
+  { lat:52.317, lon:10.561, name:'Braunschweig',      code:'NC87' },
+  { lat:53.919, lon:12.279, name:'Laage AB',          code:'QE40' },
+  { lat:52.141, lon:13.304, name:'Brandenburg',       code:'QD20' },
+  { lat:51.930, lon:8.304,  name:'Bielefeld',         code:'MC95' },
+  { lat:50.993, lon:10.484, name:'Erfurt',            code:'PB78' },
+  { lat:49.657, lon:9.976,  name:'Wurzburg',          code:'NB02' },
+  { lat:49.438, lon:7.597,  name:'Ramstein AB',       code:'LA44' },
+];
+
+// ════════════════════════════════════════════════════════════════════
+//  SVG AIRCRAFT ICONS — Tacview plan-view silhouettes, 32×32 viewBox
+//  All nose-up (north). Rotated at runtime by heading.
+//  Ground vehicles: NOT aircraft-style — all use diamond.
+// ════════════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════════════
+//  AIRCRAFT ICONS  —  Tacview-style top-down silhouettes
+//  ViewBox 0 0 32 32.  Nose points UP (north).  Rotated by heading at runtime.
+//  Each shape traces the plan-view projection of the Tacview 3D mesh:
+//  fuselage spine + wing panels + tail surfaces + engine pods where visible.
+//  Rotor-craft: semi-transparent rotor disc circle + blade ellipses + body.
+// ════════════════════════════════════════════════════════════════════
+const AC_ICONS = {
+
+  // ── F-16C Fighting Falcon ─────────────────────────────────────────
+  // Narrow fuselage spine; single large cranked-delta wing blended from mid-body;
+  // small trailing-edge stabilators behind wingtip level; single ventral fin implied.
+  'F-16': `
+    <polygon points="16,2 17,10 17.5,20 17,26 16,29 15,26 14.5,20 15,10"/>
+    <polygon points="16,11 28,26 20,24 17.5,20"/>
+    <polygon points="16,11 4,26 12,24 14.5,20"/>
+    <polygon points="17,23 22,28 18.5,26"/>
+    <polygon points="15,23 10,28 13.5,26"/>`,
+
+  // ── F/A-18C Hornet ────────────────────────────────────────────────
+  // Wide twin-engine body; large forward-swept LERX strakes from nose shoulders;
+  // swept main wing panels; twin outward-canted vertical tails as short fins.
+  'FA-18': `
+    <polygon points="16,2 17.5,8 18,20 17,26 16,28 15,26 14,20 14.5,8"/>
+    <polygon points="14.5,8 7,19 13,18 14,20"/>
+    <polygon points="17.5,8 25,19 19,18 18,20"/>
+    <polygon points="14,16 3,27 13,24 14,20"/>
+    <polygon points="18,16 29,27 19,24 18,20"/>
+    <line x1="13.5" y1="22" x2="11" y2="29" stroke-width="2.2" stroke-linecap="round"/>
+    <line x1="18.5" y1="22" x2="21" y2="29" stroke-width="2.2" stroke-linecap="round"/>`,
+
+  // ── F-15C Eagle ───────────────────────────────────────────────────
+  // Wide twin-engine fuselage; large trapezoidal wings with square tips;
+  // prominent engine intake humps visible from above; twin canted tails.
+  'F-15': `
+    <polygon points="16,2 18,9 18.5,19 18,25 16,28 14,25 13.5,19 14,9"/>
+    <polygon points="13.5,12 2,20 3,25 13.5,20"/>
+    <polygon points="18.5,12 30,20 29,25 18.5,20"/>
+    <polygon points="13,9 6,16 13,14"/>
+    <polygon points="19,9 26,16 19,14"/>
+    <line x1="13.5" y1="22" x2="11" y2="29" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="18.5" y1="22" x2="21" y2="29" stroke-width="2.5" stroke-linecap="round"/>`,
+
+  // ── F-14A Tomcat ──────────────────────────────────────────────────
+  // Long nose; variable-sweep wings shown at ~45° sweep; twin tails with joining tailplane.
+  'F-14': `
+    <polygon points="16,1 17.5,9 18,20 17,25 16,27 15,25 14,20 14.5,9"/>
+    <polygon points="14.5,11 2,22 14,19"/>
+    <polygon points="17.5,11 30,22 18,19"/>
+    <polygon points="14,21 9,28 15,25"/>
+    <polygon points="18,21 23,28 17,25"/>
+    <line x1="14" y1="23" x2="11.5" y2="29" stroke-width="2.2" stroke-linecap="round"/>
+    <line x1="18" y1="23" x2="20.5" y2="29" stroke-width="2.2" stroke-linecap="round"/>
+    <line x1="11.5" y1="29" x2="20.5" y2="29" stroke-width="1.2"/>`,
+
+  // ── MiG-29 Fulcrum ────────────────────────────────────────────────
+  // Wide twin-engine fuselage; large leading-edge root extensions sweep forward;
+  // swept main wing; twin inward-canted tails.
+  'MiG-29': `
+    <polygon points="16,2 17,8 17.5,19 17,25 16,27 15,25 14.5,19 15,8"/>
+    <polygon points="14,8 5,17 13.5,15 14.5,19"/>
+    <polygon points="18,8 27,17 18.5,15 17.5,19"/>
+    <polygon points="13.5,15 2,26 14,22 14.5,19"/>
+    <polygon points="18.5,15 30,26 18,22 17.5,19"/>
+    <line x1="14.5" y1="22" x2="12" y2="29" stroke-width="2.2" stroke-linecap="round"/>
+    <line x1="17.5" y1="22" x2="20" y2="29" stroke-width="2.2" stroke-linecap="round"/>`,
+
+  // ── Su-27 Flanker ─────────────────────────────────────────────────
+  // Very long nose; pronounced ogival LERX from well forward; large swept wing;
+  // twin tails set wide; canards absent on -27 base.
+  'Su-27': `
+    <polygon points="16,1 17,7 17.5,20 17,25 16,27 15,25 14.5,20 15,7"/>
+    <polygon points="14,6 3,18 13.5,15 14.5,20"/>
+    <polygon points="18,6 29,18 18.5,15 17.5,20"/>
+    <polygon points="13.5,15 1,27 14,22 14.5,20"/>
+    <polygon points="18.5,15 31,27 18,22 17.5,20"/>
+    <line x1="14.5" y1="22" x2="11" y2="29" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="17.5" y1="22" x2="21" y2="29" stroke-width="2.5" stroke-linecap="round"/>`,
+
+  // ── Su-25 Frogfoot ────────────────────────────────────────────────
+  // Rounded fuselage; straight high-mounted wings; twin engine pods under wings;
+  // twin-boom-style small tail fins.
+  'Su-25': `
+    <ellipse cx="16" cy="15" rx="3" ry="13"/>
+    <rect x="3" y="12" width="26" height="4" rx="1.5"/>
+    <ellipse cx="8" cy="12" rx="2.2" ry="3.5"/>
+    <ellipse cx="24" cy="12" rx="2.2" ry="3.5"/>
+    <line x1="5" y1="16" x2="4" y2="24" stroke-width="1.5"/>
+    <line x1="27" y1="16" x2="28" y2="24" stroke-width="1.5"/>
+    <line x1="4" y1="24" x2="28" y2="24" stroke-width="1.2"/>`,
+
+  // ── A-10C Thunderbolt II ──────────────────────────────────────────
+  // Straight shoulder-mounted wing; twin pod engines atop rear fuselage visible as ovals;
+  // twin-boom tail with cross-bar; twin vertical fins at boom ends.
+  'A-10': `
+    <ellipse cx="16" cy="15" rx="3" ry="13"/>
+    <rect x="2" y="11" width="28" height="4.5" rx="1.5"/>
+    <ellipse cx="10" cy="11" rx="2.5" ry="4"/>
+    <ellipse cx="22" cy="11" rx="2.5" ry="4"/>
+    <line x1="5" y1="15.5" x2="4" y2="24" stroke-width="2"/>
+    <line x1="27" y1="15.5" x2="28" y2="24" stroke-width="2"/>
+    <line x1="4" y1="24" x2="28" y2="24" stroke-width="1.8"/>
+    <line x1="4" y1="24" x2="4" y2="28" stroke-width="2"/>
+    <line x1="28" y1="24" x2="28" y2="28" stroke-width="2"/>`,
+
+  // ── E-2C/D Hawkeye ────────────────────────────────────────────────
+  // Twin turboprop; large circular rotodome on dorsal fin highly visible from above.
+  'E-2': `
+    <polygon points="16,5 17.5,13 17,20 16,22 15,20 14.5,13"/>
+    <polygon points="16,10 27,18 17,14"/>
+    <polygon points="16,10 5,18 15,14"/>
+    <ellipse cx="16" cy="10" rx="11" ry="2.5" opacity=".8"/>
+    <line x1="15" y1="20" x2="13" y2="27" stroke-width="2"/>
+    <line x1="17" y1="20" x2="19" y2="27" stroke-width="2"/>`,
+
+  // ── An-30 ─────────────────────────────────────────────────────────
+  // High-wing twin turboprop; round blunt-nose fuselage; engines on wings.
+  'An-30': `
+    <ellipse cx="16" cy="16" rx="2.5" ry="12"/>
+    <rect x="4" y="13" width="24" height="4" rx="1"/>
+    <ellipse cx="8.5" cy="13" rx="2" ry="2.5"/>
+    <ellipse cx="23.5" cy="13" rx="2" ry="2.5"/>
+    <rect x="14.5" y="26" width="3" height="4" rx="1"/>`,
+
+  // ── AH-64 Apache ──────────────────────────────────────────────────
+  // Rotor disc (very low opacity fill) + two blade ellipses (0° and 90°);
+  // narrow tandem-seat attack fuselage; narrow stub wings mid-body; tail boom + tail rotor.
+  'AH-64': `
+    <circle cx="16" cy="14" r="13" fill="currentColor" opacity=".10"/>
+    <ellipse cx="16" cy="14" rx="13" ry="1.6"/>
+    <ellipse cx="16" cy="14" rx="13" ry="1.6" transform="rotate(90,16,14)"/>
+    <rect x="14.5" y="4" width="3" height="20" rx="1.5"/>
+    <ellipse cx="16" cy="8" rx="3" ry="4"/>
+    <polygon points="14.5,15 7,20 9,18 14.5,16"/>
+    <polygon points="17.5,15 25,20 23,18 17.5,16"/>
+    <rect x="15.2" y="21" width="1.6" height="8" rx=".8"/>
+    <line x1="12" y1="27" x2="20" y2="27" stroke-width="1.5" stroke-linecap="round"/>`,
+
+  // ── UH-60 Black Hawk ──────────────────────────────────────────────
+  // Rotor disc + two blade ellipses; wide utility cabin; tail boom; tail rotor.
+  'UH-60': `
+    <circle cx="16" cy="13" r="13" fill="currentColor" opacity=".10"/>
+    <ellipse cx="16" cy="13" rx="13" ry="1.8"/>
+    <ellipse cx="16" cy="13" rx="13" ry="1.8" transform="rotate(90,16,13)"/>
+    <rect x="12" y="6" width="8" height="15" rx="3"/>
+    <rect x="15.2" y="20" width="1.6" height="8" rx=".8"/>
+    <line x1="12" y1="27" x2="20" y2="27" stroke-width="1.5" stroke-linecap="round"/>`,
+
+  // ── UH-1H Iroquois (Huey) ─────────────────────────────────────────
+  // Rotor disc + blades; slim single-engine cabin; tail boom; tail rotor.
+  'UH-1H': `
+    <circle cx="16" cy="13" r="12" fill="currentColor" opacity=".10"/>
+    <ellipse cx="16" cy="13" rx="12" ry="1.6"/>
+    <ellipse cx="16" cy="13" rx="12" ry="1.6" transform="rotate(90,16,13)"/>
+    <rect x="13" y="7" width="6" height="13" rx="2.5"/>
+    <rect x="15.2" y="19" width="1.6" height="8" rx=".8"/>
+    <line x1="12.5" y1="26" x2="19.5" y2="26" stroke-width="1.5" stroke-linecap="round"/>`,
+
+  // ── Mi-8 / Mi-17 Hip ──────────────────────────────────────────────
+  // Large rotor disc; three blade ellipses at 0°/60°/120°; wide cargo cabin; tail rotor.
+  'Mi-8': `
+    <circle cx="16" cy="13" r="13" fill="currentColor" opacity=".10"/>
+    <ellipse cx="16" cy="13" rx="13" ry="1.8"/>
+    <ellipse cx="16" cy="13" rx="13" ry="1.8" transform="rotate(60,16,13)"/>
+    <ellipse cx="16" cy="13" rx="13" ry="1.8" transform="rotate(120,16,13)"/>
+    <rect x="11" y="5" width="10" height="17" rx="3"/>
+    <rect x="15.2" y="21" width="1.6" height="8" rx=".8"/>
+    <line x1="11.5" y1="28" x2="20.5" y2="28" stroke-width="1.8" stroke-linecap="round"/>`,
+
+  // ── Mi-24 Hind ────────────────────────────────────────────────────
+  // Large rotor disc; three blade ellipses; attack fuselage with stub wings; tail rotor.
+  'Mi-24': `
+    <circle cx="16" cy="12" r="13" fill="currentColor" opacity=".10"/>
+    <ellipse cx="16" cy="12" rx="13" ry="1.8"/>
+    <ellipse cx="16" cy="12" rx="13" ry="1.8" transform="rotate(60,16,12)"/>
+    <ellipse cx="16" cy="12" rx="13" ry="1.8" transform="rotate(120,16,12)"/>
+    <rect x="12.5" y="4" width="7" height="17" rx="3"/>
+    <polygon points="12.5,14 4,20 7,18 12.5,15"/>
+    <polygon points="19.5,14 28,20 25,18 19.5,15"/>
+    <rect x="15.2" y="20" width="1.6" height="8" rx=".8"/>
+    <line x1="11" y1="27" x2="21" y2="27" stroke-width="1.8" stroke-linecap="round"/>`,
+
+  // ── Ka-50 / Ka-52 Black Shark ─────────────────────────────────────
+  // Two coaxial rotor discs (concentric circles); blades at offset angles; no tail rotor;
+  // compact attack body; stub wings.
+  'Ka-50': `
+    <circle cx="16" cy="14" r="13" fill="currentColor" opacity=".09"/>
+    <circle cx="16" cy="14" r="9" fill="currentColor" opacity=".08"/>
+    <ellipse cx="16" cy="14" rx="13" ry="1.8"/>
+    <ellipse cx="16" cy="14" rx="13" ry="1.8" transform="rotate(60,16,14)"/>
+    <ellipse cx="16" cy="14" rx="9" ry="1.4" transform="rotate(30,16,14)"/>
+    <ellipse cx="16" cy="14" rx="9" ry="1.4" transform="rotate(90,16,14)"/>
+    <rect x="13.5" y="5" width="5" height="17" rx="2.5"/>
+    <polygon points="13.5,14 5,20 8,18 13.5,15"/>
+    <polygon points="18.5,14 27,20 24,18 18.5,15"/>
+    <rect x="15.2" y="21" width="1.6" height="6" rx=".8"/>`,
+
+  // ── CH-47 Chinook ─────────────────────────────────────────────────
+  // Two tandem rotor discs; two sets of crossed blade ellipses; wide banana fuselage.
+  'CH-47': `
+    <circle cx="16" cy="9" r="9" fill="currentColor" opacity=".10"/>
+    <ellipse cx="16" cy="9" rx="9" ry="1.6"/>
+    <ellipse cx="16" cy="9" rx="9" ry="1.6" transform="rotate(90,16,9)"/>
+    <circle cx="16" cy="25" r="9" fill="currentColor" opacity=".10"/>
+    <ellipse cx="16" cy="25" rx="9" ry="1.6"/>
+    <ellipse cx="16" cy="25" rx="9" ry="1.6" transform="rotate(90,16,25)"/>
+    <rect x="11" y="5" width="10" height="22" rx="4.5"/>`,
+
+  // ── Generic fixed-wing fallback ───────────────────────────────────
+  'default-air': `
+    <polygon points="16,3 17.5,12 17,22 16,25 15,22 14.5,12"/>
+    <polygon points="16,15 25,27 17,21"/>
+    <polygon points="16,15 7,27 15,21"/>`,
+};
+
+// DCS name → icon key
+function iconKey(name) {
+  if (!name) return 'default-air';
+  const n = name.toUpperCase();
+  if (n.includes('AH-64')||n.includes('AH64'))                return 'AH-64';
+  if (n.includes('KA-50')||n.includes('KA50')||n.includes('KA-52')||n.includes('KA52')) return 'Ka-50';
+  if (n.includes('MI-24')||n.includes('MI24'))                return 'Mi-24';
+  if (n.includes('MI-8')||n.includes('MI8')||n.includes('MI-17')||n.includes('MI17')) return 'Mi-8';
+  if (n.includes('UH-1')||n.includes('UH1'))                  return 'UH-1H';
+  if (n.includes('UH-60')||n.includes('BLACKHAWK'))           return 'UH-60';
+  if (n.includes('CH-47')||n.includes('CHINOOK'))             return 'CH-47';
+  if (n.includes('F-14')||n.includes('F14'))                  return 'F-14';
+  if (n.includes('F-15')||n.includes('F15'))                  return 'F-15';
+  if (n.includes('F-16')||n.includes('F16'))                  return 'F-16';
+  if (n.includes('FA-18')||n.includes('F/A-18')||n.includes('FA18')) return 'FA-18';
+  if (n.includes('SU-25')||n.includes('SU25'))                return 'Su-25';
+  if (n.includes('SU-27')||n.includes('SU27')||n.includes('SU-33')||n.includes('SU33')) return 'Su-27';
+  if (n.includes('MIG-29')||n.includes('MIG29'))              return 'MiG-29';
+  if (n.includes('A-10')||n.includes('A10'))                  return 'A-10';
+  if (n.includes('E2-')||n.includes('E-2')||n.includes('HAWKEYE')) return 'E-2';
+  if (n.includes('AN-30')||n.includes('AN30'))                return 'An-30';
+  return 'default-air';
+}
+
+// Ground vehicles always use a plain diamond — no taccom icons
+function makeGroundDiamond(color, sz) {
+  const h = sz / 2;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${sz}" height="${sz}" viewBox="0 0 ${sz} ${sz}">
+    <polygon points="${h},2 ${sz-2},${h} ${h},${sz-2} 2,${h}"
+      fill="${color}" stroke="${color}" stroke-width=".5" opacity=".85"/>
+  </svg>`;
+}
+
+function makeACSVG(key, color, sz, hdg, selected, isHuman) {
+  const body = AC_ICONS[key] || AC_ICONS['default-air'];
+  const rot = hdg != null ? `rotate(${hdg},16,16)` : '';
+  const sel = selected
+    ? `<circle cx="16" cy="16" r="14" fill="none" stroke="#fff" stroke-width="1.5" opacity=".55"/>`
+    : '';
+  // Player icons: render body twice — black outline underneath, colour on top
+  const outline = isHuman
+    ? `<g transform="${rot}" fill="#000" stroke="#000" stroke-width="2.8" stroke-linejoin="round" stroke-linecap="round" opacity=".85">${body}</g>`
+    : '';
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${sz}" height="${sz}" viewBox="0 0 32 32"
+    style="color:${color}">${outline}
+    <g transform="${rot}" fill="${color}" stroke="${color}" stroke-width=".5" opacity=".93">${body}</g>${sel}</svg>`;
+}
+
+function leafletIcon(cat, name, coalition, hdg, sel, isHuman) {
+  const blue = coalition === 'Friendlies';
+  const color = blue ? '#58a6ff' : '#f85149';
+  const isGround = cat === 'ground';
+
+  if (isGround) {
+    // All ground vehicles: diamond, team colour
+    const sz = 14;
+    const html = makeGroundDiamond(color, sz);
+    return L.divIcon({ html, className:'', iconSize:[sz,sz], iconAnchor:[sz/2,sz/2] });
+  }
+
+  const key = iconKey(name);
+  const sz = isHuman ? 36 : 28;
+  const svg = makeACSVG(key, color, sz, hdg, sel, isHuman);
+  return L.divIcon({ html:svg, className:'', iconSize:[sz,sz], iconAnchor:[sz/2,sz/2] });
+}
+
+// ════════════════════════════════════════════════════════════════════
+//  MAP SETUP
+// ════════════════════════════════════════════════════════════════════
+const map = L.map('map',{center:[51.68,10.5],zoom:7,zoomControl:true,attributionControl:false,
+  zoomDelta:0.5,zoomSnap:0.5,wheelPxPerZoomLevel:240});
+L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:18}).addTo(map);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png',{maxZoom:18,opacity:0.45,subdomains:'abcd'}).addTo(map);
+map.createPane('basePane'); map.getPane('basePane').style.zIndex=350;
+map.getPane('basePane').style.mixBlendMode='screen';
+map.createPane('flotPane'); map.getPane('flotPane').style.zIndex=340;
+map.createPane('glabelPane'); map.getPane('glabelPane').style.zIndex=360;  // above bases, below player labels
+map.createPane('blabelPane'); map.getPane('blabelPane').style.zIndex=380;  // above ground labels
+map.createPane('plabelPane'); map.getPane('plabelPane').style.zIndex=400;  // top — player names always on top
+
+// ════════════════════════════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════════════════════════════
+let SESSIONS=[], currentTime=0, campaignDur=0, playing=false, playSpeed=30;
+let lastRaf=null, rafId=null, selectedPlayer=null;
+
+const unitMarkers={}, unitTrails={}, pilotLabels={}, groundLabels={}, baseInnerCircles={};
+const groundKillTimes={};  // id -> game-time of kill event
+const baseMarkers={}, baseCircles={}, baseLabels={};
+let _merged=null, _baseList=[], _shelter3Map={};
+let flotBlueFill=null, flotBlueLine=null, flotRedFill=null, flotRedLine=null;
+let flotLastT=-9999;
+const shownKills=new Set(), killLayers=[];
+const playerColors={};  // callsign → colour string
+const killFeedEntries=[];  // [{t, killer, victim, weapon, pvp, killerCoal, el}]
+
+let filters={playerAir:true,aiAir:false,ground:true,groundLabels:false,trails:true,kills:true,bases:true,flot:true};
+
+// ════════════════════════════════════════════════════════════════════
+//  HELPERS
+// ════════════════════════════════════════════════════════════════════
+function haverKm(lat1,lon1,lat2,lon2){
+  const R=6371,p=Math.PI/180;
+  const dLat=(lat2-lat1)*p, dLon=(lon2-lon1)*p;
+  const a=Math.sin(dLat/2)**2+Math.cos(lat1*p)*Math.cos(lat2*p)*Math.sin(dLon/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+function fmtT(s){const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sc=Math.floor(s%60);return`${h}:${pad(m)}:${pad(sc)}`;}
+function fmtDur(s){const h=Math.floor(s/3600),m=Math.floor((s%3600)/60);return h?`${h}h ${pad(m)}m`:`${m}m`;}
+function pad(n){return String(n).padStart(2,'0');}
+function setLoad(msg){document.getElementById('load-msg').textContent=msg;}
+
+// ════════════════════════════════════════════════════════════════════
+//  CAMPAIGN / SESSION LOADING  —  driven by campaigns.json
+// ════════════════════════════════════════════════════════════════════
+
+// Load campaigns.json from server. Falls back to a minimal stub if not found
+// (so the viewer still works during local dev with the old single-file setup).
+async function loadCampaignsJSON(){
+  try {
+    const r = await fetch('campaigns.json');
+    if(!r.ok) throw new Error(`HTTP ${r.status}`);
+    const data = await r.json();
+    CAMPAIGNS_DATA = data;
+    return data;
+  } catch(e) {
+    console.warn('campaigns.json not found, using fallback stub:', e.message);
+    // Fallback: single session for local dev — update file name if needed
+    CAMPAIGNS_DATA = {
+      campaigns: [{
+        id: 'germany_campaign',
+        name: 'Germany Campaign',
+        map: 'Germany',
+        sessions: [{
+          file: 'session_20260226_074617.json',
+          label: 'Session 1',
+          date: null,
+          duration_hours: null,
+          players: [],
+          kill_count: 0,
+        }]
+      }]
+    };
+    return CAMPAIGNS_DATA;
+  }
+}
+
+// Build the campaign dropdown from CAMPAIGNS_DATA.
+// Wires the campaign→session cascade.
+function populateSelector(){
+  const campSel = document.getElementById('campaign-selector');
+  const sessSel = document.getElementById('session-selector');
+  const campaigns = CAMPAIGNS_DATA.campaigns || [];
+
+  campSel.innerHTML = '';
+  if(!campaigns.length){
+    campSel.innerHTML = '<option>No campaigns</option>';
+    return;
+  }
+
+  campaigns.forEach((camp, i) => {
+    const o = document.createElement('option');
+    o.value = i;
+    o.textContent = camp.name;
+    campSel.appendChild(o);
+  });
+
+  // When campaign changes, repopulate session dropdown and auto-load first session
+  campSel.addEventListener('change', () => {
+    populateSessionSelector(parseInt(campSel.value));
+  });
+
+  // Seed session dropdown with first campaign
+  populateSessionSelector(0);
+}
+
+// Build the session dropdown for campaign at index campIdx.
+// Auto-loads the most recent session (last in chronological list).
+function populateSessionSelector(campIdx){
+  const sessSel = document.getElementById('session-selector');
+  const camp = (CAMPAIGNS_DATA.campaigns || [])[campIdx];
+  if(!camp){ sessSel.innerHTML = '<option>—</option>'; sessSel.disabled = true; return; }
+
+  const sessions = camp.sessions || [];
+  sessSel.innerHTML = '';
+  sessSel.disabled = sessions.length === 0;
+
+  if(!sessions.length){
+    sessSel.innerHTML = '<option>No sessions</option>';
+    return;
+  }
+
+  sessions.forEach((sess, i) => {
+    const o = document.createElement('option');
+    o.value = i;
+    o.textContent = sess.label || sess.file;
+    // Tooltip: deduplicated player names (strip trailing numbers/suffixes)
+    if(sess.players && sess.players.length){
+      const seen = new Set();
+      const names = sess.players.filter(p => {
+        const base = p.replace(/[\s\-]\d+$/, '').trim();
+        if(seen.has(base)) return false;
+        seen.add(base); return true;
+      });
+      o.title = names.join(', ');
+    }
+    sessSel.appendChild(o);
+  });
+
+  // Default to most recent (last) session
+  sessSel.selectedIndex = sessions.length - 1;
+
+  // Remove previous listener cleanly by replacing the element clone
+  const newSel = sessSel.cloneNode(true);
+  sessSel.parentNode.replaceChild(newSel, sessSel);
+  newSel.selectedIndex = sessions.length - 1;
+  function highlightSelected(){
+    Array.from(newSel.options).forEach((o,i) => {
+      o.style.fontWeight = i === newSel.selectedIndex ? '700' : '';
+      o.style.color      = i === newSel.selectedIndex ? '#58a6ff' : '';
+    });
+  }
+  newSel.addEventListener('change', () => {
+    highlightSelected();
+    loadSession(campIdx, parseInt(newSel.value));
+  });
+  highlightSelected();
+
+  loadSession(campIdx, sessions.length - 1);
+}
+
+// Load a single session JSON and render it.
+async function loadSession(campIdx, sessIdx){
+  const camp = (CAMPAIGNS_DATA.campaigns || [])[campIdx];
+  if(!camp) return;
+  const sess = (camp.sessions || [])[sessIdx];
+  if(!sess) return;
+
+  setLoad(`Loading ${sess.label || sess.file}…`);
+  document.getElementById('loading').style.display = 'flex';
+  clearAll();
+  SESSIONS = []; currentTime = 0;
+
+  try {
+    const r = await fetch(`data/${sess.file}`);
+    if(!r.ok) throw new Error(`Could not load ${sess.file} (HTTP ${r.status})`);
+    const raw = await r.json();
+    const s = timeShift(raw, 0);
+    s._label = sess.label || sess.file;
+    s._offset = 0;
+    s._dur = raw.meta.duration_seconds;
+    SESSIONS.push(s);
+  } catch(e){
+    setLoad('Error: ' + e.message);
+    console.error(e);
+    return;
+  }
+
+  campaignDur = SESSIONS[0]._dur;
+  document.getElementById('scrubber').max = campaignDur;
+
+  setLoad('Merging…');         _merged = mergeSessions(SESSIONS);
+  setLoad('Base ownership…');  buildShelterMap();
+  setLoad('Initialising…');    initUnits(_merged);
+  setLoad('Drawing bases…');   await initBases(_merged);
+  setLoad('Building UI…');     buildPlayerList(_merged);
+  drawTimeline();
+  flotLastT = -9999;
+  document.getElementById('loading').style.display = 'none';
+
+  // Update session badge: duration + kill count
+  const dur = fmtDur(campaignDur);
+  const kills = sess.kill_count ? ` · ${sess.kill_count} kills` : '';
+  const players = sess.players && sess.players.length ? ` · ${sess.players.slice(0,4).join(', ')}` : '';
+  document.getElementById('session-badge').textContent = `${dur}${kills}${players}`;
+
+  seekTo(0);
+}
+
+function timeShift(data,offset){
+  if(offset===0) return JSON.parse(JSON.stringify(data));
+  const d=JSON.parse(JSON.stringify(data));
+  for(const tr of Object.values(d.tracks)) for(const p of tr) p.t+=offset;
+  for(const e of d.events) e.t+=offset;
+  for(const o of Object.values(d.objects)){o.first_seen+=offset;o.last_seen+=offset;}
+  for(const p of Object.values(d.players)){
+    for(const f of p.flights){f.start_t+=offset;f.end_t+=offset;}
+    for(const k of p.kills) k.t+=offset;
+  }
+  return d;
+}
+
+function mergeSessions(sessions){
+  const m={objects:{},tracks:{},events:[],statics:[],players:{},_dp:{}};
+  const seenSt=new Set();
+  for(const s of sessions){
+    Object.assign(m.objects,s.objects);
+    Object.assign(m.tracks,s.tracks);
+    m.events.push(...s.events);
+    for(const st of s.statics){if(!seenSt.has(st.name)){seenSt.add(st.name);m.statics.push(st);}}
+    for(const [k,p] of Object.entries(s.players)){
+      if(!m.players[k]) m.players[k]={callsign:p.callsign,flights:[],kills:[],deaths:0};
+      m.players[k].flights.push(...p.flights);
+      m.players[k].kills.push(...p.kills);
+      m.players[k].deaths+=p.deaths;
+    }
+  }
+  for(const [k,p] of Object.entries(m.players)){
+    const base=k.replace(/\s*\(\d+\)$/,'').trim();
+    if(!m._dp[base]) m._dp[base]={callsign:base,flights:[],kills:[],deaths:0,coalition:null};
+    const dp=m._dp[base];
+    dp.flights.push(...p.flights);dp.kills.push(...p.kills);dp.deaths+=p.deaths;
+  }
+  for(const dp of Object.values(m._dp)){
+    dp.coalition=dp.flights.map(f=>f.coalition).filter(Boolean)[0]||'Unknown';
+  }
+  return m;
+}
+
+// ════════════════════════════════════════════════════════════════════
+//  SHELTER3 OWNERSHIP — 10nm (18.52km) radius
+// ════════════════════════════════════════════════════════════════════
+const NM10 = 18.52; // km
+
+function buildShelterMap(){
+  _shelter3Map={};
+  if(!_merged) return;
+  const shelters=[];
+  for(const [id,obj] of Object.entries(_merged.objects)){
+    if(obj.name!=='Shelter3') continue;
+    const track=_merged.tracks[id];
+    if(!track||!track.length) continue;
+    shelters.push({id,obj,track,pt:track[0],startT:track[0].t,endT:track[track.length-1].t});
+  }
+  const named=_merged.statics.filter(s=>s.name&&/^[A-Z]{1,2}\d{2,3}:/.test(s.name));
+  for(const st of named){
+    const baseName=st.name.split(':').slice(1).join(':').trim();
+    const code=st.name.split(':')[0].trim();
+    // Collect ALL Shelter3 units within 10nm of this static, sorted by start time
+    const nearby=shelters
+      .filter(sh=>haverKm(st.lat,st.lon,sh.pt.lat,sh.pt.lon)<NM10)
+      .sort((a,b)=>a.startT-b.startT);
+    const initialCoal=nearby.length?nearby[0].obj.coalition:(st.coalition||'Neutral');
+    const key=code+'_'+baseName;
+    _shelter3Map[key]={baseName,code,staticLat:st.lat,staticLon:st.lon,
+      shelterHistory:nearby, initialCoal};
+  }
+}
+
+function baseOwnerAt(key,t){
+  const entry=_shelter3Map[key];
+  if(!entry) return 'Neutral';
+  const hist=entry.shelterHistory||[];
+  if(!hist.length) return entry.initialCoal||'Neutral';
+  // Walk history: each shelter is active from its startT until the next shelter appears (or end).
+  // The owner at time t is the coalition of the last shelter whose startT <= t+30.
+  let owner=entry.initialCoal||'Neutral';
+  for(const sh of hist){
+    if(t >= sh.startT - 30) owner=sh.obj.coalition;
+    else break;
+  }
+  return owner;
+}
+
+// ════════════════════════════════════════════════════════════════════
+//  CLEAR
+// ════════════════════════════════════════════════════════════════════
+function clearAll(){
+  for(const x of [...Object.values(unitMarkers),
+    ...Object.values(pilotLabels),...Object.values(groundLabels),...Object.values(baseMarkers),...Object.values(baseCircles),...Object.values(baseInnerCircles),
+    ...Object.values(baseLabels),...killLayers])
+    try{map.removeLayer(x)}catch(e){}
+  clearFLOT();
+  for(const segs of Object.values(unitTrails)) for(const poly of segs) try{map.removeLayer(poly)}catch(e){}
+  for(const d of [unitMarkers,unitTrails,pilotLabels,groundLabels,baseMarkers,baseCircles,baseInnerCircles,baseLabels])
+    Object.keys(d).forEach(k=>delete d[k]);
+  killLayers.length=0;shownKills.clear();
+  for(const k of Object.keys(groundKillTimes)) delete groundKillTimes[k];
+  killFeedEntries.length=0;
+  document.getElementById('killfeed-list').innerHTML='<div style="color:var(--dim);font-size:11px;padding:4px 0">No kills yet</div>';
+  _merged=null;_baseList=[];_shelter3Map={};
+  for(const k of Object.keys(playerColors)) delete playerColors[k];
+  document.getElementById('players-list').innerHTML='';
+}
+
+// ════════════════════════════════════════════════════════════════════
+//  UNIT INIT
+// ════════════════════════════════════════════════════════════════════
+const STRUCT_NAMES = new Set([
+  'FARPWatchtower','FARP Flag','FARP Tanker','Shelter3','Shelter3FARP',
+  'Shelter3Construction','Shelter3Crate','Windsock','JTACTower',
+  'COMP RELOAD','Factory3','FactoryBuild','FactoryBuild3','SA11 Truck Build','SA11 Truck',
+]);
+
+// For ground vehicles: show all real vehicles (not structures), excluding 'Base' callsigns
+function isGroundVehicle(obj){
+  if(STRUCT_NAMES.has(obj.name)) return false;
+  if(!obj.name) return false;
+  if(obj.name.startsWith('BD')||obj.name.startsWith('SA11-')) return false;
+  if(obj.category!=='ground') return false;
+  // Exclude base/static NPC emplacements — they have 'Base' in their pilot string
+  const pilot=(obj.pilot||'').toLowerCase();
+  if(pilot.includes('base')) return false;
+  return true;
+}
+
+// For aircraft: require named callsign (non-numeric pilot)
+function isNamedAircraft(obj){
+  if(!obj.name) return false;
+  if(obj.category!=='player_air'&&obj.category!=='ai_air') return false;
+  const p=(obj.pilot||'').trim();
+  if(!p) return false;
+  const stripped=p.replace(/\s*-\s*NPC$/i,'').replace(/\s*\(\d+\)$/,'').trim();
+  return stripped.length>0&&!/^\d+/.test(stripped);
+}
+
+function initUnits(merged){
+  for(const [id,track] of Object.entries(merged.tracks)){
+    if(!track.length) continue;
+    const obj=merged.objects[id];
+    if(!obj) continue;
+    const cat=obj.category;
+
+    const isGnd=isGroundVehicle(obj);
+    const isAir=isNamedAircraft(obj);
+    if(!isGnd&&!isAir) continue;
+
+    const pt0=track[0];
+    const isHuman=obj.is_human||false;
+    const blue=obj.coalition==='Friendlies';
+
+    const marker=L.marker([pt0.lat,pt0.lon],{
+      icon:leafletIcon(cat,obj.name,obj.coalition,pt0.hdg,false,isHuman),
+      zIndexOffset:isHuman?2000:(isAir?1000:0),
+    });
+    const tip=isHuman?`<b>${obj.pilot||obj.name}</b><br>${obj.name}`
+      :isGnd?obj.name:`${obj.name}${obj.pilot?' ['+obj.pilot+']':''}`;
+    marker.bindTooltip(tip,{direction:'top',offset:[0,-6]});
+    if(isHuman){
+      marker.on('click',()=>{
+        const base=(obj.pilot||'').replace(/\s*\(\d+\)$/,'').trim();
+        const p=merged._dp[base];if(p)openDetail(base,p);
+      });
+    }
+    marker.addTo(map);marker._vis=false;marker.setOpacity(0);marker._idx=0;
+    unitMarkers[id]=marker;
+
+    // Ground unit name label
+    if(isGnd){
+      const gclr=blue?'blue':'red';
+      const glblHtml=`<div class="glabel-name ${gclr}">${obj.name}</div>`;
+      const glblIcon=L.divIcon({html:glblHtml,className:'glabel',iconSize:[120,14],iconAnchor:[-9,7]});
+      const glbl=L.marker([pt0.lat,pt0.lon],{icon:glblIcon,pane:'glabelPane',interactive:false});
+      glbl._vis=false;  // not added to map until toggle enabled
+      groundLabels[id]=glbl;
+    }
+
+    // Trail — aircraft only
+    if(isAir){
+      const trailColor=blue?'#1e6bb8':'#c42b20';
+      const w=isHuman?3:2;
+      // Segmented trail: N polylines each with increasing opacity toward most recent
+      const TRAIL_SEGS=6;
+      const trailSegs=[];
+      for(let s=0;s<TRAIL_SEGS;s++){
+        const op=0.12+0.55*(s/(TRAIL_SEGS-1)); // 0.12 (oldest) → 0.67 (newest)
+        trailSegs.push(L.polyline([],{color:trailColor,weight:w,opacity:op,smoothFactor:1}).addTo(map));
+      }
+      unitTrails[id]=trailSegs;
+    }
+
+    // Pilot label — human aircraft ONLY; hidden when grounded
+    if(isHuman&&isAir){
+      const clr=blue?'blue':'red';
+      const lblHtml=`<div class="plabel-inner">
+        <span class="plabel-name ${clr}" id="ln-${id}"></span>
+        <span class="plabel-telem" id="lt-${id}"></span></div>`;
+      const lblIcon=L.divIcon({html:lblHtml,className:'plabel',iconSize:[220,40],iconAnchor:[-20,34]});
+      const lbl=L.marker([pt0.lat,pt0.lon],{icon:lblIcon,pane:'plabelPane',interactive:false});
+      lbl.addTo(map);lbl._vis=false;lbl.setOpacity(0);
+      pilotLabels[id]=lbl;
+    }
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════
+//  BASES & FARPS & FACTORIES
+// ════════════════════════════════════════════════════════════════════
+async function initBases(merged){
+  let bases=[];
+  if(SDCS_API){
+    try{
+      const r=await fetch(SDCS_API);const d=await r.json();
+      bases=d.map(b=>({
+        name:b.name||b.id,code:b.code||'',lat:parseFloat(b.lat||b.latitude),
+        lon:parseFloat(b.lon||b.longitude),coalition:b.coalition||'Neutral',
+        type:b.type||'objective',isFarp:false,isFactory:false,key:b.code||b.id,
+      }));
+    }catch(e){console.warn('SDCS API unavailable');}
+  }
+
+  if(!bases.length){
+    const seen=new Set();
+
+    // Named objectives (CODE: Name statics)
+    for(const st of merged.statics){
+      if(!st.name||seen.has(st.name)) continue;
+      const m=st.name.match(/^([A-Z]{1,2}\d{2,3}):\s*(.+)/);
+      if(!m) continue;
+      seen.add(st.name);
+      const code=m[1].trim(), baseName=m[2].trim();
+      const key=code+'_'+baseName;
+      const initialCoal=_shelter3Map[key]?.initialCoal||st.coalition||'Neutral';
+      bases.push({key,name:baseName,code,lat:st.lat,lon:st.lon,
+        coalition:initialCoal,type:baseName.toLowerCase().includes(' ab')?'airbase':'objective',
+        isFarp:false,isFactory:false});
+    }
+
+    // Orphan Shelter3 → named bases not in statics (Bremen, Braunschweig, etc.)
+    const namedShKeys=new Set(Object.keys(_shelter3Map));
+    const allShelters=[];
+    for(const [id,obj] of Object.entries(merged.objects)){
+      if(obj.name!=='Shelter3') continue;
+      const track=merged.tracks[id];
+      if(!track||!track.length) continue;
+      allShelters.push({id,coal:obj.coalition,lat:track[0].lat,lon:track[0].lon});
+    }
+    // Find Shelter3 units not claimed by any named static within NM10
+    for(const sh of allShelters){
+      let claimed=false;
+      for(const entry of Object.values(_shelter3Map)){
+        if(haverKm(entry.staticLat,entry.staticLon,sh.lat,sh.lon)<NM10){claimed=true;break;}
+      }
+      if(claimed) continue;
+      // Find closest orphan name from lookup table
+      let bestOrphan=null,bestDist=25;
+      for(const o of ORPHAN_BASE_NAMES){
+        const km=haverKm(sh.lat,sh.lon,o.lat,o.lon);
+        if(km<bestDist){bestDist=km;bestOrphan=o;}
+      }
+      const bName=bestOrphan?bestOrphan.name:`Unknown (${sh.lat.toFixed(2)},${sh.lon.toFixed(2)})`;
+      const bCode=bestOrphan?bestOrphan.code:'ZZ00';
+      const key=bCode+'_'+bName;
+      if(bases.find(b=>b.key===key)) continue;
+      // Add to shelter map so ownership tracking works
+      const _ot=merged.tracks[sh.id];const _os=_ot&&_ot.length?_ot[0].t:0;const _oe=_ot&&_ot.length?_ot[_ot.length-1].t:0;
+      _shelter3Map[key]={baseName:bName,code:bCode,staticLat:sh.lat,staticLon:sh.lon,
+        shelterHistory:[{id:sh.id,obj:{coalition:sh.coal},track:_ot,pt:{lat:sh.lat,lon:sh.lon},startT:_os,endT:_oe}],
+        initialCoal:sh.coal};
+      bases.push({key,name:bName,code:bCode,lat:sh.lat,lon:sh.lon,
+        coalition:sh.coal,type:'objective',isFarp:false,isFactory:false});
+    }
+
+    // Shelter3FARP — completed FARPs
+    const seenFarp=new Set();
+    for(const [id,obj] of Object.entries(merged.objects)){
+      if(obj.name!=='Shelter3FARP') continue;
+      const track=merged.tracks[id];if(!track||!track.length) continue;
+      const pt=track[0];
+      const gk=`${pt.lat.toFixed(3)},${pt.lon.toFixed(3)}`;
+      if(seenFarp.has(gk)) continue; seenFarp.add(gk);
+      // Try to find a named FARP navaid nearby
+      let farpName='FARP';
+      for(const st of merged.statics){
+        if(!st.name||!st.name.match(/^FARP\s+[RB]\d+/i)) continue;
+        if(haverKm(st.lat,st.lon,pt.lat,pt.lon)<3){farpName=st.name;break;}
+      }
+      const key='farp_'+gk;
+      bases.push({key,name:farpName,code:'',lat:pt.lat,lon:pt.lon,
+        coalition:obj.coalition,type:'farp',isFarp:true,isFactory:false});
+    }
+
+    // Factory / FactoryBuild — team coloured circle, green fill
+    const seenFactory=new Set();
+    for(const [id,obj] of Object.entries(merged.objects)){
+      if(!['Factory','FactoryBuild'].includes(obj.name)) continue;
+      const track=merged.tracks[id];if(!track||!track.length) continue;
+      const pt=track[0];
+      const gk=`${pt.lat.toFixed(3)},${pt.lon.toFixed(3)}`;
+      if(seenFactory.has(gk)) continue; seenFactory.add(gk);
+      const key=`factory_${id}`;
+      bases.push({key,name:'Factory',code:'',lat:pt.lat,lon:pt.lon,
+        coalition:obj.coalition,type:'factory',isFarp:false,isFactory:true});
+    }
+  }
+
+  _baseList=bases.map(b=>({key:b.key,name:b.name,lat:b.lat,lon:b.lon,
+    coalition:b.coalition,isFarp:b.isFarp,isFactory:b.isFactory||false}));
+
+  for(const b of bases) drawBase(b);
+}
+
+function drawBase(b){
+  if(!b.lat||!b.lon) return;
+  const blue=b.coalition==='Friendlies'||b.coalition==='Blue';
+  const red=b.coalition==='Hostiles'||b.coalition==='Red';
+  const teamColor=blue?'#58a6ff':red?'#f85149':'#888888';
+  const isFarp=b.isFarp||b.type==='farp';
+  const isAB=b.type==='airbase';
+  const isFactory=b.isFactory||b.type==='factory';
+
+  // Icon
+  let shp;
+  if(isFarp){
+    shp=`<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 11 11">
+      <polygon points="5.5,0 11,5.5 5.5,11 0,5.5" fill="${teamColor}" opacity=".9"/>
+      <polygon points="5.5,2.5 8.5,5.5 5.5,8.5 2.5,5.5" fill="${teamColor}" opacity=".35"/>
+    </svg>`;
+  } else if(isFactory){
+    // Factory: gear-ish square with cross
+    shp=`<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 11 11">
+      <rect x="1" y="1" width="9" height="9" rx="1.5" fill="${teamColor}" opacity=".85"/>
+      <line x1="5.5" y1="1" x2="5.5" y2="10" stroke="#000" stroke-width=".8" opacity=".5"/>
+      <line x1="1" y1="5.5" x2="10" y2="5.5" stroke="#000" stroke-width=".8" opacity=".5"/>
+      <rect x="3.5" y="3.5" width="4" height="4" rx=".5" fill="none" stroke="#000" stroke-width=".8" opacity=".4"/>
+    </svg>`;
+  } else if(isAB){
+    shp=`<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 13 13">
+      <rect x="1" y="1" width="11" height="11" rx="2" fill="${teamColor}" opacity=".9"/>
+      <line x1="6.5" y1="1" x2="6.5" y2="12" stroke="#000" stroke-width=".8" opacity=".4"/>
+      <line x1="1" y1="6.5" x2="12" y2="6.5" stroke="#000" stroke-width=".8" opacity=".4"/>
+    </svg>`;
+  } else {
+    shp=`<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10">
+      <polygon points="5,0 10,5 5,10 0,5" fill="${teamColor}" opacity=".85"/>
+    </svg>`;
+  }
+  const sz=isAB?13:11;
+  const icon=L.divIcon({html:shp,className:'',iconSize:[sz,sz],iconAnchor:[sz/2,sz/2]});
+  const tip=isFarp?`<b>FARP</b>${b.name&&b.name!=='FARP'?' · '+b.name:''}`
+    :isFactory?`<b>Factory</b>${b.name!=='Factory'?' · '+b.name:''}`
+    :`<b>${b.name}</b>${b.code?' ['+b.code+']':''}`;
+  const mk=L.marker([b.lat,b.lon],{icon,zIndexOffset:-600});
+  mk.bindTooltip(`${tip}<br>${blue?'🔵 Blue':'🔴 Red'} · ${b.type}`,{direction:'top',offset:[0,-5]});
+  if(filters.bases) mk.addTo(map);
+  baseMarkers[b.key]=mk;
+
+  // Circle: factories use green fill, others use team colour
+  // Bases/objectives: higher opacity; FARPs/factories: lower opacity
+  const isSecondary=isFarp||isFactory;
+  const circFill=isFactory?'#44cc44':teamColor;
+  const circFillOp=isFactory?0.04:isSecondary?0.03:0.07;
+  const circStrokeOp=isSecondary?0.30:0.65;
+  const circWeight=isSecondary?1.5:2;
+  const circR=18520; // 10nm for all: objectives, FARPs, and factories
+  const circ=L.circle([b.lat,b.lon],{
+    radius:circR,pane:'basePane',
+    color:teamColor,weight:circWeight,opacity:circStrokeOp,
+    fillColor:circFill,fillOpacity:circFillOp,interactive:false,
+  });
+  if(filters.bases) circ.addTo(map);
+  baseCircles[b.key]=circ;
+
+  // Inner concentric ring (airbases only — not FARPs, not factories)
+  if(!isFarp && !isFactory){
+    // Inner ring sits 2px gap inside outer stroke — approximate in metres
+    const innerR = circR - 800; // ~800m = visual 2px gap at zoom 7
+    const innerCirc = L.circle([b.lat,b.lon],{
+      radius:innerR, pane:'basePane',
+      color:teamColor, weight:1.5, opacity:0.50,
+      fill:false, interactive:false,
+    });
+    if(filters.bases) innerCirc.addTo(map);
+    baseInnerCircles[b.key]=innerCirc;
+  }
+
+  // Name label on map (bases & factories, not FARPs)
+  if(!isFarp){
+    const clr=blue?'blue':red?'red':'neutral';
+    const displayName=isFactory?`⚙ ${b.name}`:b.name;
+    const lblHtml=isFactory
+      ?`<div class="blabel-name ${clr}" style="font-size:12px;font-style:italic">${displayName}</div>`
+      :`<div class="blabel-name ${clr}">${displayName}</div>`;
+    const lbl=L.divIcon({html:lblHtml,className:'blabel',iconSize:[200,18],iconAnchor:[0,-sz/2-4]});
+    const lblMk=L.marker([b.lat,b.lon],{icon:lbl,pane:'blabelPane',interactive:false});
+    if(filters.bases) lblMk.addTo(map);
+    baseLabels[b.key]=lblMk;
+  }
+}
+
+function updateBaseOwnership(t){
+  for(const [key,entry] of Object.entries(_shelter3Map)){
+    const owner=baseOwnerAt(key,t);
+    const isBlue=owner==='Friendlies';
+    const isRed=owner==='Hostiles';
+    const color=isBlue?'#58a6ff':isRed?'#f85149':'#888888';
+    const circ=baseCircles[key];
+    if(circ){
+      const ff=circ.options.fillColor==='#44cc44'?'#44cc44':color;
+      circ.setStyle({color, fillColor:ff});
+    }
+    const innerCirc=baseInnerCircles[key];
+    if(innerCirc) innerCirc.setStyle({color});
+    const mk=baseMarkers[key];
+    if(mk){
+      const bl=_baseList.find(b=>b.key===key);if(bl)bl.coalition=owner;
+    }
+    const lbl=baseLabels[key];
+    if(lbl){
+      const nameEl=lbl.getElement()?.querySelector('.blabel-name');
+      if(nameEl) nameEl.className=`blabel-name ${isBlue?'blue':isRed?'red':'neutral'}`;
+    }
+  }
+  // ── Objective counter ────────────────────────────────────────────
+  let blueCount=0, redCount=0, total=0;
+  for(const b of _baseList){
+    if(b.isFarp||b.isFactory) continue;
+    if(SCORE_EXCLUDE_KEYS.has(b.key)) continue;
+    total++;
+    const owner = b.key ? baseOwnerAt(b.key, t) : b.coalition;
+    if(owner==='Friendlies') blueCount++;
+    else if(owner==='Hostiles') redCount++;
+  }
+  const blueTitle=document.getElementById('obj-blue-title');
+  const redTitle =document.getElementById('obj-red-title');
+  const blueBar  =document.getElementById('obj-blue-bar');
+  const redBar   =document.getElementById('obj-red-bar');
+  if(blueTitle&&total>0){
+    blueTitle.textContent=`Blue team controls ${blueCount} / ${total} Objectives`;
+    redTitle.textContent =`Red team controls ${redCount} / ${total} Objectives`;
+    blueBar.style.width=`${(blueCount/total)*100}%`;
+    redBar.style.width =`${(redCount/total)*100}%`;
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════
+//  PLAYER LIST & KILL FEED
+// ════════════════════════════════════════════════════════════════════
+function buildPlayerList(merged){
+  const cont=document.getElementById('players-list');cont.innerHTML='';
+  for(const [cs,p] of Object.entries(merged._dp)){
+    const real=p.flights.filter(f=>f.aircraft&&!isWpn(f.aircraft));
+    if(!real.length) continue;
+    const blue=p.coalition==='Friendlies';
+    playerColors[cs]=blue?'#58a6ff':'#f85149';
+    const card=document.createElement('div');
+    card.className='pcard';card.dataset.cs=cs;
+    card.innerHTML=`<div class="pc-hd"><span class="pc-cs">${cs}</span>
+      <span class="pc-tag ${blue?'tag-blue':'tag-red'}">${blue?'BLUE':'RED'}</span></div>
+      <div class="pc-st"><span>✈ ${real.length} flight${real.length!==1?'s':''}</span>
+      <span>💥 ${p.kills.length} kill${p.kills.length!==1?'s':''}</span>
+      <span>☠ ${p.deaths}</span></div>`;
+    card.addEventListener('click',()=>openDetail(cs,p));
+    cont.appendChild(card);
+  }
+}
+function isWpn(n){
+  if(!n) return false;
+  return ['AGM','AIM','MIM','AAM','HARM','HELLFIRE','HYDRA','ZUNI','MK-','GBU-','JDAM'].some(w=>n.toUpperCase().includes(w));
+}
+
+// Add a kill to the feed
+function addKillFeedEntry(ev, t){
+  const killerCs=(ev.killer||'').trim();
+  if(!killerCs||/^\d+/.test(killerCs)) return; // non-player killer
+
+  const killerCoal=playerColors[killerCs]? (playerColors[killerCs]==='#58a6ff'?'Friendlies':'Hostiles') : null;
+  const victimIsPlayer=ev.victim_category==='player_air'&&ev.victim_pilot;
+  const victimCs=(ev.victim_pilot||'').replace(/\s*\(\d+\)$/,'').trim();
+  const pvp=victimIsPlayer&&victimCs&&!/^\d+/.test(victimCs);
+
+  const victimName=victimIsPlayer?victimCs:(ev.victim_name||'Unknown');
+  const weaponName=(ev.weapon||'?').replace(/_/g,' ');
+
+  const list=document.getElementById('killfeed-list');
+  // Remove placeholder
+  const ph=list.querySelector('div[style]');if(ph)ph.remove();
+
+  const el=document.createElement('div');
+  el.className='kf-row';
+  if(pvp){
+    const blue=killerCoal==='Friendlies';
+    el.classList.add(blue?'pvp-blue':'pvp-red');
+  }
+  const killerColor=playerColors[killerCs]||'#aaa';
+  const timeStr=fmtT(t);
+  // Find what aircraft the killer was in at kill time
+  let killerAc = '';
+  if(_merged && _merged._dp && _merged._dp[killerCs]){
+    const flights = _merged._dp[killerCs].flights || [];
+    const ev_t = ev.t;
+    const flight = flights.find(f => ev_t >= f.start_t && ev_t <= (f.end_t + 60) && f.aircraft && !isWpn(f.aircraft));
+    if(flight) killerAc = flight.aircraft.replace(/_/g,' ');
+  }
+  const killerLine = killerAc
+    ? `<span class="kf-killer" style="color:${killerColor}">${killerCs}</span> <span class="kf-ac">(${killerAc})</span>`
+    : `<span class="kf-killer" style="color:${killerColor}">${killerCs}</span>`;
+  el.innerHTML=`<span class="kf-time">${timeStr}</span>
+    ${killerLine} killed<br>
+    <span class="kf-victim">${victimName}</span><br>
+    <span class="kf-weapon">${weaponName}</span>`;
+
+  // Insert at top
+  list.insertBefore(el,list.firstChild);
+
+  // Fade out after 10 minutes of game time
+  killFeedEntries.push({t:ev.t,el});
+}
+
+function updateKillFeed(t){
+  const FADE_SECS=600; // 10 min
+  for(const entry of killFeedEntries){
+    const age=t-entry.t;
+    if(age>FADE_SECS){
+      entry.el.style.opacity='0';
+      entry.el.style.pointerEvents='none';
+    } else if(age<0){
+      entry.el.style.opacity='0';
+      entry.el.style.pointerEvents='none';
+    } else {
+      entry.el.style.opacity='1';
+      entry.el.style.pointerEvents='';
+    }
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════
+//  DETAIL PANEL
+// ════════════════════════════════════════════════════════════════════
+function openDetail(cs,player){
+  selectedPlayer=cs;
+  document.querySelectorAll('.pcard').forEach(c=>c.classList.toggle('active',c.dataset.cs===cs));
+  document.getElementById('dp-cs').textContent=cs;
+  const blue=player.coalition==='Friendlies';
+  document.getElementById('dp-sub').textContent=
+    `${blue?'🔵 Blue':'🔴 Red'} · ${player.flights.filter(f=>!isWpn(f.aircraft)).length} flights · ${player.kills.length} kills · ${player.deaths} deaths`;
+  const fEl=document.getElementById('dp-flights');fEl.innerHTML='';
+  for(const fl of player.flights.filter(f=>!isWpn(f.aircraft))){
+    const d=document.createElement('div');d.className='fl-row';
+    d.innerHTML=`<b>${fl.aircraft}</b><span>${fl.duration_min}min · ${fmtT(fl.start_t)}</span>`;
+    d.addEventListener('click',()=>{seekTo(fl.start_t);focusObj(fl.obj_id);});
+    fEl.appendChild(d);
+  }
+  const kEl=document.getElementById('dp-kills');kEl.innerHTML='';
+  if(!player.kills.length){kEl.innerHTML='<div style="color:var(--dim);font-size:11px">No kills</div>';}
+  for(const k of player.kills){
+    const d=document.createElement('div');d.className='kill-row';
+    d.innerHTML=`<b>${k.victim||'?'}</b><span>${k.weapon||'?'} · ${fmtT(k.t)}</span>`;
+    if(k.lat&&k.lon){d.style.cursor='pointer';d.addEventListener('click',()=>{seekTo(k.t);map.setView([k.lat,k.lon],12);});}
+    kEl.appendChild(d);
+  }
+  document.getElementById('detail-panel').style.display='block';
+  highlightTrails();
+}
+document.getElementById('close-dp').addEventListener('click',()=>{
+  document.getElementById('detail-panel').style.display='none';
+  selectedPlayer=null;
+  document.querySelectorAll('.pcard').forEach(c=>c.classList.remove('active'));
+  highlightTrails();
+});
+function highlightTrails(){
+  if(!_merged) return;
+  for(const [id,segs] of Object.entries(unitTrails)){
+    const obj=_merged.objects[id];if(!obj) continue;
+    const base=(obj.pilot||'').replace(/\s*\(\d+\)$/,'').trim();
+    const sel=base===selectedPlayer;
+    const blue=obj.coalition==='Friendlies';
+    const color=blue?'#1e6bb8':'#c42b20';
+    segs.forEach((p,i)=>{
+      const op=sel?0.95:(0.12+0.55*(i/(segs.length-1)));
+      const w=sel?3.5:(obj.is_human?3:2);
+      const c=sel?'#fff':color;
+      p.setStyle({color:c,weight:w,opacity:op});
+    });
+    if(sel) segs[segs.length-1].bringToFront();
+  }
+}
+function focusObj(id){
+  const track=_merged?.tracks[id];if(!track) return;
+  const pt=track.reduce((b,p)=>Math.abs(p.t-currentTime)<Math.abs(b.t-currentTime)?p:b);
+  map.setView([pt.lat,pt.lon],11);
+}
+
+// ════════════════════════════════════════════════════════════════════
+//  TIMELINE
+// ════════════════════════════════════════════════════════════════════
+function drawTimeline(){
+  const sDiv=document.getElementById('tl-sessions');sDiv.innerHTML='';
+  const BCOLS=['#1f3a5c','#2a1f3f','#1f3a2f','#3a2a1f'];
+  SESSIONS.forEach((s,i)=>{
+    const x=(s._offset/campaignDur)*100,w=(s._dur/campaignDur)*100;
+    const b=document.createElement('div');
+    b.style.cssText=`position:absolute;left:${x}%;width:${w}%;height:100%;background:${BCOLS[i%4]}`;
+    sDiv.appendChild(b);
+    const l=document.createElement('div');l.className='sess-lbl';
+    l.style.left=`${x+w/2}%`;l.textContent=s._label;sDiv.appendChild(l);
+  });
+  const eDiv=document.getElementById('tl-events');eDiv.innerHTML='';
+  for(const ev of SESSIONS.flatMap(s=>s.events)){
+    if(ev.type!=='kill'&&ev.type!=='crashed'&&ev.type!=='pilot dead') continue;
+    let pipColor='#888888';
+    const killerCs=(ev.killer||'').trim();
+    const vcs=(ev.victim_pilot||'').replace(/\s*\(\d+\)$/,'').trim();
+    if(killerCs&&!/^\d+/.test(killerCs)&&playerColors[killerCs]) pipColor=playerColors[killerCs];
+    else if(vcs&&playerColors[vcs]) pipColor=playerColors[vcs];
+    const pip=document.createElement('div');pip.className='tpip';
+    pip.style.left=`${(ev.t/campaignDur)*100}%`;pip.style.background=pipColor;
+    pip.title=`${ev.victim_name||vcs||'?'} · ${fmtT(ev.t)}`;
+    pip.addEventListener('click',()=>seekTo(ev.t));
+    eDiv.appendChild(pip);
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════
+//  MAIN DISPLAY UPDATE
+// ════════════════════════════════════════════════════════════════════
+const TRAIL_SECS=240;
+const shownKillFeed=new Set();
+
+function updateDisplay(){
+  const t=currentTime;
+  let wc=fmtT(t);
+  if(SESSIONS.length){
+    const s=SESSIONS.slice().reverse().find(s=>t>=s._offset)||SESSIONS[0];
+    if(s?.meta?.reference_time){
+      const ms=new Date(s.meta.reference_time).getTime()+(t-s._offset)*1000;
+      wc=new Date(ms).toUTCString().slice(5,22)+' Z';
+    }
+  }
+  document.getElementById('wallclock').textContent=wc;
+  document.getElementById('tl-time').textContent=`${fmtT(t)} / ${fmtDur(campaignDur)}`;
+  document.getElementById('scrubber').value=t;
+
+  for(const s of SESSIONS)
+    for(const [id,track] of Object.entries(s.tracks))
+      updateUnit(id,track,t);
+
+  updateKills(t);
+  updateKillFeedEvents(t);
+  updateKillFeed(t);
+  updateBaseOwnership(t);
+  // FLOT disabled — if(filters.flot) updateFLOT(t);
+}
+
+function updateUnit(id,track,t){
+  const obj=_merged?.objects[id];if(!obj) return;
+  const cat=obj.category;
+  const isGnd=isGroundVehicle(obj);
+  const isAir=isNamedAircraft(obj);
+  if(!isGnd&&!isAir) return;
+
+  const mrk=unitMarkers[id];
+  const poly=unitTrails[id];
+  const lbl=pilotLabels[id];
+  if(!mrk) return;
+
+  const showByFilter=(isAir&&cat==='player_air'&&filters.playerAir)
+    ||(isAir&&cat==='ai_air'&&filters.aiAir)
+    ||(isGnd&&filters.ground);
+
+  if(!showByFilter){
+    if(mrk._vis){mrk.setOpacity(0);mrk._vis=false;}
+    if(lbl&&lbl._vis){lbl.setOpacity(0);lbl._vis=false;}
+    if(poly) for(const p of poly) p.setLatLngs([]);
+    const _gl1=groundLabels[id]; if(_gl1&&_gl1._vis){map.removeLayer(_gl1);_gl1._vis=false;}
+    return;
+  }
+  const first=track[0].t, last=track[track.length-1].t;
+  // Ground units with a single track point are static emplacements — show from first seen to end of session
+  const isStatic = isGnd && track.length === 1;
+  const alive = isStatic ? t >= first : (t >= first && t <= last + 30);
+  // Ground kill fade-out: 60s fade starting at kill time
+  const killT = isGnd ? groundKillTimes[id] : null;
+  if(killT != null){
+    const elapsed = t - killT;
+    if(elapsed >= 60){
+      // Fully faded — hide completely
+      if(mrk._vis){mrk.setOpacity(0);mrk._vis=false;}
+      const _glk=groundLabels[id]; if(_glk&&_glk._vis){map.removeLayer(_glk);_glk._vis=false;}
+      return;
+    } else if(elapsed > 0){
+      // Fading — keep visible but reduce opacity
+      const op = Math.max(0, 1 - elapsed/60);
+      mrk.setOpacity(op);
+      mrk._vis=true;
+      // Move to last known position, then fall through to normal update
+    }
+  }
+  if(!alive){
+    if(mrk._vis){mrk.setOpacity(0);mrk._vis=false;}
+    if(lbl&&lbl._vis){lbl.setOpacity(0);lbl._vis=false;}
+    if(poly) for(const p of poly) p.setLatLngs([]);
+    const _gl2=groundLabels[id]; if(_gl2&&_gl2._vis){map.removeLayer(_gl2);_gl2._vis=false;}
+    return;
+  }
+  let idx=mrk._idx||0;
+  if(track[idx]&&track[idx].t>t) idx=0;
+  while(idx<track.length-1&&track[idx+1].t<=t) idx++;
+  mrk._idx=idx;
+  const pt=track[idx];
+
+  // Interpolate position between this sample and next for smooth movement
+  let dispLat=pt.lat, dispLon=pt.lon, dispHdg=pt.hdg;
+  if(!isGnd && idx<track.length-1){
+    const ptN=track[idx+1];
+    const seg=ptN.t-pt.t;
+    if(seg>0 && seg<=15){ // only interpolate within expected sample gaps
+      const frac=Math.min((t-pt.t)/seg,1);
+      dispLat=pt.lat+(ptN.lat-pt.lat)*frac;
+      dispLon=pt.lon+(ptN.lon-pt.lon)*frac;
+      // Heading: interpolate angle correctly (shortest arc)
+      if(pt.hdg!=null&&ptN.hdg!=null){
+        let dh=ptN.hdg-pt.hdg;
+        if(dh>180)dh-=360; if(dh<-180)dh+=360;
+        dispHdg=pt.hdg+dh*frac;
+      }
+    }
+  }
+
+  mrk.setLatLng([dispLat,dispLon]);
+  const base=(obj.pilot||'').replace(/\s*\(\d+\)$/,'').trim();
+  mrk.setIcon(leafletIcon(cat,obj.name,obj.coalition,isGnd?null:dispHdg,base===selectedPlayer,obj.is_human));
+  if(!mrk._vis){mrk.setOpacity(1);mrk._vis=true;}
+
+  if(lbl&&isAir&&obj.is_human){
+    // FARP FIX: hide pilot label when grounded (alt stable / very low above terrain)
+    // Use track alt delta: if alt didn't change >5m in 20s, consider grounded
+    const isGrounded=idx>0&&Math.abs(track[Math.max(0,idx-3)].alt-pt.alt)<5&&pt.alt<400;
+    if(isGrounded){
+      if(lbl._vis){lbl.setOpacity(0);lbl._vis=false;}
+    } else {
+      lbl.setLatLng([dispLat,dispLon]);
+      if(!lbl._vis){lbl.setOpacity(1);lbl._vis=true;}
+      const nameEl=document.getElementById(`ln-${id}`);
+      const telemEl=document.getElementById(`lt-${id}`);
+      if(nameEl){
+        const cs=(obj.pilot||'').replace(/\s*\(\d+\)$/,'').trim();
+        nameEl.textContent=`${cs} (${obj.name||''})`;
+      }
+      if(telemEl){
+        const altFt=Math.round((pt.alt||0)*3.28084);
+        const altK=(altFt/1000).toFixed(1);
+        let machStr='';
+        if(idx>0){
+          const prev=track[idx-1];const dt=pt.t-prev.t;
+          if(dt>0&&dt<20){
+            const dlat=(pt.lat-prev.lat)*111320;
+            const dlon=(pt.lon-prev.lon)*111320*Math.cos(pt.lat*Math.PI/180);
+            const mps=Math.sqrt(dlat*dlat+dlon*dlon)/dt;
+            const mach=mps/340;
+            if(mach>0.02) machStr=` M${mach.toFixed(2)}`;
+          }
+        }
+        telemEl.textContent=`${altK}k ft${machStr}`;
+      }
+    }
+  }
+
+  // Ground label — show/hide/move alongside unit marker
+  if(isGnd){
+    const glbl=groundLabels[id];
+    if(glbl){
+      const showLbl=filters.groundLabels&&mrk._vis;
+      if(showLbl && !glbl._vis){
+        glbl.setLatLng([pt.lat,pt.lon]);
+        glbl.addTo(map);
+        glbl._vis=true;
+      } else if(!showLbl && glbl._vis){
+        map.removeLayer(glbl);
+        glbl._vis=false;
+      } else if(showLbl){
+        glbl.setLatLng([pt.lat,pt.lon]);
+      }
+    }
+  }
+
+  if(isAir&&filters.trails&&poly){
+    const trailPts=track.filter(p=>p.t>=t-TRAIL_SECS&&p.t<=t);
+    const TRAIL_SEGS=poly.length;
+    if(trailPts.length>=2&&TRAIL_SEGS>0){
+      const segLen=Math.ceil(trailPts.length/TRAIL_SEGS);
+      for(let s=0;s<TRAIL_SEGS;s++){
+        const start=s*segLen;
+        // Overlap segments by 1 point so there are no gaps
+        const chunk=trailPts.slice(start,start+segLen+1);
+        poly[s].setLatLngs(chunk.length>=2?chunk.map(p=>[p.lat,p.lon]):[]);
+      }
+    } else {
+      for(const p of poly) p.setLatLngs([]);
+    }
+  } else if(poly){ for(const p of poly) p.setLatLngs([]); }
+}
+
+// ════════════════════════════════════════════════════════════════════
+//  EXPLOSIONS
+// ════════════════════════════════════════════════════════════════════
+function spawnExp(lat,lon,isPlayer){
+  const sz=isPlayer?58:34,dur=isPlayer?1800:1200;
+  const fc=isPlayer?'#ff4422':'#ffaa22';
+  const ring=isPlayer?'#ff8844':'#ffcc44';
+  const smoke=isPlayer?'#886655':'#998866';
+  const h=sz/2;
+  const sparks=[0,45,90,135,180,225,270,315].map(a=>{
+    const r=h*.55,r2=h*.82;
+    const x1=(Math.cos(a*Math.PI/180)*r).toFixed(1),y1=(Math.sin(a*Math.PI/180)*r).toFixed(1);
+    const x2=(Math.cos(a*Math.PI/180)*r2).toFixed(1),y2=(Math.sin(a*Math.PI/180)*r2).toFixed(1);
+    return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${ring}" stroke-width="${isPlayer?2.5:1.5}" stroke-linecap="round"/>`;
+  }).join('');
+  const html=`<div style="position:relative;width:${sz}px;height:${sz}px;pointer-events:none">
+    <div style="position:absolute;left:50%;top:50%;width:${sz*.9}px;height:${sz*.9}px;border-radius:50%;border:${isPlayer?4:3}px solid ${smoke};animation:er2 ${dur}ms ease-out forwards"></div>
+    <div style="position:absolute;left:50%;top:50%;width:${sz*.75}px;height:${sz*.75}px;border-radius:50%;border:${isPlayer?5:3}px solid ${ring};background:radial-gradient(circle,${fc}cc 0%,${fc}55 50%,transparent 75%);animation:er1 ${dur*.8}ms ease-out forwards"></div>
+    <div style="position:absolute;left:50%;top:50%;width:${sz*.4}px;height:${sz*.4}px;border-radius:50%;background:radial-gradient(circle,#ffffcc 0%,#ffdd44 40%,${fc} 80%);animation:ec ${dur*.7}ms ease-out forwards;box-shadow:0 0 ${isPlayer?18:10}px #ffaa33"></div>
+    <svg style="position:absolute;left:50%;top:50%;overflow:visible;animation:esk ${dur*.9}ms ease-out forwards" width="${sz}" height="${sz}" viewBox="-${h} -${h} ${sz} ${sz}">${sparks}</svg>
+  </div>`;
+  const icon=L.divIcon({html,className:'expmark',iconSize:[sz,sz],iconAnchor:[h,h]});
+  const m=L.marker([lat,lon],{icon,zIndexOffset:5000,interactive:false}).addTo(map);
+  killLayers.push(m);
+  setTimeout(()=>{try{map.removeLayer(m)}catch(e){}},dur+100);
+}
+
+function updateKills(t){
+  if(!filters.kills) return;
+  for(const ev of SESSIONS.flatMap(s=>s.events)){
+    if(ev.type!=='kill'&&ev.type!=='crashed') continue;
+    if(!ev.lat||!ev.lon) continue;
+    const age=t-ev.t;if(age<0||age>25) continue;
+    const key=`${ev.t}_${ev.victim_id}`;
+    if(shownKills.has(key)) continue;
+    shownKills.add(key);
+    // Record ground kill time for fade-out
+    if(ev.victim_category==='ground'&&ev.victim_id&&!(ev.victim_id in groundKillTimes)){
+      groundKillTimes[ev.victim_id]=ev.t;
+    }
+    const isPlayer=ev.victim_category==='player_air'&&ev.victim_pilot;
+    spawnExp(ev.lat,ev.lon,isPlayer);
+    const color=isPlayer?'#f85149':'#d29922';
+    const dot=L.circleMarker([ev.lat,ev.lon],{radius:3,color,fillColor:color,fillOpacity:.8,weight:1}).addTo(map);
+    dot.bindTooltip(`💥 ${ev.victim_name||ev.victim_pilot||'?'}`,{sticky:true});
+    killLayers.push(dot);
+    const fade=Math.max(5000,25000/Math.max(playSpeed,1));
+    setTimeout(()=>{try{map.removeLayer(dot)}catch(e){};shownKills.delete(key);},fade);
+  }
+}
+
+function updateKillFeedEvents(t){
+  for(const ev of SESSIONS.flatMap(s=>s.events)){
+    if(ev.type!=='kill') continue;
+    const key=`feed_${ev.t}_${ev.victim_id}`;
+    if(shownKillFeed.has(key)) continue;
+    const age=t-ev.t;
+    if(age<0||age>30) continue;
+    shownKillFeed.add(key);
+    addKillFeedEntry(ev,ev.t);
+  }
+  // Reset feed entries if time seeked backwards
+  if(t < currentTime - 60) {
+    shownKillFeed.clear();
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════
+//  FLOT
+//  Unit filter: only manoeuvre/combat units contribute (tanks, AAA, SHORAD,
+//  IR SAM). Logistics trucks, scouts, MANPADS, and solitary units excluded.
+//  Base weight: objectives only (no FARPs, no factories).
+//  Frontier line: traditional military map style — solid line with
+//  perpendicular tick marks pointing into enemy territory.
+// ════════════════════════════════════════════════════════════════════
+const FLOT_INT = 20;
+const BASE_WEIGHT = 8;
+const TICK_SPACING_M = 18000;
+const TICK_LEN_M     = 6000;
+const SOLO_RADIUS_M  = 6000;
+
+// Animation state — stores spline data per team so the RAF loop can
+// re-wiggle without recomputing hulls every frame
+// FLOT transition state — lerps between previous and new spline when front shifts
+let _flotAnimId     = null;
+const LERP_DURATION = 2500; // ms to transition to new front line position
+// Per-team state: { from, to, eCen, color, startMs }
+// from/to are arrays of [lat,lon] spline points (same length after resampling)
+let _flotBlueState  = null;
+let _flotRedState   = null;
+
+// Whitelist: unit names that count as manoeuvre/combat for FLOT purposes.
+// Everything not in this set is ignored (logistics, scouts, structures, etc.)
+const FLOT_COMBAT_UNITS = new Set([
+  // MBTs
+  'T-90','Leopard-2','M-1 Abrams','Leclerc',
+  // IFV / APC (add as needed)
+  'BMP-1','BMP-2','BMP-3','BTR-80','M2 Bradley','M113',
+  // AAA / SHORAD
+  '2S6 Tunguska','Gepard','Roland ADS','M6 Linebacker',
+  // IR SAM / VSHORAD
+  'Tor 9A331','M48 Chaparral','M1097 Avenger',
+  // MANPADS excluded — they are individual soldiers, not a front line indicator
+]);
+
+function isFlotUnit(obj) {
+  return FLOT_COMBAT_UNITS.has(obj.name);
+}
+
+// Returns true if this unit has at least one same-coalition neighbour within SOLO_RADIUS_M.
+// Prevents lone scouts/broken-down vehicles from distorting the hull.
+function hasFriendlyNeighbour(lat, lon, coal, allPts) {
+  const cosLat = Math.cos(lat * Math.PI / 180);
+  for (const p of allPts) {
+    if (p[2] !== coal) continue; // [lat, lon, coal]
+    const dlat = (p[0] - lat) * 111320;
+    const dlon = (p[1] - lon) * 111320 * cosLat;
+    if (Math.sqrt(dlat * dlat + dlon * dlon) < SOLO_RADIUS_M) return true;
+  }
+  return false;
+}
+
+function updateFLOT(t) {
+  if (Math.abs(t - flotLastT) < FLOT_INT) return;
+  flotLastT = t;
+
+  // ── 1. Collect active combat unit positions ───────────────────────
+  const candidates = []; // [lat, lon, coal, isMobile]
+  for (const s of SESSIONS) {
+    for (const [id, track] of Object.entries(s.tracks)) {
+      const obj = _merged?.objects[id];
+      if (!obj || obj.category !== 'ground') continue;
+      if (!isFlotUnit(obj)) continue;
+      const first = track[0].t, last = track[track.length - 1].t;
+      const isStatic = track.length === 1;
+      if (!isStatic && (first > t || last < t - 60)) continue;
+      const idx = Math.min(unitMarkers[id]?._idx || 0, track.length - 1);
+      const pt = track[idx];
+      if (!pt) continue;
+      const coal = obj.coalition === 'Friendlies' ? 'B' : obj.coalition === 'Hostiles' ? 'R' : null;
+      if (!coal) continue;
+      candidates.push([pt.lat, pt.lon, coal, !isStatic]);
+    }
+  }
+
+  // ── 2. Filter solitary units, split by team ───────────────────────
+  const blueUnits = [], redUnits = [];
+  for (const p of candidates) {
+    if (!hasFriendlyNeighbour(p[0], p[1], p[2], candidates)) continue;
+    if (p[2] === 'B') blueUnits.push(p);
+    else              redUnits.push(p);
+  }
+
+  // ── 3. Detect advancing clusters (6+ mobile units within 5km) ────
+  // For each cluster, add extra weight points pushed outward toward enemy
+  // centroid — creating a "lava bulge" on the enemy-facing side.
+  const CLUSTER_RADIUS_M = 5000;
+  const CLUSTER_MIN      = 6;
+  const CLUSTER_WEIGHT   = 14;  // extra points per cluster
+  const CLUSTER_PUSH_M   = 22000; // how far to push the bulge outward
+
+  function addClusterBulges(units, enemyUnits, pointsArr) {
+    if (units.length < CLUSTER_MIN) return;
+    const eCen = centroid(enemyUnits.map(p => [p[0], p[1]]));
+    const mPerDeg = 1 / 111320;
+    const visited = new Set();
+
+    for (let i = 0; i < units.length; i++) {
+      if (visited.has(i)) continue;
+      const [la, lo, , mobile] = units[i];
+      if (!mobile) continue; // only mobile units seed clusters
+
+      // Find all units within CLUSTER_RADIUS_M
+      const cluster = [i];
+      const cosLat = Math.cos(la * Math.PI / 180);
+      for (let j = 0; j < units.length; j++) {
+        if (j === i) continue;
+        const dlat = (units[j][0] - la) * 111320;
+        const dlon = (units[j][1] - lo) * 111320 * cosLat;
+        if (Math.sqrt(dlat*dlat + dlon*dlon) < CLUSTER_RADIUS_M) cluster.push(j);
+      }
+      if (cluster.length < CLUSTER_MIN) continue;
+      cluster.forEach(j => visited.add(j));
+
+      // Cluster centroid
+      const cLat = cluster.reduce((s,j)=>s+units[j][0],0)/cluster.length;
+      const cLon = cluster.reduce((s,j)=>s+units[j][1],0)/cluster.length;
+
+      // Direction from cluster centroid toward enemy centroid
+      const dLat = eCen[0] - cLat;
+      const dLon = (eCen[1] - cLon) * Math.cos(cLat * Math.PI / 180);
+      const len  = Math.sqrt(dLat*dLat + dLon*dLon) || 1;
+      const nLat = dLat / len, nLon = dLon / len;
+
+      // Place CLUSTER_WEIGHT points in a fan on the enemy-facing side
+      // Spread them across a ~60° arc to create the lava-bulge curve
+      for (let k = 0; k < CLUSTER_WEIGHT; k++) {
+        const angle = (k / (CLUSTER_WEIGHT - 1) - 0.5) * (Math.PI / 3); // -30° to +30°
+        const rLat  =  nLat * Math.cos(angle) - nLon * Math.sin(angle);
+        const rLon  =  nLat * Math.sin(angle) + nLon * Math.cos(angle);
+        const cosC  = Math.cos(cLat * Math.PI / 180);
+        pointsArr.push([
+          cLat + rLat * CLUSTER_PUSH_M * mPerDeg,
+          cLon + rLon * CLUSTER_PUSH_M * mPerDeg / cosC,
+        ]);
+      }
+    }
+  }
+
+  // ── 4. Build hull point sets ──────────────────────────────────────
+  const blue = blueUnits.map(p => [p[0], p[1]]);
+  const red  = redUnits.map(p => [p[0], p[1]]);
+
+  // Base ownership — higher weight than before
+  const BASE_W_HIGH = 16;
+  for (const b of _baseList) {
+    if (b.isFarp || b.isFactory) continue;
+    const owner = b.key ? baseOwnerAt(b.key, t) : b.coalition;
+    const isBlue = owner === 'Friendlies', isRed = owner === 'Hostiles';
+    for (let i = 0; i < BASE_W_HIGH; i++) {
+      const da = (Math.random() - .5) * .03, dl = (Math.random() - .5) * .03;
+      if (isBlue) blue.push([b.lat + da, b.lon + dl]);
+      else if (isRed) red.push([b.lat + da, b.lon + dl]);
+    }
+  }
+
+  // Cluster bulges
+  addClusterBulges(blueUnits, redUnits,  blue);
+  addClusterBulges(redUnits,  blueUnits, red);
+
+  if (blue.length < 4 || red.length < 4) { clearFLOT(); return; }
+  clearFLOT();
+
+  const bH = convexHull(blue), rH = convexHull(red);
+  if (!bH.length || !rH.length) return;
+
+  // ── 5. Filled hulls ───────────────────────────────────────────────
+  flotBlueFill = L.polygon(bH, {
+    pane:'flotPane', color:'#3399ff', weight:0,
+    fillColor:'#3399ff', fillOpacity:.07, interactive:false
+  }).addTo(map);
+  flotRedFill = L.polygon(rH, {
+    pane:'flotPane', color:'#ff4433', weight:0,
+    fillColor:'#ff4433', fillOpacity:.07, interactive:false
+  }).addTo(map);
+
+  // ── 6. Frontier splines + transition ─────────────────────────────
+  const bFront = filterThroughBases(frontierEdge(bH, red),  'Friendlies', t);
+  const rFront = filterThroughBases(frontierEdge(rH, blue), 'Hostiles',   t);
+
+  const newBlue = bFront.length >= 2 ? catmullRomSpline(bFront, 20) : null;
+  const newRed  = rFront.length >= 2 ? catmullRomSpline(rFront, 20) : null;
+  const nowMs   = performance.now();
+
+  if (newBlue) {
+    const from = _flotBlueState ? resampleTo(_flotBlueState.current || _flotBlueState.to, newBlue.length) : newBlue;
+    _flotBlueState = { from, to: newBlue, eCen: centroid(red),  color: '#4499ff', startMs: nowMs };
+    if (!flotBlueLine) flotBlueLine = L.featureGroup([], { pane:'flotPane', interactive:false }).addTo(map);
+  } else { _flotBlueState = null; }
+
+  if (newRed) {
+    const from = _flotRedState ? resampleTo(_flotRedState.current || _flotRedState.to, newRed.length) : newRed;
+    _flotRedState = { from, to: newRed, eCen: centroid(blue), color: '#ff4433', startMs: nowMs };
+    if (!flotRedLine) flotRedLine = L.featureGroup([], { pane:'flotPane', interactive:false }).addTo(map);
+  } else { _flotRedState = null; }
+
+  stopFlotAnim();
+  if (_flotBlueState || _flotRedState)
+    _flotAnimId = requestAnimationFrame(_flotTransitionTick);
+}
+// ── Military front line renderer ─────────────────────────────────────
+// Draws a solid polyline with perpendicular tick marks every TICK_SPACING_M,
+// ticks pointing toward the enemy centroid (into enemy territory).
+// ── Catmull-Rom spline interpolation ────────────────────────────────
+// Given a list of [lat,lon] control points, returns a smoothed polyline
+// with `steps` interpolated points between each pair.
+// ── Catmull-Rom spline ───────────────────────────────────────────────
+function catmullRomSpline(pts, steps) {
+  if (pts.length < 2) return pts.slice();
+  const result = [];
+  const p = [pts[0], ...pts, pts[pts.length - 1]];
+  for (let i = 1; i < p.length - 2; i++) {
+    const p0=p[i-1], p1=p[i], p2=p[i+1], p3=p[i+2];
+    for (let j = 0; j < steps; j++) {
+      const t=j/steps, t2=t*t, t3=t2*t;
+      result.push([
+        0.5*((2*p1[0])+(-p0[0]+p2[0])*t+(2*p0[0]-5*p1[0]+4*p2[0]-p3[0])*t2+(-p0[0]+3*p1[0]-3*p2[0]+p3[0])*t3),
+        0.5*((2*p1[1])+(-p0[1]+p2[1])*t+(2*p0[1]-5*p1[1]+4*p2[1]-p3[1])*t2+(-p0[1]+3*p1[1]-3*p2[1]+p3[1])*t3),
+      ]);
+    }
+  }
+  result.push(pts[pts.length - 1]);
+  return result;
+}
+
+// ── Resample a spline to a target point count (for lerping between different-length splines) ──
+function resampleTo(pts, n) {
+  if (pts.length === n) return pts.slice();
+  if (pts.length < 2) return Array(n).fill(pts[0] || [0,0]);
+  // Build cumulative distance index
+  const cumd = [0];
+  for (let i = 1; i < pts.length; i++)
+    cumd.push(cumd[i-1] + haverM(pts[i-1][0],pts[i-1][1],pts[i][0],pts[i][1]));
+  const total = cumd[cumd.length-1];
+  const result = [];
+  for (let k = 0; k < n; k++) {
+    const target = (k / (n-1)) * total;
+    // Binary search for segment
+    let lo=0, hi=cumd.length-2;
+    while (lo < hi) { const mid=(lo+hi)>>1; if (cumd[mid+1]<target) lo=mid+1; else hi=mid; }
+    const segLen = cumd[lo+1]-cumd[lo];
+    const frac   = segLen > 0 ? (target-cumd[lo])/segLen : 0;
+    result.push([
+      pts[lo][0]+(pts[lo+1][0]-pts[lo][0])*frac,
+      pts[lo][1]+(pts[lo+1][1]-pts[lo][1])*frac,
+    ]);
+  }
+  return result;
+}
+
+// ── Lerp between two equal-length splines ────────────────────────────
+function lerpSpline(from, to, t) {
+  return from.map((p,i) => [p[0]+(to[i][0]-p[0])*t, p[1]+(to[i][1]-p[1])*t]);
+}
+
+// ── Centroid ─────────────────────────────────────────────────────────
+function centroid(pts) {
+  if (!pts.length) return [0,0];
+  const s = pts.reduce((a,p)=>[a[0]+p[0],a[1]+p[1]],[0,0]);
+  return [s[0]/pts.length, s[1]/pts.length];
+}
+
+// ── Haversine distance in metres ─────────────────────────────────────
+function haverM(la, lo, lb, lob) {
+  const R = 6371000;
+  const dLat=(lb-la)*Math.PI/180, dLon=(lob-lo)*Math.PI/180;
+  const a=Math.sin(dLat/2)**2+Math.cos(la*Math.PI/180)*Math.cos(lb*Math.PI/180)*Math.sin(dLon/2)**2;
+  return R*2*Math.asin(Math.sqrt(a));
+}
+
+// ── Tick marks along a spline ─────────────────────────────────────────
+function buildTicks(splinePts, eCen) {
+  const ticks=[], mPerDeg=1/111320;
+  let cumDist=0, nextTick=TICK_SPACING_M/2;
+  for (let i=0; i<splinePts.length-1; i++) {
+    const [la,lo]=splinePts[i],[lb,lob]=splinePts[i+1];
+    const segLen=haverM(la,lo,lb,lob), cumEnd=cumDist+segLen;
+    while (nextTick<cumEnd) {
+      const frac=segLen>0?(nextTick-cumDist)/segLen:0;
+      const lat=la+(lb-la)*frac, lon=lo+(lob-lo)*frac;
+      const dLat=lb-la, dLon=(lob-lo)*Math.cos(lat*Math.PI/180);
+      const bear=Math.atan2(dLon,dLat);
+      const perpA=bear+Math.PI/2, perpB=bear-Math.PI/2;
+      const cosLat=Math.cos(lat*Math.PI/180);
+      const tA=[lat+Math.cos(perpA)*TICK_LEN_M*mPerDeg, lon+Math.sin(perpA)*TICK_LEN_M*mPerDeg/cosLat];
+      const tB=[lat+Math.cos(perpB)*TICK_LEN_M*mPerDeg, lon+Math.sin(perpB)*TICK_LEN_M*mPerDeg/cosLat];
+      const tip=haverM(tA[0],tA[1],eCen[0],eCen[1])<haverM(tB[0],tB[1],eCen[0],eCen[1])?tA:tB;
+      ticks.push([[lat,lon],tip]);
+      nextTick+=TICK_SPACING_M;
+    }
+    cumDist=cumEnd;
+  }
+  return ticks;
+}
+
+// ── Transition RAF loop ───────────────────────────────────────────────
+// Runs only while a transition is in progress (stops when both reach target).
+// Lerps the spline points from the previous position to the new one over
+// LERP_DURATION ms, then holds the final position with no further animation.
+function _flotTransitionTick(now) {
+  if (!filters.flot) { _flotAnimId = null; return; }
+
+  let stillMoving = false;
+
+  for (const [state, group] of [[_flotBlueState, flotBlueLine],[_flotRedState, flotRedLine]]) {
+    if (!state || !group) continue;
+    const elapsed = now - state.startMs;
+    const t = Math.min(elapsed / LERP_DURATION, 1);
+    // Ease in-out cubic
+    const ease = t < 0.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2;
+    const current = ease >= 1 ? state.to : lerpSpline(state.from, state.to, ease);
+    state.current = current;
+
+    group.clearLayers();
+    L.polyline(current, {
+      pane:'flotPane', color:state.color, weight:2.5, opacity:0.90, interactive:false
+    }).addTo(group);
+    for (const [s,e] of buildTicks(current, state.eCen)) {
+      L.polyline([s,e], {pane:'flotPane',color:state.color,weight:2,opacity:0.85,interactive:false}).addTo(group);
+    }
+
+    if (t < 1) stillMoving = true;
+  }
+
+  if (stillMoving) {
+    _flotAnimId = requestAnimationFrame(_flotTransitionTick);
+  } else {
+    _flotAnimId = null; // Transition complete — stop the loop
+  }
+}
+
+function stopFlotAnim() {
+  if (_flotAnimId) { cancelAnimationFrame(_flotAnimId); _flotAnimId = null; }
+}
+
+function filterThroughBases(pts, coalition, t) {
+  return pts.filter(p => {
+    for (const b of _baseList) {
+      if (b.isFarp || b.isFactory) continue;
+      const own = b.key ? baseOwnerAt(b.key, t) : b.coalition;
+      const same = (coalition === 'Friendlies' && own === 'Friendlies') ||
+                   (coalition === 'Hostiles'   && own === 'Hostiles');
+      if (!same) continue;
+      const dlat = (p[0] - b.lat) * 111320;
+      const dlon = (p[1] - b.lon) * 111320 * Math.cos(b.lat * Math.PI / 180);
+      if (Math.sqrt(dlat*dlat + dlon*dlon) < 18520) return false;
+    }
+    return true;
+  });
+}
+
+function convexHull(pts) {
+  if (pts.length < 3) return pts.slice();
+  const s = pts.slice().sort((a, b) => a[1] !== b[1] ? a[1]-b[1] : a[0]-b[0]);
+  const cross = (o, a, b) => (a[1]-o[1])*(b[0]-o[0]) - (a[0]-o[0])*(b[1]-o[1]);
+  const lo = [], hi = [];
+  for (const p of s) {
+    while (lo.length >= 2 && cross(lo[lo.length-2], lo[lo.length-1], p) <= 0) lo.pop();
+    lo.push(p);
+  }
+  for (let i = s.length-1; i >= 0; i--) {
+    const p = s[i];
+    while (hi.length >= 2 && cross(hi[hi.length-2], hi[hi.length-1], p) <= 0) hi.pop();
+    hi.push(p);
+  }
+  hi.pop(); lo.pop();
+  return lo.concat(hi);
+}
+
+function frontierEdge(hull, enemy) {
+  if (!hull.length || !enemy.length) return [];
+  const ec = enemy.reduce((a, p) => [a[0]+p[0], a[1]+p[1]], [0, 0]);
+  const eCen = [ec[0]/enemy.length, ec[1]/enemy.length];
+  const oc = hull.reduce((a, p) => [a[0]+p[0], a[1]+p[1]], [0, 0]);
+  const oCen = [oc[0]/hull.length, oc[1]/hull.length];
+  const dx = eCen[1]-oCen[1], dy = eCen[0]-oCen[0];
+  let front = hull.filter(p => (p[1]-oCen[1])*dx + (p[0]-oCen[0])*dy > 0);
+  if (front.length < 2) front = hull.slice();
+  front.sort((a, b) =>
+    Math.atan2(a[0]-oCen[0], a[1]-oCen[1]) - Math.atan2(b[0]-oCen[0], b[1]-oCen[1])
+  );
+  return front;
+}
+
+function clearFLOT() {
+  stopFlotAnim();
+  _flotBlueState = null; _flotRedState = null;
+  for (const l of [flotBlueFill, flotBlueLine, flotRedFill, flotRedLine])
+    if (l) { try { map.removeLayer(l); } catch(e) {} }
+  flotBlueFill = flotBlueLine = flotRedFill = flotRedLine = null;
+  flotLastT = -9999;
+}
+
+// ════════════════════════════════════════════════════════════════════
+//  PLAYBACK
+// ════════════════════════════════════════════════════════════════════
+function tick(raf){
+  if(!playing) return;
+  if(lastRaf!==null){
+    const dt=(raf-lastRaf)/1000;
+    currentTime=Math.min(currentTime+dt*playSpeed,campaignDur);
+    if(currentTime>=campaignDur){currentTime=campaignDur;playing=false;updPlayBtn();}
+    updateDisplay();
+  }
+  lastRaf=raf;
+  if(playing) rafId=requestAnimationFrame(tick);
+}
+function startPlay(){if(currentTime>=campaignDur)currentTime=0;playing=true;lastRaf=null;updPlayBtn();rafId=requestAnimationFrame(tick);}
+function pausePlay(){playing=false;lastRaf=null;updPlayBtn();if(rafId)cancelAnimationFrame(rafId);}
+function updPlayBtn(){document.getElementById('btn-play').classList.toggle('active',playing);}
+function seekTo(t){
+  const wasAfter=t<currentTime;
+  currentTime=Math.max(0,Math.min(t,campaignDur));
+  flotLastT=-9999;shownKills.clear();
+  if(wasAfter){shownKillFeed.clear();}
+  updateDisplay();
+}
+
+// ════════════════════════════════════════════════════════════════════
+//  CONTROLS
+// ════════════════════════════════════════════════════════════════════
+document.getElementById('btn-play').addEventListener('click',()=>{if(!playing)startPlay();});
+document.getElementById('btn-pause').addEventListener('click',pausePlay);
+document.getElementById('btn-prev').addEventListener('click',()=>{pausePlay();seekTo(0);});
+document.getElementById('btn-next').addEventListener('click',()=>{pausePlay();seekTo(campaignDur);});
+document.getElementById('scrubber').addEventListener('input',e=>{pausePlay();seekTo(parseFloat(e.target.value));});
+document.querySelectorAll('.spdbtn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.spdbtn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');playSpeed=parseInt(btn.dataset.spd);
+  });
+});
+document.getElementById('f-player').addEventListener('change',e=>{filters.playerAir=e.target.checked;updateDisplay();});
+document.getElementById('f-ai').addEventListener('change',e=>{filters.aiAir=e.target.checked;updateDisplay();});
+document.getElementById('f-ground').addEventListener('change',e=>{filters.ground=e.target.checked;updateDisplay();});
+document.getElementById('f-ground-labels').addEventListener('change',e=>{
+  filters.groundLabels=e.target.checked;
+  for(const [id,glbl] of Object.entries(groundLabels)){
+    const marker=unitMarkers[id];
+    const show=filters.groundLabels&&marker&&marker._vis;
+    if(show && !glbl._vis){
+      // Sync position from current marker position before adding
+      const ll=marker.getLatLng();
+      glbl.setLatLng(ll);
+      glbl.addTo(map);
+      glbl._vis=true;
+    } else if(!show && glbl._vis){
+      map.removeLayer(glbl);
+      glbl._vis=false;
+    }
+  }
+});
+document.getElementById('f-trails').addEventListener('change',e=>{
+  filters.trails=e.target.checked;
+  if(!filters.trails) for(const segs of Object.values(unitTrails)) for(const p of segs) p.setLatLngs([]);
+  else updateDisplay();
+});
+document.getElementById('f-kills').addEventListener('change',e=>{filters.kills=e.target.checked;});
+document.getElementById('f-bases').addEventListener('change',e=>{
+  filters.bases=e.target.checked;
+  for(const m of Object.values(baseMarkers))filters.bases?m.addTo(map):map.removeLayer(m);
+  for(const c of Object.values(baseCircles))filters.bases?c.addTo(map):map.removeLayer(c);
+  for(const l of Object.values(baseLabels))filters.bases?l.addTo(map):map.removeLayer(l);
+});
+// FLOT disabled — event listener stubbed
+// document.getElementById('f-flot').addEventListener('change',e=>{
+//   filters.flot=e.target.checked;
+//   if(!filters.flot){clearFLOT();}else{flotLastT=-9999;updateFLOT(currentTime);}
+// });
+document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='SELECT') return;
+  if(e.code==='Space'){e.preventDefault();playing?pausePlay():startPlay();}
+  if(e.code==='ArrowRight') seekTo(currentTime+60);
+  if(e.code==='ArrowLeft')  seekTo(currentTime-60);
+  if(e.code==='ArrowUp')    seekTo(currentTime+300);
+  if(e.code==='ArrowDown')  seekTo(currentTime-300);
+});
+
+// ════════════════════════════════════════════════════════════════════
+//  BOOT  —  load campaigns.json then seed dropdowns
+// ════════════════════════════════════════════════════════════════════
+(async () => {
+  setLoad('Loading campaign list…');
+  document.getElementById('loading').style.display = 'flex';
+  await loadCampaignsJSON();
+  populateSelector();
+  // populateSelector calls populateSessionSelector which calls loadSession automatically
+})();
+</script>
+</body>
+</html>
