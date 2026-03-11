@@ -191,6 +191,7 @@ def parse_acmi(path, sample_interval=SAMPLE_INTERVAL):
                 'category': None,
                 'first_seen': current_time,
                 'last_seen': current_time,
+                'visible_off_t': None,   # timestamp of first Visible=0 line
             }
 
         obj = objects[obj_id]
@@ -208,6 +209,11 @@ def parse_acmi(path, sample_interval=SAMPLE_INTERVAL):
         if 'Pilot' in props:
             obj['pilot'] = props['Pilot']
             obj['pilot_clean'] = clean_pilot_name(props['Pilot'])
+
+        # Capture Visible=0 (unit removed from sim — more reliable than track end)
+        if 'Visible' in props and props['Visible'] == '0':
+            if obj['visible_off_t'] is None:   # record first occurrence only
+                obj['visible_off_t'] = current_time
 
         # Categorize once we have type info
         if obj['type'] and not obj['category']:
@@ -342,7 +348,7 @@ def parse_acmi(path, sample_interval=SAMPLE_INTERVAL):
 
     print(f"  Parsed {len(parsed_kills):,} kill/crash events")
 
-    # ── Pass 5: Build player summaries ───────────────────────────────────────
+    # ── Pass 5: Build player summaries ────────────────────────────────────────
     players = {}
 
     for obj_id, obj in objects.items():
@@ -393,7 +399,7 @@ def parse_acmi(path, sample_interval=SAMPLE_INTERVAL):
 
     print(f"  Found {len(players):,} human players: {', '.join(players.keys())}")
 
-    # ── Pass 6: Assemble static objects (bases, navaids) ─────────────────────
+    # ── Pass 6: Assemble static objects (bases, navaids) ──────────────────────
     statics = []
     for obj_id, obj in objects.items():
         if obj['category'] in ('navaid',) and obj['name']:
@@ -415,7 +421,6 @@ def parse_acmi(path, sample_interval=SAMPLE_INTERVAL):
 
     # ── Assemble final output ─────────────────────────────────────────────────
     duration = current_time
-    session_start = ref_time
 
     output = {
         'meta': {
@@ -441,6 +446,7 @@ def parse_acmi(path, sample_interval=SAMPLE_INTERVAL):
                 'is_human': obj['is_human'],
                 'first_seen': round(obj['first_seen'], 1),
                 'last_seen': round(obj['last_seen'], 1),
+                'visible_off_t': round(obj['visible_off_t'], 1) if obj['visible_off_t'] is not None else None,
             }
             for oid, obj in objects.items()
             if obj['category'] not in ('weapon',)  # skip AI weapons (player_weapon retained)
@@ -454,36 +460,87 @@ def parse_acmi(path, sample_interval=SAMPLE_INTERVAL):
     return output
 
 
-def main():
-    path = sys.argv[1] if len(sys.argv) > 1 else '/home/claude/20260226_074617.acmi'
-    if len(sys.argv) > 2:
-        out_path = sys.argv[2]
-    else:
-        # Default: output into public/data/<campaign_folder>/session_*.json
-        # Assumes script is run from project root (folder containing raw/ and public/)
-        import os
-        acmi_abs = os.path.abspath(path)
-        acmi_dir = os.path.dirname(acmi_abs)
-        campaign_folder = os.path.basename(acmi_dir)
-        stem = os.path.basename(path)
-        stem = re.sub(r'(\.zip)?\.acmi$', '', stem, flags=re.I)
-        data_dir = os.path.join('public', 'data', campaign_folder)
-        os.makedirs(data_dir, exist_ok=True)
-        out_path = os.path.join(data_dir, f'session_{stem}.json')
+def acmi_stem(filename):
+    """Strip .zip.acmi or .acmi suffix to get clean stem for output filename.
 
-    print(f"Parsing: {path}")
-    data = parse_acmi(path)
+    Handles both '20260226_074617.zip.acmi' and '20260226_074617.acmi'.
+    Result: '20260226_074617' in both cases.
+    """
+    stem = re.sub(r'\.zip\.acmi$', '', filename, flags=re.I)
+    stem = re.sub(r'\.acmi$', '', stem, flags=re.I)
+    return stem
 
+
+def parse_and_write(acmi_path, out_path):
+    """Parse one .acmi file and write compact JSON to out_path."""
+    print(f"\nParsing: {acmi_path}")
+    data = parse_acmi(acmi_path)
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
     print(f"Writing: {out_path}")
     with open(out_path, 'w') as f:
         json.dump(data, f, separators=(',', ':'))  # compact JSON
-
     size = os.path.getsize(out_path)
-    print(f"\n✓ Done! Output: {size/1024:.1f} KB")
-    print(f"  Duration: {data['meta']['duration_hours']}h")
-    print(f"  Objects tracked: {data['meta']['track_count']}")
-    print(f"  Kill events: {data['meta']['kill_count']}")
-    print(f"  Players: {data['meta']['player_count']} ({', '.join(data['players'].keys())})")
+    print(f"  \u2713 {size/1024:.1f} KB  |  {data['meta']['duration_hours']}h  |  "
+          f"{data['meta']['kill_count']} kills  |  "
+          f"{data['meta']['player_count']} players: {', '.join(data['players'].keys())}")
+    return data
+
+
+def main():
+    # No args:   batch mode — reparse ALL campaigns under raw/
+    # One arg:   parse single file, auto-derive output path
+    # Two args:  parse single file to explicit output path
+    #
+    # Batch mode walks:  raw/<campaign_folder>/*.acmi
+    # and writes to:     public/data/<campaign_folder>/session_<stem>.json
+    # Both paths are relative to the directory containing this script.
+
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+
+    if len(sys.argv) == 1:
+        # ── Batch mode ────────────────────────────────────────────────────────
+        raw_root = os.path.join(script_dir, 'raw')
+        if not os.path.isdir(raw_root):
+            print(f"ERROR: raw/ directory not found at {raw_root}")
+            sys.exit(1)
+
+        total = 0
+        for campaign_folder in sorted(os.listdir(raw_root)):
+            campaign_dir = os.path.join(raw_root, campaign_folder)
+            if not os.path.isdir(campaign_dir):
+                continue
+
+            acmi_files = sorted(
+                f for f in os.listdir(campaign_dir)
+                if re.search(r'\.acmi$', f, re.I)
+            )
+            if not acmi_files:
+                print(f"\n(no .acmi files in {campaign_folder})")
+                continue
+
+            print(f"\n=== {campaign_folder} ({len(acmi_files)} files) ===")
+            for fname in acmi_files:
+                acmi_path = os.path.join(campaign_dir, fname)
+                stem = acmi_stem(fname)
+                out_path = os.path.join(script_dir, 'public', 'data',
+                                        campaign_folder, f'session_{stem}.json')
+                parse_and_write(acmi_path, out_path)
+                total += 1
+
+        print(f"\n\u2713 Batch complete \u2014 {total} sessions parsed.")
+
+    else:
+        # ── Single-file mode ──────────────────────────────────────────────────
+        acmi_path = sys.argv[1]
+        if len(sys.argv) > 2:
+            out_path = sys.argv[2]
+        else:
+            acmi_dir = os.path.dirname(os.path.abspath(acmi_path))
+            campaign_folder = os.path.basename(acmi_dir)
+            stem = acmi_stem(os.path.basename(acmi_path))
+            out_path = os.path.join(script_dir, 'public', 'data',
+                                    campaign_folder, f'session_{stem}.json')
+        parse_and_write(acmi_path, out_path)
 
 
 if __name__ == '__main__':
