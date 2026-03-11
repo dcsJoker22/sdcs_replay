@@ -1068,7 +1068,7 @@ async function loadSession(campIdx, sessIdx){
 
   try {
     // sess.file is a path relative to public/ e.g. data/2026-02-26 Germany/session_*.json
-    const r = await fetch(sess.file.replace(/ /g, '%20'));
+    const r = await fetch(('public/' + sess.file).replace(/ /g, '%20'));
     if(!r.ok) throw new Error(`Could not load ${sess.file} (HTTP ${r.status})`);
     const raw = await r.json();
     const dur = raw.meta?.duration_seconds || 0;
