@@ -1,10 +1,9 @@
 # ── Raw ACMI recordings (large binary/zip files) ──────────────────────────
-raw/**/*.acmi
-raw/**/*.zip.acmi
-raw/**/*.zip
+raw/
+parser/
 
 # ── Parsed session JSON files (generated, not source) ─────────────────────
-# public/data/
+
 
 # ── Python ────────────────────────────────────────────────────────────────
 __pycache__/
