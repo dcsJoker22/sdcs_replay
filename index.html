@@ -901,7 +901,7 @@ function setLoad(msg){document.getElementById('load-msg').textContent=msg;}
 // (so the viewer still works during local dev with the old single-file setup).
 async function loadCampaignsJSON(){
   try {
-    const r = await fetch('campaigns.json');
+    const r = await fetch('public/campaigns.json');
     if(!r.ok) throw new Error(`HTTP ${r.status}`);
     const data = await r.json();
     CAMPAIGNS_DATA = data;
