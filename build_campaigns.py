@@ -44,10 +44,13 @@ def main():
     args = parser.parse_args()
 
     # Map name keywords -> campaign_id
+    # Inverted variants get a different campaign_id (coalitions are swapped)
     MAP_IDS = {
+        'caucasusinverted': 193, 'georgiaInverted': 193,
         'caucasus': 190, 'georgia': 190,
+        'germanyinverted': 192,  # same map, coalitions swapped
         'germany': 192,
-        'syria': 193, 'sinai': 193,
+        'syria': 185,
         'persiangulf': 189, 'gulf': 189,
         'nevada': 194, 'nttr': 194,
         'marianas': 195,
@@ -57,9 +60,10 @@ def main():
     def guess_campaign_id(folder_name):
         """Guess campaign_id from folder name keywords."""
         n = folder_name.lower().replace(' ', '').replace('-', '').replace('_', '')
-        for key, cid in MAP_IDS.items():
+        # Check longer/more-specific keys first so 'caucasusinverted' matches before 'caucasus'
+        for key in sorted(MAP_IDS, key=len, reverse=True):
             if key in n:
-                return cid
+                return MAP_IDS[key]
         return 0
 
     def guess_map(folder_name):

@@ -25,7 +25,7 @@ from html.parser import HTMLParser
 
 # Files under this size are considered junk (aborted/crashed sessions).
 # The smallest legitimate session seen so far is ~1.4 MB; junk files are <100 KB.
-MIN_ACMI_BYTES = 1_048_576  # 1 MB
+MIN_ACMI_BYTES = 100_000  # 100 kb
 
 
 # -- Helpers ------------------------------------------------------------------

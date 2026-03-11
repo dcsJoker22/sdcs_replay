@@ -376,12 +376,12 @@ const CAMPAIGN_GEODATA = {
       {id:32, name:'Beslan', lat:43.206026, lon:44.601557},
     ],
     185: [
-      // Syria — DB coords via +proj=tmerc +lon_0=39 +k_0=0.9996 +x_0=282801 +y_0=-3879866 +axis=neu
+      // Syria — DB coords via +proj=tmerc +lon_0=39 +k_0=0.9996 +x_0=282801 +y_0=-3879866
       {name:'Abu al-Duhur',             lat:35.998333, lon:36.706247},
       {name:'An Nasiriyah',             lat:35.703286, lon:34.497105},
       {name:'Beirut-Rafic Hariri',      lat:34.553222, lon:34.487942},
       {name:'Damascus',                 lat:35.379676, lon:33.921696},
-      {name:'Gaziantep',                lat:36.341417, lon:38.192460},
+      {name:'Gaziantep',               lat:36.341417, lon:38.192460},
       {name:'Hama',                     lat:35.648901, lon:35.972153},
       {name:'Hatay',                    lat:35.363418, lon:37.512781},
       {name:'King Hussein Air College', lat:35.075426, lon:32.649202},
@@ -520,7 +520,7 @@ const CAMPAIGN_GEODATA = {
       {code:'MP74', name:'Mozdok', lat:43.751921, lon:44.623475},
     ],
     185: [
-      // Syria — 19 objectives (11 suppressed: match base names, shown as bases only)
+      // Syria — 19 objectives (11 suppressed: match base names and shown as bases instead)
       // Suppressed: YB01:Ramat David, BU99:Hama, BR38:King Hussein Air College,
       // CV25:Abu al-Duhur, YC34:Beirut-Rafic Hariri, CT05:An Nasiriyah, CU72:Tiyas,
       // BA52:Hatay, BU23:Rene Mouawad, CA24:Minakh, CA70:Kuweires
@@ -555,11 +555,11 @@ const SCORE_EXCLUDE_KEYS = new Set([
   'airbase_Liwa AFB',         // Persian Gulf — excluded from objective counter
 ]);
 const MAP_CENTRES = {
-  189: {lat:26.5,  lon:55.5,  zoom:8},  // Persian Gulf
-  190: {lat:43.2,  lon:42.0,  zoom:8},  // Caucasus
-  192: {lat:51.68, lon:10.5,  zoom:8},  // Germany
-  193: {lat:43.2,  lon:42.0,  zoom:8},  // Caucasus Inverted (same theatre)
-  185: {lat:35.399, lon:35.418, zoom:8},  // Syria — centroid of all bases, zoom 8 (~50% more than default 7)
+  189: {lat:26.5,  lon:55.5,  zoom:7},  // Persian Gulf
+  190: {lat:43.2,  lon:42.0,  zoom:7},  // Caucasus
+  192: {lat:51.68, lon:10.5,  zoom:7},  // Germany
+  193: {lat:43.2,  lon:42.0,  zoom:7},  // Caucasus Inverted (same theatre)
+  185: {lat:35.4,  lon:35.4,  zoom:7},  // Syria (centroid of all bases)
 };
 // ORPHAN_BASE_NAMES removed — airbases now come directly from CAMPAIGN_GEODATA.bases
 // kept as empty stub for any stale references
