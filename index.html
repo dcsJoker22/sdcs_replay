@@ -871,7 +871,7 @@ function leafletIcon(cat, name, coalition, hdg, sel, isHuman, forceGnd) {
 //  MAP SETUP
 // ════════════════════════════════════════════════════════════════════
 const map = L.map('map',{center:[51.68,10.5],zoom:7,zoomControl:true,attributionControl:false,
-  zoomDelta:0.5,zoomSnap:0.5,wheelPxPerZoomLevel:240});
+  zoomDelta:0.65,zoomSnap:0.65,wheelPxPerZoomLevel:170});
 L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:18}).addTo(map);
 L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png',{maxZoom:18,opacity:0.45,subdomains:'abcd'}).addTo(map);
 map.createPane('basePane');   map.getPane('basePane').style.zIndex=330;
@@ -2969,4 +2969,5 @@ document.getElementById('map').addEventListener('click', () => {
   }
 });
 </script>
+</body>
 </html>
