@@ -68,13 +68,11 @@ def classify_object(obj_type, name, pilot):
     """Determine if object is player aircraft, AI aircraft, ground unit, weapon, etc."""
     t = obj_type or ''
     if 'Weapon' in t or 'Missile' in t or 'Bomb' in t or 'Rocket' in t:
-        # Fired by a human player — retain as player_weapon for map rendering
-        if pilot and not re.match(r'^\d+$', pilot.split()[0]):
+        if is_human_pilot(pilot):
             return 'player_weapon'
         return 'weapon'
     if 'Air' in t:
-        # Human player if pilot doesn't look like a pure number
-        if pilot and not re.match(r'^\d+$', pilot.split()[0]):
+        if is_human_pilot(pilot):
             return 'player_air'
         return 'ai_air'
     if 'Ground' in t or 'Anti' in t:
@@ -100,7 +98,6 @@ def clean_pilot_name(pilot_str):
     name = re.sub(r'\s*-\s*jamming$', '', name).strip()
     return name if name else None
 
-
 def is_human_pilot(pilot_str):
     """True if pilot string looks like a human player rather than AI unit ID."""
     if not pilot_str:
@@ -108,8 +105,9 @@ def is_human_pilot(pilot_str):
     clean = clean_pilot_name(pilot_str)
     if not clean:
         return False
-    # AI units have purely numeric pilots like "5026" or "5026 - NPC"
-    if re.match(r'^\d+', clean):
+    # AI units always start with a purely numeric ID >= 5000
+    first_token = clean.split()[0].rstrip(',-|')
+    if re.match(r'^\d+$', first_token) and int(first_token) >= 5000:
         return False
     return True
 
