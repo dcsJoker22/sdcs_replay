@@ -213,10 +213,6 @@ def parse_acmi(path, sample_interval=SAMPLE_INTERVAL):
             if obj['visible_off_t'] is None:   # record first occurrence only
                 obj['visible_off_t'] = current_time
 
-        # Categorize once we have type info
-        if obj['type'] and not obj['category']:
-            obj['category'] = classify_object(obj['type'], obj['name'], obj['pilot'])
-
         # Store position update (only if we have lat/lon)
         if t_data and (t_data['lat'] is not None or t_data['lon'] is not None):
             raw_updates[obj_id].append((current_time, t_data))
@@ -293,7 +289,7 @@ def parse_acmi(path, sample_interval=SAMPLE_INTERVAL):
         m = re.match(r'(b[0-9a-f]+)\|Killed by (.+) with (.+)', raw)
         if m:
             victim_id = m.group(1)
-            killer_name = m.group(2).strip()
+            killer_name = clean_pilot_name(m.group(2).strip())
             weapon = m.group(3).strip()
             victim_obj = objects.get(victim_id, {})
             parsed_kills.append({
@@ -316,7 +312,7 @@ def parse_acmi(path, sample_interval=SAMPLE_INTERVAL):
         m = re.match(r'(b[0-9a-f]+)\|(.+?) \(\d+\) (crashed|pilot dead|killed)', raw)
         if m:
             victim_id = m.group(1)
-            pilot = m.group(2).strip()
+            pilot = clean_pilot_name(m.group(2).strip())
             cause = m.group(3)
             victim_obj = objects.get(victim_id, {})
             parsed_kills.append({
