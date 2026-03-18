@@ -116,13 +116,25 @@ def main():
                 date_str = f"{m.group(1)}-{m.group(2)}-{m.group(3)}T{m.group(4)}:{m.group(5)}:{m.group(6)}Z" if m else None
                 # File path relative to public/ — viewer fetches data/<folder>/session_*.json
                 rel_file = f"data/{folder}/{fname}"
+                # Count player kills by coalition
+                player_keys = set(d.get('players', {}).keys())
+                blue_kills, red_kills = 0, 0
+                for ev in d.get('events', []):
+                    if ev.get('type') != 'kill': continue
+                    if not ev.get('killer'): continue
+                    if ev['killer'] not in player_keys: continue
+                    if ev.get('victim_coalition') == 'Hostiles': blue_kills += 1
+                    elif ev.get('victim_coalition') == 'Friendlies': red_kills += 1
+
                 sessions.append({
-                    "file":           rel_file,
-                    "label":          session_label(fname),
-                    "date":           date_str,
+                    "file": rel_file,
+                    "label": session_label(fname),
+                    "date": date_str,
                     "duration_hours": round(meta.get('duration_hours', 0), 2),
-                    "players":        players,
-                    "kill_count":     meta.get('kill_count', 0),
+                    "players": players,
+                    "kill_count": meta.get('kill_count', 0),
+                    "player_kills_blue": blue_kills,
+                    "player_kills_red": red_kills,
                 })
                 print(f"  ✓ {fname}  ({meta.get('duration_hours',0):.2f}h, {meta.get('kill_count',0)} kills, {len(players)} players)")
             except Exception as e:

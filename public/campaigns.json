@@ -32,7 +32,9 @@
             "VPP - Langra",
             "VPP - VOODOO"
           ],
-          "kill_count": 40
+          "kill_count": 40,
+          "player_kills_blue": 22,
+          "player_kills_red": 9
         },
         {
           "file": "data/2026-01-21 Caucasus/session_20260121_181144.json",
@@ -65,7 +67,9 @@
             "Winky51",
             "Wolfy"
           ],
-          "kill_count": 116
+          "kill_count": 116,
+          "player_kills_blue": 18,
+          "player_kills_red": 44
         },
         {
           "file": "data/2026-01-21 Caucasus/session_20260122_001238.json",
@@ -81,7 +85,9 @@
             "marthib",
             "viper37"
           ],
-          "kill_count": 65
+          "kill_count": 65,
+          "player_kills_blue": 0,
+          "player_kills_red": 43
         },
         {
           "file": "data/2026-01-21 Caucasus/session_20260122_061331.json",
@@ -97,7 +103,9 @@
             "Rage-Fox",
             "Roflan 1-1 - Savvader"
           ],
-          "kill_count": 59
+          "kill_count": 59,
+          "player_kills_blue": 8,
+          "player_kills_red": 25
         },
         {
           "file": "data/2026-01-21 Caucasus/session_20260122_121442.json",
@@ -131,7 +139,9 @@
             "unbeauf",
             "Viper49xx"
           ],
-          "kill_count": 126
+          "kill_count": 126,
+          "player_kills_blue": 15,
+          "player_kills_red": 49
         },
         {
           "file": "data/2026-01-21 Caucasus/session_20260122_181550.json",
@@ -164,7 +174,9 @@
             "Toasty",
             "Winky51"
           ],
-          "kill_count": 203
+          "kill_count": 203,
+          "player_kills_blue": 2,
+          "player_kills_red": 131
         },
         {
           "file": "data/2026-01-21 Caucasus/session_20260123_001645.json",
@@ -175,7 +187,9 @@
             "Darkstar 1",
             "Joker22"
           ],
-          "kill_count": 51
+          "kill_count": 51,
+          "player_kills_blue": 0,
+          "player_kills_red": 24
         },
         {
           "file": "data/2026-01-21 Caucasus/session_20260123_061741.json",
@@ -195,7 +209,9 @@
             "Viper49xx",
             "Yoshua"
           ],
-          "kill_count": 97
+          "kill_count": 97,
+          "player_kills_blue": 9,
+          "player_kills_red": 49
         },
         {
           "file": "data/2026-01-21 Caucasus/session_20260123_121835.json",
@@ -228,7 +244,9 @@
             "VPP - Waqar",
             "yohoho"
           ],
-          "kill_count": 115
+          "kill_count": 115,
+          "player_kills_blue": 47,
+          "player_kills_red": 15
         },
         {
           "file": "data/2026-01-21 Caucasus/session_20260123_181932.json",
@@ -269,7 +287,9 @@
             "VPP - VOODOO",
             "VPP - Waqar"
           ],
-          "kill_count": 205
+          "kill_count": 205,
+          "player_kills_blue": 11,
+          "player_kills_red": 95
         },
         {
           "file": "data/2026-01-21 Caucasus/session_20260124_002026.json",
@@ -277,7 +297,9 @@
           "date": "2026-01-24T00:20:26Z",
           "duration_hours": 0.31,
           "players": [],
-          "kill_count": 0
+          "kill_count": 0,
+          "player_kills_blue": 0,
+          "player_kills_red": 0
         }
       ]
     },
@@ -304,7 +326,9 @@
             "Scorpion 4-2 - H4nS0Lo",
             "viper37"
           ],
-          "kill_count": 61
+          "kill_count": 61,
+          "player_kills_blue": 43,
+          "player_kills_red": 0
         },
         {
           "file": "data/2026-01-24 Syria/session_20260124_064118.json",
@@ -330,7 +354,9 @@
             "polunohnik",
             "trt"
           ],
-          "kill_count": 73
+          "kill_count": 73,
+          "player_kills_blue": 47,
+          "player_kills_red": 2
         },
         {
           "file": "data/2026-01-24 Syria/session_20260124_124236.json",
@@ -382,7 +408,9 @@
             "Xraden - Neptune 5+5",
             "Zerg"
           ],
-          "kill_count": 150
+          "kill_count": 150,
+          "player_kills_blue": 76,
+          "player_kills_red": 5
         },
         {
           "file": "data/2026-01-24 Syria/session_20260124_184340.json",
@@ -428,7 +456,9 @@
             "VPP - Waqar",
             "Xraden - Neptune 5+5"
           ],
-          "kill_count": 174
+          "kill_count": 174,
+          "player_kills_blue": 31,
+          "player_kills_red": 49
         },
         {
           "file": "data/2026-01-24 Syria/session_20260125_004513.json",
@@ -452,7 +482,9 @@
             "Overlord 1",
             "ReaperHawkGR"
           ],
-          "kill_count": 88
+          "kill_count": 88,
+          "player_kills_blue": 10,
+          "player_kills_red": 54
         },
         {
           "file": "data/2026-01-24 Syria/session_20260125_064618.json",
@@ -481,7 +513,9 @@
             "VPP - Predator",
             "Zerg"
           ],
-          "kill_count": 107
+          "kill_count": 107,
+          "player_kills_blue": 33,
+          "player_kills_red": 24
         },
         {
           "file": "data/2026-01-24 Syria/session_20260125_124720.json",
@@ -523,7 +557,9 @@
             "VPP - Predator",
             "Zerg"
           ],
-          "kill_count": 223
+          "kill_count": 223,
+          "player_kills_blue": 37,
+          "player_kills_red": 72
         },
         {
           "file": "data/2026-01-24 Syria/session_20260125_184820.json",
@@ -558,7 +594,9 @@
             "Strange",
             "Vase"
           ],
-          "kill_count": 273
+          "kill_count": 273,
+          "player_kills_blue": 3,
+          "player_kills_red": 189
         },
         {
           "file": "data/2026-01-24 Syria/session_20260126_004921.json",
@@ -583,7 +621,9 @@
             "VIPER",
             "VPP - Predator"
           ],
-          "kill_count": 119
+          "kill_count": 119,
+          "player_kills_blue": 42,
+          "player_kills_red": 26
         },
         {
           "file": "data/2026-01-24 Syria/session_20260126_065027.json",
@@ -610,7 +650,9 @@
             "Strange",
             "Xraden - Neptune 5+5"
           ],
-          "kill_count": 112
+          "kill_count": 112,
+          "player_kills_blue": 57,
+          "player_kills_red": 11
         },
         {
           "file": "data/2026-01-24 Syria/session_20260126_125144.json",
@@ -653,7 +695,9 @@
             "VPP - Predator",
             "Wolfy"
           ],
-          "kill_count": 193
+          "kill_count": 193,
+          "player_kills_blue": 70,
+          "player_kills_red": 45
         },
         {
           "file": "data/2026-01-24 Syria/session_20260126_185302.json",
@@ -707,7 +751,9 @@
             "Vase",
             "Wolfy"
           ],
-          "kill_count": 204
+          "kill_count": 204,
+          "player_kills_blue": 25,
+          "player_kills_red": 105
         },
         {
           "file": "data/2026-01-24 Syria/session_20260127_005405.json",
@@ -726,7 +772,9 @@
             "Papst",
             "Scorpion 4-2 - H4nS0Lo"
           ],
-          "kill_count": 66
+          "kill_count": 66,
+          "player_kills_blue": 5,
+          "player_kills_red": 31
         },
         {
           "file": "data/2026-01-24 Syria/session_20260127_065535.json",
@@ -746,7 +794,9 @@
             "Pudding",
             "Viper49xx"
           ],
-          "kill_count": 76
+          "kill_count": 76,
+          "player_kills_blue": 19,
+          "player_kills_red": 14
         },
         {
           "file": "data/2026-01-24 Syria/session_20260127_125654.json",
@@ -795,7 +845,9 @@
             "Wolfy",
             "Zerg"
           ],
-          "kill_count": 215
+          "kill_count": 215,
+          "player_kills_blue": 61,
+          "player_kills_red": 58
         },
         {
           "file": "data/2026-01-24 Syria/session_20260127_185759.json",
@@ -855,7 +907,9 @@
             "Vienna",
             "Wolfy"
           ],
-          "kill_count": 327
+          "kill_count": 327,
+          "player_kills_blue": 30,
+          "player_kills_red": 139
         },
         {
           "file": "data/2026-01-24 Syria/session_20260128_005905.json",
@@ -882,7 +936,9 @@
             "Overlord 1",
             "Scorpion 4-2 - H4nS0Lo"
           ],
-          "kill_count": 131
+          "kill_count": 131,
+          "player_kills_blue": 24,
+          "player_kills_red": 48
         },
         {
           "file": "data/2026-01-24 Syria/session_20260128_070011.json",
@@ -906,7 +962,9 @@
             "Strange",
             "Viper49xx"
           ],
-          "kill_count": 204
+          "kill_count": 204,
+          "player_kills_blue": 105,
+          "player_kills_red": 27
         },
         {
           "file": "data/2026-01-24 Syria/session_20260128_130113.json",
@@ -961,7 +1019,9 @@
             "Zerg",
             "{527th} Luthor"
           ],
-          "kill_count": 267
+          "kill_count": 267,
+          "player_kills_blue": 62,
+          "player_kills_red": 100
         },
         {
           "file": "data/2026-01-24 Syria/session_20260128_190217.json",
@@ -1014,7 +1074,9 @@
             "Wolfy",
             "yohoho"
           ],
-          "kill_count": 270
+          "kill_count": 270,
+          "player_kills_blue": 30,
+          "player_kills_red": 111
         },
         {
           "file": "data/2026-01-24 Syria/session_20260129_010334.json",
@@ -1035,7 +1097,9 @@
             "polunohnik",
             "Scorpion 4-2 - H4nS0Lo"
           ],
-          "kill_count": 117
+          "kill_count": 117,
+          "player_kills_blue": 33,
+          "player_kills_red": 47
         },
         {
           "file": "data/2026-01-24 Syria/session_20260129_070452.json",
@@ -1061,7 +1125,9 @@
             "UK-1-7 BeNzA",
             "VPP - Predator"
           ],
-          "kill_count": 122
+          "kill_count": 122,
+          "player_kills_blue": 57,
+          "player_kills_red": 16
         },
         {
           "file": "data/2026-01-24 Syria/session_20260129_130557.json",
@@ -1123,7 +1189,9 @@
             "VPP - VOODOO",
             "Wolfy"
           ],
-          "kill_count": 257
+          "kill_count": 257,
+          "player_kills_blue": 65,
+          "player_kills_red": 84
         },
         {
           "file": "data/2026-01-24 Syria/session_20260129_190711.json",
@@ -1179,7 +1247,9 @@
             "vial14",
             "Wolfy"
           ],
-          "kill_count": 217
+          "kill_count": 217,
+          "player_kills_blue": 8,
+          "player_kills_red": 112
         },
         {
           "file": "data/2026-01-24 Syria/session_20260130_010815.json",
@@ -1193,7 +1263,9 @@
             "Joker22",
             "Scorpion 4-2 - H4nS0Lo"
           ],
-          "kill_count": 38
+          "kill_count": 38,
+          "player_kills_blue": 6,
+          "player_kills_red": 9
         },
         {
           "file": "data/2026-01-24 Syria/session_20260130_070931.json",
@@ -1215,7 +1287,9 @@
             "Strange",
             "Viper49xx"
           ],
-          "kill_count": 133
+          "kill_count": 133,
+          "player_kills_blue": 68,
+          "player_kills_red": 25
         },
         {
           "file": "data/2026-01-24 Syria/session_20260130_131049.json",
@@ -1261,7 +1335,9 @@
             "Zantic - Walleye 4",
             "Zerg"
           ],
-          "kill_count": 240
+          "kill_count": 240,
+          "player_kills_blue": 82,
+          "player_kills_red": 75
         },
         {
           "file": "data/2026-01-24 Syria/session_20260130_191223.json",
@@ -1311,7 +1387,9 @@
             "Wolfy",
             "yohoho"
           ],
-          "kill_count": 347
+          "kill_count": 347,
+          "player_kills_blue": 58,
+          "player_kills_red": 128
         },
         {
           "file": "data/2026-01-24 Syria/session_20260131_011341.json",
@@ -1331,7 +1409,9 @@
             "sMoKe",
             "Specter242"
           ],
-          "kill_count": 34
+          "kill_count": 34,
+          "player_kills_blue": 1,
+          "player_kills_red": 8
         },
         {
           "file": "data/2026-01-24 Syria/session_20260131_023829.json",
@@ -1352,7 +1432,9 @@
             "Overlord 1",
             "Scorpion 4-2 - H4nS0Lo"
           ],
-          "kill_count": 93
+          "kill_count": 93,
+          "player_kills_blue": 54,
+          "player_kills_red": 7
         },
         {
           "file": "data/2026-01-24 Syria/session_20260131_071455.json",
@@ -1388,7 +1470,9 @@
             "Who cares",
             "Zerg"
           ],
-          "kill_count": 165
+          "kill_count": 165,
+          "player_kills_blue": 76,
+          "player_kills_red": 35
         },
         {
           "file": "data/2026-01-24 Syria/session_20260131_131600.json",
@@ -1436,7 +1520,9 @@
             "Wolfy",
             "Zerg"
           ],
-          "kill_count": 161
+          "kill_count": 161,
+          "player_kills_blue": 61,
+          "player_kills_red": 32
         },
         {
           "file": "data/2026-01-24 Syria/session_20260131_191719.json",
@@ -1484,7 +1570,9 @@
             "viper37",
             "Wolfy"
           ],
-          "kill_count": 211
+          "kill_count": 211,
+          "player_kills_blue": 37,
+          "player_kills_red": 87
         },
         {
           "file": "data/2026-01-24 Syria/session_20260201_011822.json",
@@ -1505,7 +1593,9 @@
             "viper37",
             "Viper49xx"
           ],
-          "kill_count": 77
+          "kill_count": 77,
+          "player_kills_blue": 6,
+          "player_kills_red": 40
         },
         {
           "file": "data/2026-01-24 Syria/session_20260201_035950.json",
@@ -1536,7 +1626,9 @@
             "Specter242",
             "Strange"
           ],
-          "kill_count": 117
+          "kill_count": 117,
+          "player_kills_blue": 15,
+          "player_kills_red": 52
         },
         {
           "file": "data/2026-01-24 Syria/session_20260201_100104.json",
@@ -1595,7 +1687,9 @@
             "yohoho",
             "老苗"
           ],
-          "kill_count": 272
+          "kill_count": 272,
+          "player_kills_blue": 110,
+          "player_kills_red": 24
         },
         {
           "file": "data/2026-01-24 Syria/session_20260201_160209.json",
@@ -1667,7 +1761,9 @@
             "yohoho",
             "Zerg"
           ],
-          "kill_count": 319
+          "kill_count": 319,
+          "player_kills_blue": 109,
+          "player_kills_red": 76
         },
         {
           "file": "data/2026-01-24 Syria/session_20260201_220312.json",
@@ -1698,7 +1794,9 @@
             "yohoho",
             "zkydash8"
           ],
-          "kill_count": 151
+          "kill_count": 151,
+          "player_kills_blue": 7,
+          "player_kills_red": 88
         },
         {
           "file": "data/2026-01-24 Syria/session_20260202_040431.json",
@@ -1714,7 +1812,9 @@
             "Roaddogg",
             "Scorpion 4-2 - H4nS0Lo"
           ],
-          "kill_count": 85
+          "kill_count": 85,
+          "player_kills_blue": 15,
+          "player_kills_red": 53
         },
         {
           "file": "data/2026-01-24 Syria/session_20260202_100604.json",
@@ -1742,7 +1842,9 @@
             "Viper49xx",
             "yohoho"
           ],
-          "kill_count": 127
+          "kill_count": 127,
+          "player_kills_blue": 63,
+          "player_kills_red": 22
         },
         {
           "file": "data/2026-01-24 Syria/session_20260202_160737.json",
@@ -1791,7 +1893,9 @@
             "yohoho",
             "Zerg"
           ],
-          "kill_count": 250
+          "kill_count": 250,
+          "player_kills_blue": 48,
+          "player_kills_red": 99
         },
         {
           "file": "data/2026-01-24 Syria/session_20260202_220840.json",
@@ -1819,7 +1923,9 @@
             "Soviet Kitty",
             "Stinger 1-1 - SoloOne"
           ],
-          "kill_count": 107
+          "kill_count": 107,
+          "player_kills_blue": 0,
+          "player_kills_red": 58
         },
         {
           "file": "data/2026-01-24 Syria/session_20260203_040958.json",
@@ -1833,7 +1939,9 @@
             "Hal8000",
             "Overlord 1"
           ],
-          "kill_count": 81
+          "kill_count": 81,
+          "player_kills_blue": 0,
+          "player_kills_red": 44
         }
       ]
     },
@@ -1890,7 +1998,9 @@
             "Wolfy",
             "yohoho"
           ],
-          "kill_count": 129
+          "kill_count": 129,
+          "player_kills_blue": 30,
+          "player_kills_red": 50
         },
         {
           "file": "data/2026-02-03 Persian Gulf/session_20260203_225200.json",
@@ -1914,7 +2024,9 @@
             "viper37",
             "Winky51"
           ],
-          "kill_count": 79
+          "kill_count": 79,
+          "player_kills_blue": 30,
+          "player_kills_red": 14
         },
         {
           "file": "data/2026-02-03 Persian Gulf/session_20260204_045310.json",
@@ -1933,7 +2045,9 @@
             "RammKruger",
             "Scorpion 4-2 - H4nS0Lo"
           ],
-          "kill_count": 51
+          "kill_count": 51,
+          "player_kills_blue": 0,
+          "player_kills_red": 34
         },
         {
           "file": "data/2026-02-03 Persian Gulf/session_20260204_105409.json",
@@ -1964,7 +2078,9 @@
             "The Legend -- TaktLwg",
             "Viper49xx"
           ],
-          "kill_count": 189
+          "kill_count": 189,
+          "player_kills_blue": 83,
+          "player_kills_red": 53
         },
         {
           "file": "data/2026-02-03 Persian Gulf/session_20260204_165502.json",
@@ -1981,7 +2097,9 @@
             "The Legend -- TaktLwg",
             "VPP - Predator"
           ],
-          "kill_count": 2
+          "kill_count": 2,
+          "player_kills_blue": 2,
+          "player_kills_red": 0
         },
         {
           "file": "data/2026-02-03 Persian Gulf/session_20260204_170255.json",
@@ -2004,7 +2122,9 @@
             "VPP - Predator",
             "Wolfy"
           ],
-          "kill_count": 8
+          "kill_count": 8,
+          "player_kills_blue": 4,
+          "player_kills_red": 1
         },
         {
           "file": "data/2026-02-03 Persian Gulf/session_20260204_173254.json",
@@ -2037,7 +2157,9 @@
             "Wolfy",
             "yohoho"
           ],
-          "kill_count": 55
+          "kill_count": 55,
+          "player_kills_blue": 28,
+          "player_kills_red": 7
         },
         {
           "file": "data/2026-02-03 Persian Gulf/session_20260204_191950.json",
@@ -2064,7 +2186,9 @@
             "Wolfy",
             "yohoho"
           ],
-          "kill_count": 4
+          "kill_count": 4,
+          "player_kills_blue": 0,
+          "player_kills_red": 2
         },
         {
           "file": "data/2026-02-03 Persian Gulf/session_20260204_192744.json",
@@ -2102,7 +2226,9 @@
             "Wolfy",
             "yohoho"
           ],
-          "kill_count": 104
+          "kill_count": 104,
+          "player_kills_blue": 6,
+          "player_kills_red": 68
         },
         {
           "file": "data/2026-02-03 Persian Gulf/session_20260204_225603.json",
@@ -2125,7 +2251,9 @@
             "ReaperHawkGR",
             "Scorpion 4-2 - H4nS0Lo"
           ],
-          "kill_count": 109
+          "kill_count": 109,
+          "player_kills_blue": 2,
+          "player_kills_red": 59
         },
         {
           "file": "data/2026-02-03 Persian Gulf/session_20260205_045728.json",
@@ -2139,7 +2267,9 @@
             "Overlord 1",
             "Roflan 1-1 - Savvader"
           ],
-          "kill_count": 23
+          "kill_count": 23,
+          "player_kills_blue": 3,
+          "player_kills_red": 2
         },
         {
           "file": "data/2026-02-03 Persian Gulf/session_20260205_105824.json",
@@ -2171,7 +2301,9 @@
             "Wolfy",
             "yohoho"
           ],
-          "kill_count": 103
+          "kill_count": 103,
+          "player_kills_blue": 42,
+          "player_kills_red": 18
         },
         {
           "file": "data/2026-02-03 Persian Gulf/session_20260205_170139.json",
@@ -2205,7 +2337,9 @@
             "VPP - Predator",
             "Wolfy"
           ],
-          "kill_count": 87
+          "kill_count": 87,
+          "player_kills_blue": 5,
+          "player_kills_red": 45
         },
         {
           "file": "data/2026-02-03 Persian Gulf/session_20260205_230229.json",
@@ -2225,7 +2359,9 @@
             "Scorpion 4-2 - H4nS0Lo",
             "Uzbek"
           ],
-          "kill_count": 78
+          "kill_count": 78,
+          "player_kills_blue": 16,
+          "player_kills_red": 28
         },
         {
           "file": "data/2026-02-03 Persian Gulf/session_20260206_050327.json",
@@ -2247,7 +2383,9 @@
             "Vase",
             "VPP - Predator"
           ],
-          "kill_count": 54
+          "kill_count": 54,
+          "player_kills_blue": 15,
+          "player_kills_red": 19
         },
         {
           "file": "data/2026-02-03 Persian Gulf/session_20260206_110420.json",
@@ -2264,7 +2402,9 @@
             "Vase",
             "Viper49xx"
           ],
-          "kill_count": 19
+          "kill_count": 19,
+          "player_kills_blue": 0,
+          "player_kills_red": 16
         },
         {
           "file": "data/2026-02-03 Persian Gulf/session_20260206_123422.json",
@@ -2299,7 +2439,9 @@
             "VPP - Predator",
             "Wolfy"
           ],
-          "kill_count": 113
+          "kill_count": 113,
+          "player_kills_blue": 41,
+          "player_kills_red": 25
         },
         {
           "file": "data/2026-02-03 Persian Gulf/session_20260206_170513.json",
@@ -2339,7 +2481,9 @@
             "Wolfy",
             "Игрок"
           ],
-          "kill_count": 194
+          "kill_count": 194,
+          "player_kills_blue": 35,
+          "player_kills_red": 73
         },
         {
           "file": "data/2026-02-03 Persian Gulf/session_20260206_230612.json",
@@ -2364,7 +2508,9 @@
             "Viper49xx",
             "Winky51"
           ],
-          "kill_count": 86
+          "kill_count": 86,
+          "player_kills_blue": 47,
+          "player_kills_red": 16
         },
         {
           "file": "data/2026-02-03 Persian Gulf/session_20260207_050704.json",
@@ -2393,7 +2539,9 @@
             "Soviet Kitty",
             "VPP - Predator"
           ],
-          "kill_count": 196
+          "kill_count": 196,
+          "player_kills_blue": 160,
+          "player_kills_red": 0
         },
         {
           "file": "data/2026-02-03 Persian Gulf/session_20260207_110802.json",
@@ -2430,7 +2578,9 @@
             "Wolfy",
             "yohoho"
           ],
-          "kill_count": 188
+          "kill_count": 188,
+          "player_kills_blue": 93,
+          "player_kills_red": 39
         },
         {
           "file": "data/2026-02-03 Persian Gulf/session_20260207_170901.json",
@@ -2475,7 +2625,9 @@
             "VPP - Predator",
             "Wolfy"
           ],
-          "kill_count": 198
+          "kill_count": 198,
+          "player_kills_blue": 61,
+          "player_kills_red": 64
         },
         {
           "file": "data/2026-02-03 Persian Gulf/session_20260207_230952.json",
@@ -2498,7 +2650,9 @@
             "Proto 1-2 - _Gennadich_",
             "Vase"
           ],
-          "kill_count": 80
+          "kill_count": 80,
+          "player_kills_blue": 19,
+          "player_kills_red": 20
         },
         {
           "file": "data/2026-02-03 Persian Gulf/session_20260208_051057.json",
@@ -2516,7 +2670,9 @@
             "Savage2",
             "Scorpion 4-2 - H4nS0Lo"
           ],
-          "kill_count": 21
+          "kill_count": 21,
+          "player_kills_blue": 10,
+          "player_kills_red": 4
         },
         {
           "file": "data/2026-02-03 Persian Gulf/session_20260208_111149.json",
@@ -2552,7 +2708,9 @@
             "Viper49xx",
             "VPP - Predator"
           ],
-          "kill_count": 225
+          "kill_count": 225,
+          "player_kills_blue": 147,
+          "player_kills_red": 19
         },
         {
           "file": "data/2026-02-03 Persian Gulf/session_20260208_171242.json",
@@ -2571,7 +2729,9 @@
             "Viper49xx",
             "VPP - Predator"
           ],
-          "kill_count": 2
+          "kill_count": 2,
+          "player_kills_blue": 0,
+          "player_kills_red": 0
         },
         {
           "file": "data/2026-02-03 Persian Gulf/session_20260208_172446.json",
@@ -2595,7 +2755,9 @@
             "VPP - Predator",
             "yohoho"
           ],
-          "kill_count": 5
+          "kill_count": 5,
+          "player_kills_blue": 2,
+          "player_kills_red": 2
         },
         {
           "file": "data/2026-02-03 Persian Gulf/session_20260208_174128.json",
@@ -2634,7 +2796,9 @@
             "Wolfy",
             "yohoho"
           ],
-          "kill_count": 163
+          "kill_count": 163,
+          "player_kills_blue": 39,
+          "player_kills_red": 51
         },
         {
           "file": "data/2026-02-03 Persian Gulf/session_20260208_231340.json",
@@ -2650,7 +2814,9 @@
             "Overlord 1",
             "Scorpion 4-2 - H4nS0Lo"
           ],
-          "kill_count": 53
+          "kill_count": 53,
+          "player_kills_blue": 39,
+          "player_kills_red": 3
         },
         {
           "file": "data/2026-02-03 Persian Gulf/session_20260209_051445.json",
@@ -2662,7 +2828,9 @@
             "Enteroctopus",
             "Joker22"
           ],
-          "kill_count": 69
+          "kill_count": 69,
+          "player_kills_blue": 62,
+          "player_kills_red": 0
         },
         {
           "file": "data/2026-02-03 Persian Gulf/session_20260209_111536.json",
@@ -2685,7 +2853,9 @@
             "Soviet Kitty",
             "Tophatters 204 - Falcon"
           ],
-          "kill_count": 97
+          "kill_count": 97,
+          "player_kills_blue": 71,
+          "player_kills_red": 1
         },
         {
           "file": "data/2026-02-03 Persian Gulf/session_20260209_171629.json",
@@ -2704,7 +2874,9 @@
             "Strange",
             "Tophatters 204 - Falcon"
           ],
-          "kill_count": 6
+          "kill_count": 6,
+          "player_kills_blue": 4,
+          "player_kills_red": 0
         }
       ]
     },
@@ -2745,7 +2917,9 @@
             "Vase",
             "VPP - Predator"
           ],
-          "kill_count": 107
+          "kill_count": 107,
+          "player_kills_blue": 0,
+          "player_kills_red": 67
         },
         {
           "file": "data/2026-02-09 CaucasusInverted/session_20260209_212642.json",
@@ -2764,7 +2938,9 @@
             "Scorpion 4-2 - H4nS0Lo",
             "Vase"
           ],
-          "kill_count": 42
+          "kill_count": 42,
+          "player_kills_blue": 0,
+          "player_kills_red": 27
         },
         {
           "file": "data/2026-02-09 CaucasusInverted/session_20260209_235158.json",
@@ -2781,7 +2957,9 @@
             "Overlord 2",
             "Scorpion 4-2 - H4nS0Lo"
           ],
-          "kill_count": 56
+          "kill_count": 56,
+          "player_kills_blue": 0,
+          "player_kills_red": 35
         },
         {
           "file": "data/2026-02-09 CaucasusInverted/session_20260210_055246.json",
@@ -2797,7 +2975,9 @@
             "Scotti",
             "VPP - Predator"
           ],
-          "kill_count": 32
+          "kill_count": 32,
+          "player_kills_blue": 0,
+          "player_kills_red": 21
         },
         {
           "file": "data/2026-02-09 CaucasusInverted/session_20260210_115337.json",
@@ -2824,7 +3004,9 @@
             "SRALKER",
             "yohoho"
           ],
-          "kill_count": 48
+          "kill_count": 48,
+          "player_kills_blue": 10,
+          "player_kills_red": 18
         },
         {
           "file": "data/2026-02-09 CaucasusInverted/session_20260210_175428.json",
@@ -2871,7 +3053,9 @@
             "yohoho",
             "Zerg"
           ],
-          "kill_count": 143
+          "kill_count": 143,
+          "player_kills_blue": 38,
+          "player_kills_red": 41
         },
         {
           "file": "data/2026-02-09 CaucasusInverted/session_20260210_235524.json",
@@ -2887,7 +3071,9 @@
             "Overlord 1",
             "Scorpion 4-2 - H4nS0Lo"
           ],
-          "kill_count": 17
+          "kill_count": 17,
+          "player_kills_blue": 2,
+          "player_kills_red": 3
         },
         {
           "file": "data/2026-02-09 CaucasusInverted/session_20260211_055625.json",
@@ -2903,7 +3089,9 @@
             "Scallion - Cobra",
             "VPP - Predator"
           ],
-          "kill_count": 55
+          "kill_count": 55,
+          "player_kills_blue": 1,
+          "player_kills_red": 28
         },
         {
           "file": "data/2026-02-09 CaucasusInverted/session_20260211_115721.json",
@@ -2916,7 +3104,9 @@
             "Overlord 1",
             "Savage2"
           ],
-          "kill_count": 12
+          "kill_count": 12,
+          "player_kills_blue": 5,
+          "player_kills_red": 0
         },
         {
           "file": "data/2026-02-09 CaucasusInverted/session_20260211_142015.json",
@@ -2962,7 +3152,9 @@
             "yohoho",
             "Zerg"
           ],
-          "kill_count": 176
+          "kill_count": 176,
+          "player_kills_blue": 60,
+          "player_kills_red": 25
         },
         {
           "file": "data/2026-02-09 CaucasusInverted/session_20260211_202112.json",
@@ -2997,7 +3189,9 @@
             "viper37",
             "Winky51"
           ],
-          "kill_count": 158
+          "kill_count": 158,
+          "player_kills_blue": 58,
+          "player_kills_red": 30
         },
         {
           "file": "data/2026-02-09 CaucasusInverted/session_20260212_022207.json",
@@ -3009,7 +3203,9 @@
             "[FB]LTRMcrew",
             "Darkstar 1"
           ],
-          "kill_count": 22
+          "kill_count": 22,
+          "player_kills_blue": 0,
+          "player_kills_red": 10
         },
         {
           "file": "data/2026-02-09 CaucasusInverted/session_20260212_082246.json",
@@ -3038,7 +3234,9 @@
             "Viper49xx",
             "yohoho"
           ],
-          "kill_count": 128
+          "kill_count": 128,
+          "player_kills_blue": 76,
+          "player_kills_red": 12
         },
         {
           "file": "data/2026-02-09 CaucasusInverted/session_20260212_142329.json",
@@ -3087,7 +3285,9 @@
             "Winky51",
             "Wolfy"
           ],
-          "kill_count": 211
+          "kill_count": 211,
+          "player_kills_blue": 56,
+          "player_kills_red": 75
         },
         {
           "file": "data/2026-02-09 CaucasusInverted/session_20260212_202426.json",
@@ -3131,7 +3331,9 @@
             "Zerg",
             "冰人"
           ],
-          "kill_count": 179
+          "kill_count": 179,
+          "player_kills_blue": 46,
+          "player_kills_red": 43
         },
         {
           "file": "data/2026-02-09 CaucasusInverted/session_20260213_022525.json",
@@ -3151,7 +3353,9 @@
             "samum",
             "wildkoi"
           ],
-          "kill_count": 87
+          "kill_count": 87,
+          "player_kills_blue": 8,
+          "player_kills_red": 64
         },
         {
           "file": "data/2026-02-09 CaucasusInverted/session_20260213_082622.json",
@@ -3180,7 +3384,9 @@
             "VPP - Predator",
             "Wolfy"
           ],
-          "kill_count": 84
+          "kill_count": 84,
+          "player_kills_blue": 58,
+          "player_kills_red": 2
         },
         {
           "file": "data/2026-02-09 CaucasusInverted/session_20260213_142726.json",
@@ -3245,7 +3451,9 @@
             "Wolfy",
             "Zerg"
           ],
-          "kill_count": 276
+          "kill_count": 276,
+          "player_kills_blue": 89,
+          "player_kills_red": 53
         },
         {
           "file": "data/2026-02-09 CaucasusInverted/session_20260213_202814.json",
@@ -3292,7 +3500,9 @@
             "Winky51",
             "Wolfy"
           ],
-          "kill_count": 219
+          "kill_count": 219,
+          "player_kills_blue": 52,
+          "player_kills_red": 82
         },
         {
           "file": "data/2026-02-09 CaucasusInverted/session_20260214_022911.json",
@@ -3315,7 +3525,9 @@
             "SRALKER",
             "Zerg"
           ],
-          "kill_count": 95
+          "kill_count": 95,
+          "player_kills_blue": 75,
+          "player_kills_red": 1
         },
         {
           "file": "data/2026-02-09 CaucasusInverted/session_20260214_083010.json",
@@ -3334,7 +3546,9 @@
             "SE iShuika",
             "VPP - Predator"
           ],
-          "kill_count": 14
+          "kill_count": 14,
+          "player_kills_blue": 10,
+          "player_kills_red": 4
         },
         {
           "file": "data/2026-02-09 CaucasusInverted/session_20260214_091911.json",
@@ -3379,7 +3593,9 @@
             "VPP - Predator",
             "Wolfy"
           ],
-          "kill_count": 138
+          "kill_count": 138,
+          "player_kills_blue": 63,
+          "player_kills_red": 27
         },
         {
           "file": "data/2026-02-09 CaucasusInverted/session_20260214_143107.json",
@@ -3443,7 +3659,9 @@
             "ZeyTox",
             "Игрок"
           ],
-          "kill_count": 299
+          "kill_count": 299,
+          "player_kills_blue": 99,
+          "player_kills_red": 75
         },
         {
           "file": "data/2026-02-09 CaucasusInverted/session_20260214_203153.json",
@@ -3494,7 +3712,9 @@
             "Viper49xx",
             "Wolfy"
           ],
-          "kill_count": 213
+          "kill_count": 213,
+          "player_kills_blue": 46,
+          "player_kills_red": 73
         },
         {
           "file": "data/2026-02-09 CaucasusInverted/session_20260215_023237.json",
@@ -3516,7 +3736,9 @@
             "VPP - Predator",
             "Zerg"
           ],
-          "kill_count": 118
+          "kill_count": 118,
+          "player_kills_blue": 78,
+          "player_kills_red": 1
         },
         {
           "file": "data/2026-02-09 CaucasusInverted/session_20260215_083321.json",
@@ -3556,7 +3778,9 @@
             "Wolfy",
             "Zerg"
           ],
-          "kill_count": 177
+          "kill_count": 177,
+          "player_kills_blue": 103,
+          "player_kills_red": 13
         },
         {
           "file": "data/2026-02-09 CaucasusInverted/session_20260215_143424.json",
@@ -3610,7 +3834,9 @@
             "Winky51",
             "Wolfy"
           ],
-          "kill_count": 278
+          "kill_count": 278,
+          "player_kills_blue": 142,
+          "player_kills_red": 49
         },
         {
           "file": "data/2026-02-09 CaucasusInverted/session_20260215_203521.json",
@@ -3647,7 +3873,9 @@
             "Winky51",
             "Wolfy"
           ],
-          "kill_count": 151
+          "kill_count": 151,
+          "player_kills_blue": 32,
+          "player_kills_red": 55
         },
         {
           "file": "data/2026-02-09 CaucasusInverted/session_20260216_023620.json",
@@ -3667,7 +3895,9 @@
             "Savage2",
             "TNut"
           ],
-          "kill_count": 97
+          "kill_count": 97,
+          "player_kills_blue": 25,
+          "player_kills_red": 41
         },
         {
           "file": "data/2026-02-09 CaucasusInverted/session_20260216_083723.json",
@@ -3697,7 +3927,9 @@
             "Uzbek",
             "Viper49xx"
           ],
-          "kill_count": 78
+          "kill_count": 78,
+          "player_kills_blue": 26,
+          "player_kills_red": 17
         },
         {
           "file": "data/2026-02-09 CaucasusInverted/session_20260216_143817.json",
@@ -3748,7 +3980,9 @@
             "Wolfy",
             "Zerg"
           ],
-          "kill_count": 219
+          "kill_count": 219,
+          "player_kills_blue": 75,
+          "player_kills_red": 36
         },
         {
           "file": "data/2026-02-09 CaucasusInverted/session_20260216_203901.json",
@@ -3788,7 +4022,9 @@
             "TNut",
             "Viper49xx"
           ],
-          "kill_count": 161
+          "kill_count": 161,
+          "player_kills_blue": 16,
+          "player_kills_red": 67
         },
         {
           "file": "data/2026-02-09 CaucasusInverted/session_20260217_024003.json",
@@ -3808,7 +4044,9 @@
             "Uzbek",
             "Viper49xx"
           ],
-          "kill_count": 58
+          "kill_count": 58,
+          "player_kills_blue": 29,
+          "player_kills_red": 9
         },
         {
           "file": "data/2026-02-09 CaucasusInverted/session_20260217_084103.json",
@@ -3835,7 +4073,9 @@
             "wildkoi",
             "Winky51"
           ],
-          "kill_count": 105
+          "kill_count": 105,
+          "player_kills_blue": 59,
+          "player_kills_red": 16
         },
         {
           "file": "data/2026-02-09 CaucasusInverted/session_20260217_144203.json",
@@ -3878,7 +4118,9 @@
             "Wolfy",
             "Zerg"
           ],
-          "kill_count": 180
+          "kill_count": 180,
+          "player_kills_blue": 88,
+          "player_kills_red": 28
         },
         {
           "file": "data/2026-02-09 CaucasusInverted/session_20260217_204304.json",
@@ -3912,7 +4154,9 @@
             "Wolfy",
             "{TFT} Sword"
           ],
-          "kill_count": 202
+          "kill_count": 202,
+          "player_kills_blue": 52,
+          "player_kills_red": 56
         },
         {
           "file": "data/2026-02-09 CaucasusInverted/session_20260218_024402.json",
@@ -3928,7 +4172,9 @@
             "Overlord 2",
             "Savage2"
           ],
-          "kill_count": 59
+          "kill_count": 59,
+          "player_kills_blue": 14,
+          "player_kills_red": 18
         },
         {
           "file": "data/2026-02-09 CaucasusInverted/session_20260218_084459.json",
@@ -3952,7 +4198,9 @@
             "VPP - Predator",
             "Wolfy"
           ],
-          "kill_count": 95
+          "kill_count": 95,
+          "player_kills_blue": 29,
+          "player_kills_red": 28
         },
         {
           "file": "data/2026-02-09 CaucasusInverted/session_20260218_144600.json",
@@ -3999,7 +4247,9 @@
             "Wolfy",
             "Zerg"
           ],
-          "kill_count": 148
+          "kill_count": 148,
+          "player_kills_blue": 49,
+          "player_kills_red": 35
         },
         {
           "file": "data/2026-02-09 CaucasusInverted/session_20260218_204701.json",
@@ -4038,7 +4288,9 @@
             "Winky51",
             "Zerg"
           ],
-          "kill_count": 194
+          "kill_count": 194,
+          "player_kills_blue": 56,
+          "player_kills_red": 54
         },
         {
           "file": "data/2026-02-09 CaucasusInverted/session_20260219_024805.json",
@@ -4057,7 +4309,9 @@
             "Parriz",
             "VPP - Predator"
           ],
-          "kill_count": 74
+          "kill_count": 74,
+          "player_kills_blue": 41,
+          "player_kills_red": 5
         },
         {
           "file": "data/2026-02-09 CaucasusInverted/session_20260219_084901.json",
@@ -4092,7 +4346,9 @@
             "Striker",
             "Uzbek"
           ],
-          "kill_count": 95
+          "kill_count": 95,
+          "player_kills_blue": 28,
+          "player_kills_red": 21
         },
         {
           "file": "data/2026-02-09 CaucasusInverted/session_20260219_145006.json",
@@ -4155,7 +4411,9 @@
             "wojtek",
             "Wolfy"
           ],
-          "kill_count": 224
+          "kill_count": 224,
+          "player_kills_blue": 63,
+          "player_kills_red": 60
         },
         {
           "file": "data/2026-02-09 CaucasusInverted/session_20260219_205052.json",
@@ -4203,7 +4461,9 @@
             "Vase",
             "Winky51"
           ],
-          "kill_count": 196
+          "kill_count": 196,
+          "player_kills_blue": 44,
+          "player_kills_red": 54
         },
         {
           "file": "data/2026-02-09 CaucasusInverted/session_20260220_025147.json",
@@ -4226,7 +4486,9 @@
             "Savage2",
             "VPP - Predator"
           ],
-          "kill_count": 67
+          "kill_count": 67,
+          "player_kills_blue": 47,
+          "player_kills_red": 2
         },
         {
           "file": "data/2026-02-09 CaucasusInverted/session_20260220_085251.json",
@@ -4256,7 +4518,9 @@
             "SRALKER",
             "Vase"
           ],
-          "kill_count": 95
+          "kill_count": 95,
+          "player_kills_blue": 66,
+          "player_kills_red": 5
         },
         {
           "file": "data/2026-02-09 CaucasusInverted/session_20260220_145401.json",
@@ -4305,7 +4569,9 @@
             "Wolfy",
             "Zerg"
           ],
-          "kill_count": 200
+          "kill_count": 200,
+          "player_kills_blue": 32,
+          "player_kills_red": 73
         },
         {
           "file": "data/2026-02-09 CaucasusInverted/session_20260220_205545.json",
@@ -4355,7 +4621,9 @@
             "Wolfy",
             "Zerg"
           ],
-          "kill_count": 306
+          "kill_count": 306,
+          "player_kills_blue": 115,
+          "player_kills_red": 76
         },
         {
           "file": "data/2026-02-09 CaucasusInverted/session_20260221_025648.json",
@@ -4363,7 +4631,9 @@
           "date": "2026-02-21T02:56:48Z",
           "duration_hours": 0.0,
           "players": [],
-          "kill_count": 0
+          "kill_count": 0,
+          "player_kills_blue": 0,
+          "player_kills_red": 0
         }
       ]
     },
@@ -4395,7 +4665,9 @@
             "SilverGhost",
             "Vase"
           ],
-          "kill_count": 47
+          "kill_count": 47,
+          "player_kills_blue": 2,
+          "player_kills_red": 22
         },
         {
           "file": "data/2026-02-21 GermanyInverted/session_20260221_161221.json",
@@ -4430,7 +4702,9 @@
             "Zerg",
             "°witchblade"
           ],
-          "kill_count": 89
+          "kill_count": 89,
+          "player_kills_blue": 21,
+          "player_kills_red": 15
         },
         {
           "file": "data/2026-02-21 GermanyInverted/session_20260221_221318.json",
@@ -4456,7 +4730,9 @@
             "Sosaina",
             "Vase"
           ],
-          "kill_count": 121
+          "kill_count": 121,
+          "player_kills_blue": 52,
+          "player_kills_red": 14
         },
         {
           "file": "data/2026-02-21 GermanyInverted/session_20260222_041440.json",
@@ -4478,7 +4754,9 @@
             "Weasel 1",
             "Zerg"
           ],
-          "kill_count": 95
+          "kill_count": 95,
+          "player_kills_blue": 22,
+          "player_kills_red": 27
         },
         {
           "file": "data/2026-02-21 GermanyInverted/session_20260222_101548.json",
@@ -4514,7 +4792,9 @@
             "Wolfy",
             "°witchblade"
           ],
-          "kill_count": 132
+          "kill_count": 132,
+          "player_kills_blue": 55,
+          "player_kills_red": 34
         },
         {
           "file": "data/2026-02-21 GermanyInverted/session_20260222_161710.json",
@@ -4548,7 +4828,9 @@
             "Vase",
             "Wolfy"
           ],
-          "kill_count": 184
+          "kill_count": 184,
+          "player_kills_blue": 20,
+          "player_kills_red": 68
         },
         {
           "file": "data/2026-02-21 GermanyInverted/session_20260222_222846.json",
@@ -4569,7 +4851,9 @@
             "Overlord 2",
             "Papst"
           ],
-          "kill_count": 119
+          "kill_count": 119,
+          "player_kills_blue": 30,
+          "player_kills_red": 40
         },
         {
           "file": "data/2026-02-21 GermanyInverted/session_20260223_043001.json",
@@ -4586,7 +4870,9 @@
             "Papst",
             "pitsa"
           ],
-          "kill_count": 51
+          "kill_count": 51,
+          "player_kills_blue": 1,
+          "player_kills_red": 27
         },
         {
           "file": "data/2026-02-21 GermanyInverted/session_20260223_103120.json",
@@ -4618,7 +4904,9 @@
             "Vase",
             "спустил в штаны и"
           ],
-          "kill_count": 108
+          "kill_count": 108,
+          "player_kills_blue": 25,
+          "player_kills_red": 16
         },
         {
           "file": "data/2026-02-21 GermanyInverted/session_20260223_163231.json",
@@ -4657,7 +4945,9 @@
             "Wolfy",
             "°witchblade"
           ],
-          "kill_count": 147
+          "kill_count": 147,
+          "player_kills_blue": 32,
+          "player_kills_red": 42
         },
         {
           "file": "data/2026-02-21 GermanyInverted/session_20260223_223357.json",
@@ -4675,7 +4965,9 @@
             "sMoKe",
             "Vase"
           ],
-          "kill_count": 77
+          "kill_count": 77,
+          "player_kills_blue": 0,
+          "player_kills_red": 56
         },
         {
           "file": "data/2026-02-21 GermanyInverted/session_20260224_043500.json",
@@ -4688,7 +4980,9 @@
             "Joker22",
             "Overlord 1"
           ],
-          "kill_count": 84
+          "kill_count": 84,
+          "player_kills_blue": 2,
+          "player_kills_red": 51
         },
         {
           "file": "data/2026-02-21 GermanyInverted/session_20260224_084443.json",
@@ -4710,7 +5004,9 @@
             "Overlord 1",
             "Papst"
           ],
-          "kill_count": 47
+          "kill_count": 47,
+          "player_kills_blue": 10,
+          "player_kills_red": 8
         },
         {
           "file": "data/2026-02-21 GermanyInverted/session_20260224_144554.json",
@@ -4743,7 +5039,9 @@
             "°witchblade",
             "спустил в штаны и"
           ],
-          "kill_count": 124
+          "kill_count": 124,
+          "player_kills_blue": 26,
+          "player_kills_red": 37
         },
         {
           "file": "data/2026-02-21 GermanyInverted/session_20260224_204711.json",
@@ -4765,7 +5063,9 @@
             "Wolfy",
             "Zerg"
           ],
-          "kill_count": 85
+          "kill_count": 85,
+          "player_kills_blue": 0,
+          "player_kills_red": 33
         },
         {
           "file": "data/2026-02-21 GermanyInverted/session_20260225_024812.json",
@@ -4783,7 +5083,9 @@
             "Papst",
             "Savage2"
           ],
-          "kill_count": 56
+          "kill_count": 56,
+          "player_kills_blue": 0,
+          "player_kills_red": 37
         },
         {
           "file": "data/2026-02-21 GermanyInverted/session_20260225_084934.json",
@@ -4805,7 +5107,9 @@
             "sMoKe",
             "Sosaina"
           ],
-          "kill_count": 61
+          "kill_count": 61,
+          "player_kills_blue": 1,
+          "player_kills_red": 43
         },
         {
           "file": "data/2026-02-21 GermanyInverted/session_20260225_145046.json",
@@ -4838,7 +5142,9 @@
             "Vase",
             "Wolfy"
           ],
-          "kill_count": 128
+          "kill_count": 128,
+          "player_kills_blue": 16,
+          "player_kills_red": 53
         },
         {
           "file": "data/2026-02-21 GermanyInverted/session_20260225_205147.json",
@@ -4860,7 +5166,9 @@
             "Vase",
             "Wolfy"
           ],
-          "kill_count": 71
+          "kill_count": 71,
+          "player_kills_blue": 9,
+          "player_kills_red": 32
         },
         {
           "file": "data/2026-02-21 GermanyInverted/session_20260226_025309.json",
@@ -4868,7 +5176,9 @@
           "date": "2026-02-26T02:53:09Z",
           "duration_hours": 0.0,
           "players": [],
-          "kill_count": 0
+          "kill_count": 0,
+          "player_kills_blue": 0,
+          "player_kills_red": 0
         }
       ]
     },
@@ -4891,7 +5201,9 @@
             "Papst",
             "Savage2"
           ],
-          "kill_count": 12
+          "kill_count": 12,
+          "player_kills_blue": 0,
+          "player_kills_red": 9
         },
         {
           "file": "data/2026-02-26 Germany/session_20260226_134729.json",
@@ -4920,7 +5232,9 @@
             "Sosaina",
             "Wolfy"
           ],
-          "kill_count": 96
+          "kill_count": 96,
+          "player_kills_blue": 48,
+          "player_kills_red": 8
         },
         {
           "file": "data/2026-02-26 Germany/session_20260226_195524.json",
@@ -4948,7 +5262,9 @@
             "Vase",
             "Wolfy"
           ],
-          "kill_count": 123
+          "kill_count": 123,
+          "player_kills_blue": 13,
+          "player_kills_red": 71
         },
         {
           "file": "data/2026-02-26 Germany/session_20260227_015643.json",
@@ -4962,7 +5278,9 @@
             "Overlord 2",
             "Papst"
           ],
-          "kill_count": 37
+          "kill_count": 37,
+          "player_kills_blue": 3,
+          "player_kills_red": 25
         },
         {
           "file": "data/2026-02-26 Germany/session_20260227_075801.json",
@@ -4979,7 +5297,9 @@
             "Papst",
             "sMoKe"
           ],
-          "kill_count": 49
+          "kill_count": 49,
+          "player_kills_blue": 2,
+          "player_kills_red": 30
         },
         {
           "file": "data/2026-02-26 Germany/session_20260227_135926.json",
@@ -5012,7 +5332,9 @@
             "Wolfy",
             "Zerg"
           ],
-          "kill_count": 98
+          "kill_count": 98,
+          "player_kills_blue": 33,
+          "player_kills_red": 39
         },
         {
           "file": "data/2026-02-26 Germany/session_20260227_200053.json",
@@ -5042,7 +5364,9 @@
             "Vase",
             "Wolfy"
           ],
-          "kill_count": 129
+          "kill_count": 129,
+          "player_kills_blue": 19,
+          "player_kills_red": 75
         },
         {
           "file": "data/2026-02-26 Germany/session_20260228_020217.json",
@@ -5059,7 +5383,9 @@
             "Papst",
             "Zerg"
           ],
-          "kill_count": 49
+          "kill_count": 49,
+          "player_kills_blue": 20,
+          "player_kills_red": 12
         },
         {
           "file": "data/2026-02-26 Germany/session_20260228_080339.json",
@@ -5079,7 +5405,9 @@
             "Overlord 1",
             "sMoKe"
           ],
-          "kill_count": 87
+          "kill_count": 87,
+          "player_kills_blue": 16,
+          "player_kills_red": 51
         },
         {
           "file": "data/2026-02-26 Germany/session_20260228_140455.json",
@@ -5105,7 +5433,9 @@
             "sMoKe",
             "Sosaina"
           ],
-          "kill_count": 140
+          "kill_count": 140,
+          "player_kills_blue": 62,
+          "player_kills_red": 37
         },
         {
           "file": "data/2026-02-26 Germany/session_20260228_200605.json",
@@ -5132,7 +5462,9 @@
             "Upward",
             "Vase"
           ],
-          "kill_count": 137
+          "kill_count": 137,
+          "player_kills_blue": 10,
+          "player_kills_red": 66
         },
         {
           "file": "data/2026-02-26 Germany/session_20260301_020728.json",
@@ -5154,7 +5486,9 @@
             "pitsa",
             "Upward"
           ],
-          "kill_count": 72
+          "kill_count": 72,
+          "player_kills_blue": 12,
+          "player_kills_red": 39
         },
         {
           "file": "data/2026-02-26 Germany/session_20260301_080845.json",
@@ -5182,7 +5516,9 @@
             "sMoKe",
             "Stg2_Marder"
           ],
-          "kill_count": 175
+          "kill_count": 175,
+          "player_kills_blue": 20,
+          "player_kills_red": 92
         },
         {
           "file": "data/2026-02-26 Germany/session_20260301_140947.json",
@@ -5210,7 +5546,9 @@
             "Vase",
             "Wolfy"
           ],
-          "kill_count": 122
+          "kill_count": 122,
+          "player_kills_blue": 38,
+          "player_kills_red": 47
         },
         {
           "file": "data/2026-02-26 Germany/session_20260301_201051.json",
@@ -5230,7 +5568,9 @@
             "Vase",
             "Wolfy"
           ],
-          "kill_count": 85
+          "kill_count": 85,
+          "player_kills_blue": 22,
+          "player_kills_red": 35
         },
         {
           "file": "data/2026-02-26 Germany/session_20260302_021207.json",
@@ -5243,7 +5583,9 @@
             "Donner",
             "Overlord 1"
           ],
-          "kill_count": 35
+          "kill_count": 35,
+          "player_kills_blue": 17,
+          "player_kills_red": 1
         },
         {
           "file": "data/2026-02-26 Germany/session_20260302_081305.json",
@@ -5261,7 +5603,9 @@
             "Overlord 1",
             "Savage2"
           ],
-          "kill_count": 66
+          "kill_count": 66,
+          "player_kills_blue": 16,
+          "player_kills_red": 1
         },
         {
           "file": "data/2026-02-26 Germany/session_20260302_141421.json",
@@ -5291,7 +5635,9 @@
             "sMoKe",
             "спустил в штаны и"
           ],
-          "kill_count": 149
+          "kill_count": 149,
+          "player_kills_blue": 13,
+          "player_kills_red": 84
         },
         {
           "file": "data/2026-02-26 Germany/session_20260302_201537.json",
@@ -5313,7 +5659,9 @@
             "SilverGhost",
             "Wolfy"
           ],
-          "kill_count": 91
+          "kill_count": 91,
+          "player_kills_blue": 22,
+          "player_kills_red": 39
         },
         {
           "file": "data/2026-02-26 Germany/session_20260303_021648.json",
@@ -5328,7 +5676,9 @@
             "Papst",
             "PASEZNIK"
           ],
-          "kill_count": 11
+          "kill_count": 11,
+          "player_kills_blue": 1,
+          "player_kills_red": 0
         },
         {
           "file": "data/2026-02-26 Germany/session_20260303_081807.json",
@@ -5350,7 +5700,9 @@
             "Overlord 1",
             "Rednaxela"
           ],
-          "kill_count": 118
+          "kill_count": 118,
+          "player_kills_blue": 13,
+          "player_kills_red": 71
         },
         {
           "file": "data/2026-02-26 Germany/session_20260303_141922.json",
@@ -5390,7 +5742,9 @@
             "Vase",
             "Wolfy"
           ],
-          "kill_count": 118
+          "kill_count": 118,
+          "player_kills_blue": 24,
+          "player_kills_red": 35
         },
         {
           "file": "data/2026-02-26 Germany/session_20260303_202023.json",
@@ -5414,7 +5768,9 @@
             "Vase",
             "Wolfy"
           ],
-          "kill_count": 108
+          "kill_count": 108,
+          "player_kills_blue": 12,
+          "player_kills_red": 45
         },
         {
           "file": "data/2026-02-26 Germany/session_20260304_022149.json",
@@ -5430,7 +5786,9 @@
             "Papst",
             "PASEZNIK"
           ],
-          "kill_count": 68
+          "kill_count": 68,
+          "player_kills_blue": 3,
+          "player_kills_red": 36
         },
         {
           "file": "data/2026-02-26 Germany/session_20260304_082305.json",
@@ -5449,7 +5807,9 @@
             "Papst",
             "Strange"
           ],
-          "kill_count": 112
+          "kill_count": 112,
+          "player_kills_blue": 27,
+          "player_kills_red": 54
         },
         {
           "file": "data/2026-02-26 Germany/session_20260304_142421.json",
@@ -5488,7 +5848,9 @@
             "Wolfy",
             "°witchblade"
           ],
-          "kill_count": 127
+          "kill_count": 127,
+          "player_kills_blue": 37,
+          "player_kills_red": 44
         },
         {
           "file": "data/2026-02-26 Germany/session_20260304_202546.json",
@@ -5515,7 +5877,9 @@
             "Vase",
             "Viggmore"
           ],
-          "kill_count": 121
+          "kill_count": 121,
+          "player_kills_blue": 1,
+          "player_kills_red": 71
         },
         {
           "file": "data/2026-02-26 Germany/session_20260305_022711.json",
@@ -5526,7 +5890,9 @@
             "Joker22",
             "Overlord 1"
           ],
-          "kill_count": 57
+          "kill_count": 57,
+          "player_kills_blue": 0,
+          "player_kills_red": 42
         }
       ]
     },
@@ -5560,7 +5926,9 @@
             "Riddick",
             "samum"
           ],
-          "kill_count": 93
+          "kill_count": 93,
+          "player_kills_blue": 39,
+          "player_kills_red": 20
         },
         {
           "file": "data/2026-03-05 Caucasus/session_20260305_125928.json",
@@ -5606,7 +5974,9 @@
             "Yannik",
             "{TFT} Msharii"
           ],
-          "kill_count": 177
+          "kill_count": 177,
+          "player_kills_blue": 63,
+          "player_kills_red": 55
         },
         {
           "file": "data/2026-03-05 Caucasus/session_20260305_190015.json",
@@ -5651,7 +6021,9 @@
             "Viper49xx",
             "Wolfy"
           ],
-          "kill_count": 219
+          "kill_count": 219,
+          "player_kills_blue": 76,
+          "player_kills_red": 59
         },
         {
           "file": "data/2026-03-05 Caucasus/session_20260306_010110.json",
@@ -5673,7 +6045,9 @@
             "Overlord 2",
             "Viper49xx"
           ],
-          "kill_count": 87
+          "kill_count": 87,
+          "player_kills_blue": 32,
+          "player_kills_red": 27
         },
         {
           "file": "data/2026-03-05 Caucasus/session_20260306_070213.json",
@@ -5704,7 +6078,9 @@
             "SRALKER",
             "Viper49xx"
           ],
-          "kill_count": 214
+          "kill_count": 214,
+          "player_kills_blue": 135,
+          "player_kills_red": 2
         },
         {
           "file": "data/2026-03-05 Caucasus/session_20260306_130309.json",
@@ -5760,7 +6136,9 @@
             "{TFT} Msharii",
             "спустил в штаны и"
           ],
-          "kill_count": 237
+          "kill_count": 237,
+          "player_kills_blue": 103,
+          "player_kills_red": 37
         },
         {
           "file": "data/2026-03-05 Caucasus/session_20260306_190351.json",
@@ -5814,7 +6192,9 @@
             "yohoho",
             "{TFT} Msharii"
           ],
-          "kill_count": 246
+          "kill_count": 246,
+          "player_kills_blue": 59,
+          "player_kills_red": 60
         },
         {
           "file": "data/2026-03-05 Caucasus/session_20260307_010444.json",
@@ -5837,7 +6217,9 @@
             "Overlord 2",
             "Vase"
           ],
-          "kill_count": 68
+          "kill_count": 68,
+          "player_kills_blue": 36,
+          "player_kills_red": 12
         },
         {
           "file": "data/2026-03-05 Caucasus/session_20260307_070543.json",
@@ -5869,7 +6251,9 @@
             "SRALKER",
             "Viper49xx"
           ],
-          "kill_count": 141
+          "kill_count": 141,
+          "player_kills_blue": 102,
+          "player_kills_red": 3
         },
         {
           "file": "data/2026-03-05 Caucasus/session_20260307_130647.json",
@@ -5915,7 +6299,9 @@
             "Winky51",
             "Wolfy"
           ],
-          "kill_count": 177
+          "kill_count": 177,
+          "player_kills_blue": 60,
+          "player_kills_red": 61
         },
         {
           "file": "data/2026-03-05 Caucasus/session_20260307_190746.json",
@@ -5969,7 +6355,9 @@
             "Wolfy",
             "ZAZAL"
           ],
-          "kill_count": 198
+          "kill_count": 198,
+          "player_kills_blue": 61,
+          "player_kills_red": 62
         },
         {
           "file": "data/2026-03-05 Caucasus/session_20260308_010830.json",
@@ -5993,7 +6381,9 @@
             "Rival 1-1 - blackeagle",
             "Yodeley"
           ],
-          "kill_count": 123
+          "kill_count": 123,
+          "player_kills_blue": 20,
+          "player_kills_red": 37
         },
         {
           "file": "data/2026-03-05 Caucasus/session_20260308_070926.json",
@@ -6026,7 +6416,9 @@
             "TonySoft",
             "Viper49xx"
           ],
-          "kill_count": 143
+          "kill_count": 143,
+          "player_kills_blue": 74,
+          "player_kills_red": 31
         },
         {
           "file": "data/2026-03-05 Caucasus/session_20260308_131027.json",
@@ -6074,7 +6466,9 @@
             "Viper49xx",
             "Wolfy"
           ],
-          "kill_count": 200
+          "kill_count": 200,
+          "player_kills_blue": 93,
+          "player_kills_red": 37
         },
         {
           "file": "data/2026-03-05 Caucasus/session_20260308_191110.json",
@@ -6108,7 +6502,9 @@
             "Winky51",
             "Wolfy"
           ],
-          "kill_count": 79
+          "kill_count": 79,
+          "player_kills_blue": 15,
+          "player_kills_red": 26
         },
         {
           "file": "data/2026-03-05 Caucasus/session_20260309_011212.json",
@@ -6124,7 +6520,9 @@
             "Overlord 1",
             "Overlord 2"
           ],
-          "kill_count": 24
+          "kill_count": 24,
+          "player_kills_blue": 9,
+          "player_kills_red": 8
         },
         {
           "file": "data/2026-03-05 Caucasus/session_20260309_071312.json",
@@ -6140,7 +6538,9 @@
             "Overlord 1",
             "TonySoft"
           ],
-          "kill_count": 22
+          "kill_count": 22,
+          "player_kills_blue": 17,
+          "player_kills_red": 0
         },
         {
           "file": "data/2026-03-05 Caucasus/session_20260309_093822.json",
@@ -6160,7 +6560,9 @@
             "SniperSS",
             "Viper49xx"
           ],
-          "kill_count": 53
+          "kill_count": 53,
+          "player_kills_blue": 19,
+          "player_kills_red": 11
         },
         {
           "file": "data/2026-03-05 Caucasus/session_20260309_131416.json",
@@ -6198,7 +6600,9 @@
             "Wolfy",
             "Игрок"
           ],
-          "kill_count": 128
+          "kill_count": 128,
+          "player_kills_blue": 70,
+          "player_kills_red": 18
         },
         {
           "file": "data/2026-03-05 Caucasus/session_20260309_191518.json",
@@ -6224,7 +6628,9 @@
             "Viper49xx",
             "Wolfy"
           ],
-          "kill_count": 40
+          "kill_count": 40,
+          "player_kills_blue": 19,
+          "player_kills_red": 9
         },
         {
           "file": "data/2026-03-05 Caucasus/session_20260309_211012.json",
@@ -6254,7 +6660,9 @@
             "Viper49xx",
             "Wolfy"
           ],
-          "kill_count": 59
+          "kill_count": 59,
+          "player_kills_blue": 11,
+          "player_kills_red": 23
         },
         {
           "file": "data/2026-03-05 Caucasus/session_20260310_011613.json",
@@ -6270,7 +6678,9 @@
             "Viper49xx",
             "Winky51"
           ],
-          "kill_count": 22
+          "kill_count": 22,
+          "player_kills_blue": 0,
+          "player_kills_red": 11
         },
         {
           "file": "data/2026-03-05 Caucasus/session_20260310_071713.json",
@@ -6291,7 +6701,9 @@
             "pitsa",
             "Soviet Kitty"
           ],
-          "kill_count": 70
+          "kill_count": 70,
+          "player_kills_blue": 25,
+          "player_kills_red": 11
         },
         {
           "file": "data/2026-03-05 Caucasus/session_20260310_131816.json",
@@ -6333,7 +6745,9 @@
             "Winky51",
             "Wolfy"
           ],
-          "kill_count": 199
+          "kill_count": 199,
+          "player_kills_blue": 113,
+          "player_kills_red": 8
         },
         {
           "file": "data/2026-03-05 Caucasus/session_20260310_191900.json",
@@ -6349,7 +6763,9 @@
             "Winky51",
             "Wolfy"
           ],
-          "kill_count": 4
+          "kill_count": 4,
+          "player_kills_blue": 0,
+          "player_kills_red": 1
         }
       ]
     }

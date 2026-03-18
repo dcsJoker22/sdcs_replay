@@ -278,22 +278,11 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
     </div>
     <label style="color:#000">UI Scale</label>
   </div>
-  <!-- Objective and Kill Counters-->
-    <div id="obj-counter">
+  <div id="obj-counter">
     <div class="obj-title blue" id="obj-blue-title">Blue team controls — / — Objectives</div>
     <div class="obj-bar-wrap"><div class="obj-bar blue" id="obj-blue-bar" style="width:0%"></div></div>
     <div class="obj-title red" id="obj-red-title">Red team controls — / — Objectives</div>
     <div class="obj-bar-wrap"><div class="obj-bar red" id="obj-red-bar" style="width:0%"></div></div>
-    <div style="border-top:1px solid rgba(255,255,255,0.1);margin:6px 0 5px"></div>
-    <div class="obj-title blue" id="kill-blue-title">Blue Kills: 0</div>
-    <div class="obj-bar-wrap"><div class="obj-bar blue" id="kill-blue-bar" style="width:0%"></div></div>
-    <div class="obj-title red" id="kill-red-title">Red Kills: 0</div>
-    <div class="obj-bar-wrap"><div class="obj-bar red" id="kill-red-bar" style="width:0%"></div></div>
-    <div style="border-top:1px solid rgba(255,255,255,0.06);margin:6px 0 5px"></div>
-    <div class="obj-title blue" id="total-kill-blue-title">Campaign Blue: 0</div>
-    <div class="obj-bar-wrap"><div class="obj-bar blue" id="total-kill-blue-bar" style="width:0%"></div></div>
-    <div class="obj-title red" id="total-kill-red-title">Campaign Red: 0</div>
-    <div class="obj-bar-wrap"><div class="obj-bar red" id="total-kill-red-bar" style="width:0%"></div></div>
   </div>
 </div>
   <div id="sidebar">
@@ -904,7 +893,6 @@ map.createPane('plabelPane'); map.getPane('plabelPane').style.zIndex=640;  // pl
 //  STATE
 // ════════════════════════════════════════════════════════════════════
 let SESSIONS=[], currentTime=0, campaignDur=0, playing=false, playSpeed=30;
-let killCountBlue=0, killCountRed=0; // cumulative player kills across all sessions up to current time
 let lastRaf=null, rafId=null, selectedPlayer=null;
 
 const unitMarkers={}, unitTrails={}, pilotLabels={}, groundLabels={}, baseInnerCircles={};
@@ -1142,9 +1130,8 @@ async function loadSession(campIdx, sessIdx){
     console.error(e);
     return;
   }
-  
+
   setLoad('Merging…');         _merged = mergeSessions(SESSIONS);
-  _merged._currentSessionFile = CAMPAIGNS_DATA.campaigns[campIdx].sessions[sessIdx].file;
   // Set campaignId before buildShelterMap so it can match Shelter3s to DB locations
   _merged._campaignId = camp.campaign_id;
   setLoad('Base ownership…');  buildShelterMap(); buildGroundKillTimes();
@@ -1819,60 +1806,6 @@ function drawBase(b){
   }
 }
 
-// ── Kill Counter ─────────────────────────────────────────────────
-// Counts player kills in current session up to currentTime,
-// adds locked-in totals from all prior sessions.
-// A "Blue kill" = a player killed a Hostiles unit.
-// A "Red kill"  = a player killed a Friendlies unit.
-function updateKillCounter() {
-  // Count player kills in the current session up to currentTime
-  let blueKills = 0, redKills = 0;
-  const merged = _merged;
-  if (merged && merged.events) {
-    for (const ev of merged.events) {
-      if (ev.t > currentTime) break; // events are sorted by time
-      if (ev.type !== 'kill') continue;
-      if (!ev.killer) continue;
-      // Only count if killer is a human player
-      if (!merged.players || !merged.players[ev.killer]) continue;
-      if (ev.victim_coalition === 'Hostiles') blueKills++;
-      else if (ev.victim_coalition === 'Friendlies') redKills++;
-    }
-  }
-  killCountBlue = blueKills;
-  killCountRed  = redKills;
-
-  const total = killCountBlue + killCountRed || 1;
-  document.getElementById('kill-blue-title').textContent = `Blue Kills: ${killCountBlue}`;
-  document.getElementById('kill-red-title').textContent  = `Red Kills: ${killCountRed}`;
-  document.getElementById('kill-blue-bar').style.width = (killCountBlue / total * 100) + '%';
-  document.getElementById('kill-red-bar').style.width  = (killCountRed  / total * 100) + '%';
-
-  // Campaign totals — sum player_kills from all sessions in campaigns.json
-  // plus current session's live count (in case this session isn't fully elapsed)
-  let campBlue = 0, campRed = 0;
-  try {
-    const camp = CAMPAIGNS_DATA.campaigns.find(c =>
-      c.sessions.some(s => s.file === _merged._currentSessionFile)
-    );
-    if (camp) {
-      for (const s of camp.sessions) {
-        if (s.file === _merged._currentSessionFile) break; // prior sessions only
-        campBlue += s.player_kills_blue || 0;
-        campRed  += s.player_kills_red  || 0;
-      }
-    }
-  } catch(e) {}
-  campBlue += killCountBlue; // add current session live count
-  campRed  += killCountRed;
-
-  const campTotal = campBlue + campRed || 1;
-  document.getElementById('total-kill-blue-title').textContent = `Campaign Blue: ${campBlue}`;
-  document.getElementById('total-kill-red-title').textContent  = `Campaign Red: ${campRed}`;
-  document.getElementById('total-kill-blue-bar').style.width = (campBlue / campTotal * 100) + '%';
-  document.getElementById('total-kill-red-bar').style.width  = (campRed  / campTotal * 100) + '%';
-}
-
 function updateBaseOwnership(t){
   for(const b of _baseList){
     const circ = baseCircles[b.key];
@@ -2177,7 +2110,6 @@ function updateDisplay(){
   updateKillFeedEvents(t);
   updateKillFeed(t);
   updateBaseOwnership(t);
-  updateKillCounter();
   // FLOT disabled — if(filters.flot) updateFLOT(t);
 }
 

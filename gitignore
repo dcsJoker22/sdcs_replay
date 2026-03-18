@@ -29,3 +29,5 @@ public/sdcs_replay_v*.html
 
 # ── Node (if ever added) ──────────────────────────────────────────────────
 node_modules/
+
+to_do.md
