@@ -6,26 +6,30 @@ Operational context for Claude sessions. Read this before touching anything.
 
 ## What This Is
 
-Single-file HTML replay viewer for Strategic DCS campaign sessions at strategic-dcs.com.
-Parser converts Tacview `.acmi` files to session JSON. Viewer is self-contained HTML + Leaflet.js.
+Two-viewer HTML replay system for Strategic DCS campaign sessions at strategic-dcs.com.
+Parser converts Tacview `.acmi` files to session JSON. Both viewers are static HTML + Leaflet.js with no build step.
 
-**Repo:** `https://github.com/dcsJoker22/sdcs_replay.git` (HTTPS + PAT auth)
+**Repo:** `https://github.com/dcsJoker22/sdcs_replay` (GitHub Pages, served from root)
 
 ---
 
 ## File Locations
 
-| File | Purpose |
-|------|---------|
-| `public/sdcs_replay_v1.xx.html` | Versioned releases — current is `v1.52`. Never overwrite old versions. |
-| `parse_acmi.py` | ACMI → session JSON (batch or single-file) |
-| `build_campaigns.py` | Scans `public/data/` and builds `public/campaigns.json` |
-| `watch_acmi.py` | Live watcher — calls parse_acmi.py + build_campaigns.py on new files |
-| `download_campaign.py` | Downloads ACMI files from remote |
-| `public/campaigns.json` | Campaign index loaded by viewer on startup |
-| `public/data/<campaign>/session_*.json` | Per-session data files |
-
-**Version policy:** Never overwrite an existing versioned HTML file. Bump to next version (`v1.54` etc.) and write a new file.
+| File | Location | Purpose |
+| --- | --- | --- |
+| `index.html` | root | Session viewer — full aircraft tracks, all unit types |
+| `sdcs_campaign_v1.0.html` | root | Campaign viewer — ground units only, multi-session |
+| `sdcs_shared.js` | root | Shared JS library loaded by both viewers |
+| `parse_acmi.py` | root | ACMI → session JSON |
+| `build_campaigns.py` | root | Scans `public/data/` → `public/campaigns.json` |
+| `build_campaign_viewer.py` | root | Builds per-session and index JSON for campaign viewer |
+| `watch_acmi.py` | root | Live watcher — calls parse + build on new files |
+| `download_campaign.py` | root | Downloads ACMI files from strategic-dcs.com |
+| `public/campaigns.json` | public/ | Campaign index loaded by both viewers on startup |
+| `public/Logo_4.1.png` | public/ | Logo (note: dot not underscore) |
+| `public/data/<campaign>/session_*.json` | public/ | Full session data (parser output) |
+| `public/data/<campaign>/campaign_session_*.json` | public/ | Stripped per-session data (campaign viewer) |
+| `public/data/<campaign>/campaign_index_*.json` | public/ | Lightweight campaign index (campaign viewer) |
 
 ---
 
@@ -33,108 +37,119 @@ Parser converts Tacview `.acmi` files to session JSON. Viewer is self-contained 
 
 ```
 H:\SDCS_replay\
-├── public\
-│   ├── sdcs_replay_v1.52.html    ← current production HTML
-│   ├── campaigns.json
-│   ├── Logo_4.1.png              ← actual logo filename (dot, not underscore)
-│   └── data\
-│       ├── 2026-01-24 Syria\
-│       ├── 2026-02-03 Persian Gulf\
-│       ├── 2026-02-09 CaucasusInverted\
-│       ├── 2026-02-21 GermanyInverted\
-│       └── 2026-02-26 Germany\
-├── raw\
-│   ├── 2026-01-24 Syria\
-│   ├── 2026-02-03 Persian Gulf\
-│   ├── 2026-02-09 CaucasusInverted\
-│   ├── 2026-02-21 GermanyInverted\
-│   └── 2026-02-26 Germany\
+├── index.html
+├── sdcs_campaign_v1.0.html
+├── sdcs_shared.js
 ├── parse_acmi.py
 ├── build_campaigns.py
+├── build_campaign_viewer.py
 ├── watch_acmi.py
-└── download_campaign.py
+├── download_campaign.py
+├── CLAUDE.md
+├── README.md
+└── public\
+    ├── campaigns.json
+    ├── Logo_4.1.png
+    └── data\
+        ├── 2026-01-24 Syria\
+        │   ├── session_*.json
+        │   ├── campaign_session_*.json
+        │   └── campaign_index_2026-01-24 Syria.json
+        ├── 2026-02-03 Persian Gulf\
+        ├── 2026-02-09 CaucasusInverted\
+        ├── 2026-02-21 GermanyInverted\
+        ├── 2026-02-26 Germany\
+        └── 2026-03-05 Caucasus\
 ```
 
 ---
 
-## Data Pipeline
+## Architecture — Two Viewers
 
-```
-raw/<campaign>/*.acmi  →  parse_acmi.py  →  public/data/<campaign>/session_*.json
-                                                        ↓
-                                            build_campaigns.py
-                                                        ↓
-                                            public/campaigns.json
-                                                        ↓
-                                              sdcs_replay_v1.xx.html
-```
+### `index.html` — Session Viewer
+- Loads one session at a time from `public/campaigns.json` + `public/data/<campaign>/session_*.json`
+- Full aircraft tracks, weapon tracks, ground units, bases, kill feed, kill heatmap
+- URL persistence: `?campIdx=N&sessIdx=N` restored on reload
+- Shared functions loaded from `sdcs_shared.js`
+
+### `sdcs_campaign_v1.0.html` — Campaign Viewer
+- Loads `campaign_index_<folder>.json` first (lightweight), then all `campaign_session_*.json` in parallel
+- Per-session architecture: no cross-session ID stitching — each session is isolated
+- Ground units + SAM units + Shelter3/FARP/Factory + kills only (no aircraft)
+- Active session swapped as playback crosses session boundaries via `activateSession()`
+- Kill heatmap uses `_allEvents` from the campaign index (all kills across all sessions)
+- Bases reinit on every session switch (FARPs change between sessions)
+- Shared functions loaded from `sdcs_shared.js`
 
 ---
 
-## parse_acmi.py — Modes
+## `sdcs_shared.js` — What Lives Here
 
-```powershell
-# Batch: reparse ALL campaigns (run from H:\SDCS_replay)
+Constants and functions shared between both viewers:
+- `CAMPAIGN_GEODATA` — base/objective DB coordinates per campaign
+- `SCORE_EXCLUDE_KEYS` — bases excluded from objective count (Ramstein LA44, Laage QE40)
+- `MAP_CENTRES` — default map centre/zoom per campaign_id
+- `AC_ICONS` — aircraft name → icon key mapping
+- `iconKey()`, `makeGroundDiamond()`, `makeACSVG()`, `leafletIcon()`
+- `trackIdxAt()`, `haverKm()`, `fmtT()`, `fmtDur()`, `pad()`, `setLoad()`
+- `NM10` constant
+- `buildShelterMap()`, `buildGroundKillTimes()`, `baseOwnerAt()`
+- `STRUCT_NAMES`, `isSAMUnit()`, `samDisplayName()`, `isGroundVehicle()`, `isNamedAircraft()`
+- `initBases()`, `drawBase()`
+- `isWpn()`, `addKillFeedEntry()`, `updateKillFeed()`, `spawnExp()`
+
+`UI_SCALE` is NOT in shared.js — each viewer manages its own.
+
+---
+
+## Build Pipeline
+
+```
+# Parse new ACMI files
 python parse_acmi.py
 
-# Single file (output auto-derived from folder name)
-python parse_acmi.py "raw\2026-02-26 Germany\20260226_074617.zip.acmi"
+# Rebuild campaign index (required after parse)
+python build_campaigns.py
 
-# Single file, explicit output
-python parse_acmi.py input.acmi output.json
+# Build campaign viewer files
+python build_campaign_viewer.py
+# or single campaign:
+python build_campaign_viewer.py --campaign "2026-03-05 Caucasus"
 ```
 
-Input filenames may be `*.acmi` or `*.zip.acmi` — both handled correctly.
-Output: `public/data/<campaign_folder>/session_<stem>.json` where stem strips `.zip.acmi` or `.acmi`.
-
----
-
-## Local Dev
-
-```powershell
-python -m http.server 8080 --directory public/
-# Open: http://localhost:8080/sdcs_replay_v1.52.html
-```
+`build_campaign_viewer.py` outputs:
+- `campaign_session_YYYYMMDD_HHMMSS.json` — one per session, stripped data
+- `campaign_index_<folder>.json` — lightweight index with session metadata + all kill events
 
 ---
 
 ## Campaign / Map IDs
 
-| campaign_id | Theatre | Notes |
-|-------------|---------|-------|
-| 189 | Persian Gulf | |
-| 190 | Caucasus | Standard Tacview lat/lon |
-| 192 | Germany | |
-| 193 | Syria (Caucasus Inverted) | |
-| `syria_map` | Syria (Syria engine) | fe/fn TBD |
+| campaign_id | Theatre |
+| --- | --- |
+| 185 | Syria |
+| 189 | Persian Gulf |
+| 190 | Caucasus |
+| 192 | Germany |
+| 193 | Caucasus Inverted |
 
 ---
 
-## Projection System (lon_0 / fe / fn per map)
+## Key Constants
 
-| Map | campaign_id | lon_0 | fe | fn |
-|-----|-------------|-------|-----|-----|
-| Persian Gulf | 189 | 57 | 67756.00 | -2894933.00 |
-| Caucasus | 190, 193 | 33 | -99161.74 | -4998101.62 |
-| Germany | 192 | 21 | 26627.49 | -6062477.12 |
-| Syria | syria_map | 39 | 282801.00 | -3879866.00 |
-
----
-
-## Key Constants in Viewer
-
-```javascript
-const SDCS_API = null;   // map API endpoint — null until strategic-dcs.com is wired
-const SCORE_EXCLUDE_KEYS = new Set(['LA44','QE40']);  // Ramstein + Laage excluded
+```js
+const SDCS_API = null;          // map API — null until strategic-dcs.com is wired
+const SCORE_EXCLUDE_KEYS = new Set(['LA44','QE40']);  // excluded from objective count
 const AI_AIRCRAFT_NAMES  = new Set(['E2-D','KC-135']);
+const NM10 = 18.52;             // 10 nautical miles in km
 ```
 
-**MAP_CENTRES:**
-```javascript
-189: {lat:26.5,  lon:55.5,  zoom:7},  // Persian Gulf
-190: {lat:43.2,  lon:42.0,  zoom:7},  // Caucasus
-192: {lat:51.68, lon:10.5,  zoom:7},  // Germany
-193: {lat:35.5,  lon:37.5,  zoom:7},  // Syria
+MAP_CENTRES (in sdcs_shared.js):
+```js
+189: {lat:26.5,  lon:55.5,  zoom:7},   // Persian Gulf
+190: {lat:43.2,  lon:42.0,  zoom:7},   // Caucasus
+192: {lat:51.68, lon:10.5,  zoom:7},   // Germany
+193: {lat:35.5,  lon:37.5,  zoom:7},   // Syria
 ```
 
 ---
@@ -144,22 +159,19 @@ const AI_AIRCRAFT_NAMES  = new Set(['E2-D','KC-135']);
 ```json
 {
   "meta": {
-    "source_file": "20260226_074617.zip.acmi",
-    "reference_time": "2026-02-26T07:46:17Z",
-    "duration_seconds": 21600.0,
-    "duration_hours": 6.0,
+    "source_file": "20260305_065846.zip.acmi",
+    "reference_time": "2026-03-05T06:58:46Z",
+    "duration_seconds": 21604.0,
     "sample_interval": 5.0,
-    "object_count": 912,
-    "track_count": 418,
-    "kill_count": 47,
-    "player_count": 8
+    "object_count": 1027,
+    "kill_count": 93,
+    "player_count": 12
   },
   "objects": {
     "b1017": {
       "name": "F-16C_50",
       "category": "player_air",
       "coalition": "Friendlies",
-      "color": "Blue",
       "pilot": "Joker22",
       "is_human": true,
       "first_seen": 0.0,
@@ -167,28 +179,80 @@ const AI_AIRCRAFT_NAMES  = new Set(['E2-D','KC-135']);
       "visible_off_t": null
     }
   },
-  "tracks": {
-    "b1017": [{"t": 0.0, "lat": 52.1, "lon": 10.5, "alt": 5000.0, "hdg": 270.0}]
-  },
+  "tracks": { "b1017": [{"t":0.0,"lat":43.2,"lon":42.0,"alt":5000.0,"hdg":270.0}] },
   "events": [
     {
       "type": "kill", "t": 1200.0,
       "killer": "Joker22", "weapon": "AIM-120C",
-      "victim_id": "b2034", "victim_name": "Su-27", "victim_pilot": null,
-      "victim_coalition": "Enemies", "victim_category": "ai_air",
-      "lat": 52.3, "lon": 10.8, "alt": 7000.0
+      "victim_id": "b2034", "victim_name": "Su-27",
+      "victim_coalition": "Hostiles", "victim_category": "ai_air",
+      "lat": 43.3, "lon": 42.1, "alt": 7000.0
     }
   ],
-  "statics": [{"id": "b0012", "name": "MA74: Frankfurt AB", "lat": 50.095, "lon": 8.703}],
-  "players": {
-    "Joker22": {"callsign": "Joker22", "flights": [...], "kills": [...], "deaths": 0}
-  }
+  "statics": [{"id":"b0012","name":"MA74: Tbilisi","lat":41.669,"lon":44.954}],
+  "players": { "Joker22": {"callsign":"Joker22","flights":[],"kills":[],"deaths":0} }
 }
 ```
 
-**`visible_off_t`** — game-time (seconds) of first `Visible=0` line for this unit, or `null` if never set. Used by the HTML viewer to fade/hide ground units that were removed from the simulation (retreated, despawned, scripted removal). More reliable than track end. Kill events are separate and still drive explosion animations.
+**`visible_off_t`** — game-time seconds of first `Visible=0` for this unit, or null. Used to fade/hide ground units that despawned or retreated.
 
-**object categories:** `player_air`, `ai_air`, `player_weapon`, `ground`, `naval`, `navaid`, `other`
+**Object categories:** `player_air`, `ai_air`, `player_weapon`, `ground`, `naval`, `navaid`, `other`
+
+**Coalitions:** `Friendlies` (Blue), `Hostiles` (Red)
+
+---
+
+## Campaign Session JSON Schema
+
+Stripped version written by `build_campaign_viewer.py`:
+
+```json
+{
+  "meta": {"offset": 0.0, "duration": 21604.0},
+  "objects": { "b1017": { ... } },
+  "tracks":  { "b1017": [{"t":0.0,"lat":43.2,"lon":42.0}] },
+  "events":  [ { "type":"kill", "t":1200.0, ... } ],
+  "statics": [ { "name":"MA74: Tbilisi", "lat":41.669, "lon":44.954 } ]
+}
+```
+
+Ground tracks subsampled to 60s intervals, 4 decimal place precision.
+Only ground vehicles, SAM units, Shelter3/FARP/Factory, and kills are included.
+
+---
+
+## Campaign Index JSON Schema
+
+```json
+{
+  "total_duration": 475174.0,
+  "session_index": [
+    {
+      "file": "data/2026-03-05 Caucasus/campaign_session_20260305_065846.json",
+      "label": "session_20260305_065846.json",
+      "date": "2026-03-05",
+      "offset": 0.0,
+      "duration": 21604.0,
+      "reference_time": "2026-03-05T06:58:46Z",
+      "player_kills_blue": 93,
+      "player_kills_red": 0
+    }
+  ],
+  "events": [ { "type":"kill", "t":1200.0, "lat":43.3, "lon":42.1, ... } ]
+}
+```
+
+---
+
+## Shelter3 / Base Architecture
+
+- Bases and objectives always rendered at `CAMPAIGN_GEODATA` coordinates (DB coords)
+- Colour driven by `baseOwnerAt(key, t)` → current Shelter3 owner → last known → Neutral
+- `buildShelterMap()` matches Shelter3 ACMI units to DB locations by proximity (10nm radius)
+- FARPs: ACMI-driven location, appear/disappear by `first_seen`/`visible_off_t`
+- Factories: same as FARPs
+- `SCORE_EXCLUDE_KEYS` excludes Ramstein (LA44) and Laage (QE40) from objective count
+- Campaign viewer reinits bases on every session switch
 
 ---
 
@@ -197,69 +261,39 @@ const AI_AIRCRAFT_NAMES  = new Set(['E2-D','KC-135']);
 9 icon keys, 64×64 viewBox, nose-up, rotated at runtime by heading:
 
 | Key | Aircraft |
-|-----|---------|
+| --- | --- |
 | `modernFW` | F-16, F/A-18, F-15, Su-27/33, MiG-29, JF-17, M-2000, F-14, J-11 |
-| `legacyFW` | Su-25, MiG-21/15/19, F-4E, F-5E, Mirage F1, AJS37, C-101, L-39, MB-339, F-86, AV-8B, A-10 |
+| `legacyFW` | Su-25, MiG-21/15/19, F-4E, F-5E, Mirage F1, AJS37, A-10, AV-8B |
 | `prop` | TF-51D, P-51D |
 | `transport` | An-30, KC-30, C-130, IL-76, KC-135 |
 | `awacs` | E-2D |
 | `attackRW` | Ka-50, AH-64D, Mi-24P, SA342, OH-58 |
 | `CH47` | CH-47 |
-| `Mi8` | Mi-8MT, Mi-8MSB |
+| `Mi8` | Mi-8MT |
 | `huey` | UH-1H |
-
-Player icons: `stroke-width=4`, size 36px. AI icons: `stroke-width=2.5`, size 28px.
-
----
-
-## DCS ACMI Naming Quirks
-
-| Aircraft | ACMI name |
-|----------|-----------|
-| F/A-18C | `FA-18C_hornet` |
-| F-16C block 50 | `F-16C_50` |
-| AV-8B N/A | `AV8BNA` |
-| E-2D Hawkeye | `E2-D` |
-| AH-64D Block II | `AH-64D_BLK_II` |
-| Mi-8MT | `Mi-8MT` |
-| CH-47F block 1 | `CH-47Fbl1` |
-| AJS-37 | `AJS37` |
-| Mirage F1 variants | `MirageF1CE`, `MirageF1EE`, `MirageF1BE` |
-
----
-
-## Shelter3 / Base Architecture
-
-- Bases and objectives always rendered at `CAMPAIGN_GEODATA` coordinates (DB coords)
-- Colour driven by `baseOwnerAt(key, t)` → current Shelter3 owner → last known → Neutral
-- `buildShelterMap()` matches Shelter3 ACMI units to known DB locations by proximity (10nm radius)
-- FARPs and Factories: ACMI-driven location, colour does not change
-- `SCORE_EXCLUDE_KEYS` excludes Ramstein (`LA44`) and Laage (`QE40`) from objective count
 
 ---
 
 ## FLOT
 
-Currently **disabled** in the HTML. Code is intact. Re-enable by restoring the `f-flot` checkbox label in the sidebar and uncommenting the `updateFLOT()` call in the render loop.
-
-Constants when re-enabled: `CLUSTER_MIN=6`, `CLUSTER_PUSH_M=22000`, `CLUSTER_WEIGHT=14`.
+Currently **disabled**. Code intact in `index.html`. Re-enable by restoring `f-flot` checkbox and uncommenting `updateFLOT(t)` in the render loop. Constants: `CLUSTER_MIN=6`, `CLUSTER_PUSH_M=22000`, `CLUSTER_WEIGHT=14`.
 
 ---
 
-## Known TODOs / Pending
+## Known TODOs
 
-- [ ] Wire `SDCS_API` endpoint when strategic-dcs.com map API is ready
-- [ ] Re-enable FLOT when ground track data is sufficient
-- [ ] Syria campaign — wire `syria_map` to correct campaign_id; calibrate fe/fn
-- [ ] Embed viewer into strategic-dcs.com
-- [ ] Push to GitHub
+- Wire `SDCS_API` endpoint when strategic-dcs.com map API is ready
+- Re-enable FLOT when ground track data is sufficient
+- Syria campaign — calibrate `campaign_id` and fe/fn projection
+- Embed viewers into strategic-dcs.com
+- Performance optimisation pass (deferred)
 
 ---
 
 ## Git Workflow
 
-```powershell
+```
 git add -A
-git commit -m "v1.xx - description"
-git push origin main
+git commit -m "description of changes"
+git push
 ```
