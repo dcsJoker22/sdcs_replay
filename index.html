@@ -308,6 +308,8 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
       <label class="frow"><input type="checkbox" id="f-trails" checked><span class="dot" style="background:#555"></span>Trails</label>
       <label class="frow"><input type="checkbox" id="f-kills" checked><span class="dot" style="background:#f85149"></span>Kill Events</label>
       <label class="frow"><input type="checkbox" id="f-bases" checked><span class="dot" style="background:#d29922"></span>Bases / FARPs</label>
+      <label class="frow" style="padding-left:18px"><input type="checkbox" id="f-bases-only" checked><span class="dot" style="background:#d29922;opacity:.6"></span>Bases</label>
+      <label class="frow" style="padding-left:18px"><input type="checkbox" id="f-farps-only" checked><span class="dot" style="background:#d29922;opacity:.6"></span>FARPs</label>
       <label class="frow"><input type="checkbox" id="f-weapons" checked><span class="dot" style="background:#e0e060"></span>Weapons (Player)</label>
       <!-- FLOT disabled — code intact, re-enable by restoring this label and uncommenting updateFLOT call
       <label class="frow"><input type="checkbox" id="f-flot" checked><span class="dot" style="background:#aaa;border-radius:2px"></span>Front Line (FLOT)</label>
@@ -920,7 +922,7 @@ const shownKills=new Set(), killLayers=[];
 const playerColors={};  // callsign → colour string
 const killFeedEntries=[];  // [{t, killer, victim, weapon, pvp, killerCoal, el}]
 
-let filters={playerAir:true,aiAir:true,ground:true,groundLabels:false,playerLabels:true,aiLabels:true,trails:true,kills:true,bases:true,flot:true,weapons:true};
+let filters={playerAir:true,aiAir:true,ground:true,groundLabels:false,playerLabels:true,aiLabels:true,trails:true,kills:true,bases:true,basesOnly:true,farpsOnly:true,flot:true,weapons:true};
 
 // ════════════════════════════════════════════════════════════════════
 //  HELPERS
@@ -2193,8 +2195,9 @@ function updateUnit(id,track,t){
   const lbl=pilotLabels[id];
   if(!mrk) return;
 
-  const showByFilter=(isAir&&cat==='player_air'&&filters.playerAir)
-    ||(isAir&&cat==='ai_air'&&filters.aiAir)
+  const isHumanUnit=(obj.is_human||false) && !AI_AIRCRAFT_NAMES.has(obj.name);
+  const showByFilter=(isAir&&isHumanUnit&&filters.playerAir)
+    ||(isAir&&!isHumanUnit&&filters.aiAir)
     ||(isGnd&&filters.ground);
 
   if(!showByFilter){
@@ -2920,13 +2923,35 @@ document.getElementById('f-trails').addEventListener('change',e=>{
   if(!filters.trails) for(const segs of Object.values(unitTrails)) for(const p of segs) p.setLatLngs([]);
   else updateDisplay();
 });
-document.getElementById('f-kills').addEventListener('change',e=>{filters.kills=e.target.checked;});
 document.getElementById('f-bases').addEventListener('change',e=>{
   filters.bases=e.target.checked;
   for(const m of Object.values(baseMarkers))filters.bases?m.addTo(map):map.removeLayer(m);
   for(const c of Object.values(baseCircles))filters.bases?c.addTo(map):map.removeLayer(c);
   for(const l of Object.values(baseLabels))filters.bases?l.addTo(map):map.removeLayer(l);
 });
+document.getElementById('f-bases-only').addEventListener('change',e=>{
+  filters.basesOnly=e.target.checked;
+  applyBaseSubfilters();
+});
+document.getElementById('f-farps-only').addEventListener('change',e=>{
+  filters.farpsOnly=e.target.checked;
+  applyBaseSubfilters();
+});
+function applyBaseSubfilters(){
+  if(!filters.bases) return; // parent toggle overrides
+  for(const b of _baseList){
+    const isFarp = b.isFarp || b.type==='farp' || b.isFactory || b.type==='factory';
+    const show = isFarp ? filters.farpsOnly : filters.basesOnly;
+    const mk = baseMarkers[b.key];
+    const ci = baseCircles[b.key];
+    const lb = baseLabels[b.key];
+    const ic = baseInnerCircles[b.key];
+    if(mk) show ? mk.addTo(map) : map.removeLayer(mk);
+    if(ci) show ? ci.addTo(map) : map.removeLayer(ci);
+    if(lb) show ? lb.addTo(map) : map.removeLayer(lb);
+    if(ic) show ? ic.addTo(map) : map.removeLayer(ic);
+  }
+}
 // FLOT disabled — event listener stubbed
 // document.getElementById('f-flot').addEventListener('change',e=>{
 //   filters.flot=e.target.checked;
