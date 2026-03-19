@@ -906,6 +906,11 @@ function addKillFeedEntry(ev, t){
   const list=document.getElementById('killfeed-list');
   // Remove placeholder
   const ph=list.querySelector('div[style]');if(ph)ph.remove();
+  // Cap feed at 60 entries — remove oldest from top
+  if(killFeedEntries.length>=60){
+    const oldest=killFeedEntries.shift();
+    if(oldest.el.parentNode) oldest.el.parentNode.removeChild(oldest.el);
+  }
 
   const el=document.createElement('div');
   el.className='kf-row';
