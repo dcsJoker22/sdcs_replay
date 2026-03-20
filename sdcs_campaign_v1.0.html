@@ -481,31 +481,22 @@ async function loadCampaign(campIdx) {
 }
 
 // Activate a session by index — rebuilds _merged, re-inits units and bases
-async function activateSession(sessIdx, camp) {
-  if(sessIdx === _activeIdx) return;  // already active
-  if(_activating) return;             // prevent concurrent activations
+function activateSession(sessIdx, camp) {
+  // Note: not async — initBases runs synchronously when SDCS_API=null (which it
+  // always is currently). Keeping this synchronous eliminates the microtask gap
+  // that caused a visible blank frame on every session switch.
+  if(sessIdx === _activeIdx) return;
+  if(_activating) return;
   _activating = true;
 
   const sess = _sessions[sessIdx];
   if(!sess){ _activating = false; return; }
 
-  // Clear unit markers and trails but keep base markers
-  for(const x of [...Object.values(unitMarkers), ...Object.values(groundLabels), ...killLayers])
-    try{map.removeLayer(x)}catch(e){}
-  for(const segs of Object.values(unitTrails)) for(const p of segs) try{map.removeLayer(p)}catch(e){}
-  for(const d of [unitMarkers, unitTrails, groundLabels]) Object.keys(d).forEach(k=>delete d[k]);
-  killLayers.length = 0; shownKills.clear(); shownKillFeed.clear();
-  for(const k of Object.keys(groundKillTimes)) delete groundKillTimes[k];
-  for(const k of Object.keys(unitHideTimes))   delete unitHideTimes[k];
-  for(const k of Object.keys(baseKillTimes))   delete baseKillTimes[k];
-  killFeedEntries.length = 0;
-  document.getElementById('killfeed-list').innerHTML =
-    '<div style="color:var(--dim);font-size:11px;padding:4px 0">No kills yet</div>';
+  try {
 
   _activeSession = sess;
   _activeIdx = sessIdx;
 
-  // Build _merged from this session for shared functions
   _merged = {
     objects:        sess.objects  || {},
     tracks:         sess.tracks   || {},
@@ -517,24 +508,63 @@ async function activateSession(sessIdx, camp) {
     _currentSessionFile: null,
   };
 
-  // Force immediate base ownership update on session switch
-  _lastSlowUpdate = -9999;
+  for(const k of Object.keys(groundKillTimes)) delete groundKillTimes[k];
+  for(const k of Object.keys(unitHideTimes))   delete unitHideTimes[k];
+  for(const k of Object.keys(baseKillTimes))   delete baseKillTimes[k];
   for(const k of Object.keys(_baseOwnerCache)) delete _baseOwnerCache[k];
-
+  _lastSlowUpdate = -9999;
   buildShelterMap();
   buildGroundKillTimes();
+
+  // Stash old layers (still on map — removed only after new ones are ready)
+  const oldUnitLayers = [
+    ...Object.values(unitMarkers), ...Object.values(groundLabels),
+    ...Object.values(unitTrails).flatMap(segs => segs),
+    ...killLayers.slice(),
+  ];
+  const oldBaseLayers = [
+    ...Object.values(baseMarkers), ...Object.values(baseCircles),
+    ...Object.values(baseInnerCircles), ...Object.values(baseLabels),
+  ];
+
+  // Clear dicts so initUnits/initBases populate fresh ones
+  for(const d of [unitMarkers, unitTrails, groundLabels]) Object.keys(d).forEach(k=>delete d[k]);
+  for(const d of [baseMarkers, baseCircles, baseInnerCircles, baseLabels]) Object.keys(d).forEach(k=>delete d[k]);
+  _baseList = [];
+  killLayers.length = 0; shownKills.clear(); shownKillFeed.clear();
+  killFeedEntries.length = 0;
+  document.getElementById('killfeed-list').innerHTML =
+    '<div style="color:var(--dim);font-size:11px;padding:4px 0">No kills yet</div>';
+
+  // Build new bases and units synchronously
+  const campId = camp ? camp.campaign_id : (_merged._campaignId || 0);
+  if(campId) initBases(_merged, campId); // synchronous when SDCS_API=null
+
+  // ── Atomic swap: position new markers then remove old ──────────────
   initUnits(_merged);
   _trackEntries = Object.entries(_merged.tracks);
 
-  // Reinit bases every session — FARPs and factories change between sessions
-  const campId = camp ? camp.campaign_id : (_merged?._campaignId || 0);
-  // Stash old base layers — remove AFTER new ones are added to avoid a blank frame
-  const _oldBaseLayers = [...Object.values(baseMarkers),...Object.values(baseCircles),...Object.values(baseInnerCircles),...Object.values(baseLabels)];
-  for(const d of [baseMarkers,baseCircles,baseInnerCircles,baseLabels]) Object.keys(d).forEach(k=>delete d[k]);
-  _baseList=[];
-  if(campId) await initBases(_merged, campId);
-  for(const x of _oldBaseLayers) try{map.removeLayer(x)}catch(e){}
-  _activating = false;
+  // Snap currentTime to first visible content if we're at or before session start.
+  // Avoids a blank frame when no units/FARPs exist at the exact offset timestamp.
+  const sessOffset = sess._offset || 0;
+  if(currentTime <= sessOffset){
+    let firstT = Infinity;
+    for(const [,track] of _trackEntries) if(track.length) firstT = Math.min(firstT, track[0].t);
+    for(const b of _baseList) if((b.isFarp||b.isFactory) && b.firstSeen > 0) firstT = Math.min(firstT, b.firstSeen);
+    if(firstT < Infinity && firstT > sessOffset) currentTime = firstT;
+  }
+
+  const t = currentTime;
+  for(const [id,track] of _trackEntries) updateUnit(id, track, t);
+  updateBaseOwnership(t);
+  // Remove old layers on next frame — gives browser 1 extra frame to render new
+  // content before old markers disappear, eliminating the visible blank
+  const _stale = [...oldUnitLayers, ...oldBaseLayers];
+  requestAnimationFrame(() => { for(const x of _stale) try{map.removeLayer(x)}catch(e){} });
+
+  } finally {
+    _activating = false;
+  }
 }
 
 // ════════════════════════════════════════════════════════════════════
@@ -810,13 +840,14 @@ function getActiveSessionIdx(t){
 }
 
 function updateDisplay(rafTs){
-  const t = currentTime;
-
-  // Switch active session if needed
-  const targetIdx = getActiveSessionIdx(t);
+  // Switch active session if needed (may modify currentTime via spawn-time snap)
+  const targetIdx = getActiveSessionIdx(currentTime);
   if(targetIdx !== _activeIdx && _sessions[targetIdx]){
     activateSession(targetIdx, null);
   }
+
+  // Read t AFTER activateSession — it may have snapped currentTime forward
+  const t = currentTime;
 
   // Fast path — every frame
   for(const [id,track] of _trackEntries)
