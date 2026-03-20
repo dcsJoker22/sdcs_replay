@@ -87,7 +87,7 @@ H:\SDCS_replay\
 
 Constants and functions shared between both viewers:
 - `CAMPAIGN_GEODATA` — base/objective DB coordinates per campaign
-- `SCORE_EXCLUDE_KEYS` — bases excluded from objective count (Ramstein LA44, Laage QE40)
+- `SCORE_EXCLUDE_KEYS` — bases excluded from objective count (keyed as `'airbase_<Name>'`)
 - `MAP_CENTRES` — default map centre/zoom per campaign_id
 - `AC_ICONS` — aircraft name → icon key mapping
 - `iconKey()`, `makeGroundDiamond()`, `makeACSVG()`, `leafletIcon()`
@@ -139,7 +139,12 @@ python build_campaign_viewer.py --campaign "2026-03-05 Caucasus"
 
 ```js
 const SDCS_API = null;          // map API — null until strategic-dcs.com is wired
-const SCORE_EXCLUDE_KEYS = new Set(['LA44','QE40']);  // excluded from objective count
+const SCORE_EXCLUDE_KEYS = new Set([  // excluded from objective count
+  'airbase_Ramstein', 'airbase_Laage',           // Germany
+  'airbase_Vaziani', 'airbase_Anapa-Vityazevo',  // Caucasus
+  'airbase_Jiroft', 'airbase_Liwa AFB',          // Persian Gulf
+  'airbase_Gaziantep', 'airbase_Ben Gurion',     // Syria
+]);
 const AI_AIRCRAFT_NAMES  = new Set(['E2-D','KC-135']);
 const NM10 = 18.52;             // 10 nautical miles in km
 ```
@@ -251,7 +256,7 @@ Only ground vehicles, SAM units, Shelter3/FARP/Factory, and kills are included.
 - `buildShelterMap()` matches Shelter3 ACMI units to DB locations by proximity (10nm radius)
 - FARPs: ACMI-driven location, appear/disappear by `first_seen`/`visible_off_t`
 - Factories: same as FARPs
-- `SCORE_EXCLUDE_KEYS` excludes Ramstein (LA44) and Laage (QE40) from objective count
+- `SCORE_EXCLUDE_KEYS` excludes specific bases per theatre from objective count (keyed as `'airbase_<Name>'`)
 - Campaign viewer reinits bases on every session switch
 
 ---

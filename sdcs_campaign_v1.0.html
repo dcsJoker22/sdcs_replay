@@ -226,6 +226,8 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
     <button class="cbtn spdbtn" data-spd="300">300×</button>
     <button class="cbtn spdbtn" data-spd="500">500×</button>
     <button class="cbtn spdbtn" data-spd="1000">1000×</button>
+    <button class="cbtn spdbtn" data-spd="3000">3000×</button>
+    <button class="cbtn spdbtn" data-spd="5000">5000×</button>
     <span id="tl-time">0:00:00 / 0:00:00</span>
   </div>
   <div id="scrubber-wrap">
@@ -283,6 +285,7 @@ let _campaignIndex = null;   // campaign_index_*.json  (lightweight, loaded firs
 let _sessions      = [];     // array of loaded campaign_session_*.json data
 let _activeSession = null;   // the session object currently being rendered
 let _activeIdx     = -1;     // index of active session in _sessions
+let _activating    = false;  // guard against concurrent activateSession calls
 let _allEvents     = [];     // all events across campaign (from index, for heatmap/kills)
 
 let currentTime = 0, campaignDur = 0, playing = false, playSpeed = 30;
@@ -391,7 +394,7 @@ async function loadCampaign(campIdx) {
   }
 
   campaignDur = _campaignIndex.total_duration || 0;
-  _allEvents  = _campaignIndex.events || [];
+  _allEvents  = ((_campaignIndex.events || []).slice()).sort((a,b)=>a.t-b.t);
 
   // 2. Load all campaign_session files in parallel
   const sessionEntries = _campaignIndex.session_index || [];
@@ -479,9 +482,11 @@ async function loadCampaign(campIdx) {
 // Activate a session by index — rebuilds _merged, re-inits units and bases
 async function activateSession(sessIdx, camp) {
   if(sessIdx === _activeIdx) return;  // already active
+  if(_activating) return;             // prevent concurrent activations
+  _activating = true;
 
   const sess = _sessions[sessIdx];
-  if(!sess) return;
+  if(!sess){ _activating = false; return; }
 
   // Clear unit markers and trails but keep base markers
   for(const x of [...Object.values(unitMarkers), ...Object.values(groundLabels), ...killLayers])
@@ -501,15 +506,20 @@ async function activateSession(sessIdx, camp) {
 
   // Build _merged from this session for shared functions
   _merged = {
-    objects:     sess.objects  || {},
-    tracks:      sess.tracks   || {},
-    events:      sess.events   || [],
-    statics:     sess.statics  || [],
-    players:     {},
-    _dp:         {},
-    _campaignId: camp ? camp.campaign_id : (_merged?._campaignId || 0),
+    objects:        sess.objects  || {},
+    tracks:         sess.tracks   || {},
+    events:         sess.events   || [],
+    statics:        sess.statics  || [],
+    players:        {},
+    _dp:            {},
+    _campaignId:    camp ? camp.campaign_id : (_merged?._campaignId || 0),
     _currentSessionFile: null,
+    _sessionOffset: sess._offset || 0,
   };
+
+  // Force immediate base ownership update on session switch
+  _lastSlowUpdate = -9999;
+  for(const k of Object.keys(_baseOwnerCache)) delete _baseOwnerCache[k];
 
   buildShelterMap();
   buildGroundKillTimes();
@@ -523,6 +533,7 @@ async function activateSession(sessIdx, camp) {
   for(const d of [baseMarkers,baseCircles,baseInnerCircles,baseLabels]) Object.keys(d).forEach(k=>delete d[k]);
   _baseList=[];
   if(campId) await initBases(_merged, campId);
+  _activating = false;
 }
 
 // ════════════════════════════════════════════════════════════════════
@@ -861,7 +872,13 @@ function updateUnit(id,track,t){
     } else if(elapsed>0){mrk.setOpacity(Math.max(0,1-elapsed/60));mrk._vis=true;}
   }
   if(t<track[0].t){
-    if(mrk._vis){mrk.setOpacity(0);mrk._vis=false;}
+    if(t >= (_merged._sessionOffset||0)){
+      // Pre-spawn but session is active: show at first known position so map is populated immediately
+      mrk.setLatLng([track[0].lat,track[0].lon]);
+      if(!mrk._vis){mrk.setOpacity(1);mrk._vis=true;}
+    } else {
+      if(mrk._vis){mrk.setOpacity(0);mrk._vis=false;}
+    }
     if(poly) for(const p of poly) p.setLatLngs([]);
     return;
   }

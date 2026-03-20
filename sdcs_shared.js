@@ -263,31 +263,6 @@ const MAP_CENTRES = {
   193: {lat:43.2,   lon:42.0,  zoom:8},  // Caucasus Inverted
   185: {lat:34.639, lon:36.466, zoom:8},  // Syria
 };
-// ORPHAN_BASE_NAMES removed — airbases now come directly from CAMPAIGN_GEODATA.bases
-// kept as empty stub for any stale references
-const ORPHAN_BASE_NAMES_REMOVED = [
-  // Germany — airbases with no CODE: static in ACMI, matched as Shelter3 orphans
-  { lat:53.067660, lon:8.914414,  name:'Bremen',             code:'NO12', type:'airbase' },
-  { lat:52.337832, lon:10.679149, name:'Braunschweig',        code:'NC87', type:'airbase' },
-  { lat:53.935172, lon:12.410316, name:'Laage',               code:'QE40', type:'airbase' },
-  { lat:52.486813, lon:13.531465, name:'Brandenburg',         code:'QD20', type:'airbase' },
-  { lat:51.740572, lon:8.857117,  name:'Bielefeld',           code:'MC95', type:'airbase' },
-  { lat:51.010290, lon:10.601169, name:'Erfurt',              code:'PB78', type:'airbase' },
-  { lat:49.666839, lon:10.082687, name:'Wurzburg',            code:'NB02', type:'airbase' },
-  { lat:49.458156, lon:7.715984,  name:'Ramstein',            code:'LA44', type:'airbase' },
-  // Caucasus — airbases arrive as Shelter3 orphans (no CODE: static)
-  { lat:45.004999, lon:37.343321, name:'Anapa-Vityazevo',     code:'DJ12', type:'airbase' },
-  { lat:44.681441, lon:40.030793, name:'Maykop-Khanskaya',    code:'EK16', type:'airbase' },
-  { lat:43.444500, lon:39.936706, name:'Sochi-Adler',         code:'EK18', type:'airbase' },
-  { lat:42.861280, lon:41.120683, name:'Sukhumi-Babushara',   code:'FK20', type:'airbase' },
-  { lat:41.930129, lon:41.859032, name:'Kobuleti',            code:'GG24', type:'airbase' },
-  { lat:42.177850, lon:42.477044, name:'Kutaisi',             code:'GH25', type:'airbase' },
-  { lat:44.228123, lon:43.076812, name:'Mineralnye Vody',     code:'LP26', type:'airbase' },
-  { lat:43.514288, lon:43.632140, name:'Nalchik',             code:'LP27', type:'airbase' },
-  { lat:43.792035, lon:44.601546, name:'Mozdok',              code:'MP28', type:'airbase' },
-  { lat:41.629347, lon:45.023104, name:'Vaziani',             code:'MN31', type:'airbase' },
-  { lat:43.206026, lon:44.601557, name:'Beslan',              code:'MN32', type:'airbase' },
-];
 
 // ════════════════════════════════════════════════════════════════════
 //  SVG AIRCRAFT ICONS — Tacview plan-view silhouettes, 32×32 viewBox
@@ -928,13 +903,14 @@ function addKillFeedEntry(ev, t){
     const flight = flights.find(f => ev_t >= f.start_t && ev_t <= (f.end_t + 60) && f.aircraft && !isWpn(f.aircraft));
     if(flight) killerAc = flight.aircraft.replace(/_/g,' ');
   }
+  const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   const killerLine = killerAc
-    ? `<span class="kf-killer" style="color:${killerColor}">${killerCs}</span> <span class="kf-ac">(${killerAc})</span>`
-    : `<span class="kf-killer" style="color:${killerColor}">${killerCs}</span>`;
+    ? `<span class="kf-killer" style="color:${killerColor}">${esc(killerCs)}</span> <span class="kf-ac">(${esc(killerAc)})</span>`
+    : `<span class="kf-killer" style="color:${killerColor}">${esc(killerCs)}</span>`;
   el.innerHTML=`<span class="kf-time">${timeStr}</span>
     ${killerLine} killed<br>
-    <span class="kf-victim">${victimName}</span><br>
-    <span class="kf-weapon">${weaponName}</span>`;
+    <span class="kf-victim">${esc(victimName)}</span><br>
+    <span class="kf-weapon">${esc(weaponName)}</span>`;
 
   // Insert at top
   list.insertBefore(el,list.firstChild);
