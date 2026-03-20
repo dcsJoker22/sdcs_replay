@@ -528,12 +528,12 @@ async function activateSession(sessIdx, camp) {
 
   // Reinit bases every session — FARPs and factories change between sessions
   const campId = camp ? camp.campaign_id : (_merged?._campaignId || 0);
-  // Clear existing base markers before reinit
-  for(const x of [...Object.values(baseMarkers),...Object.values(baseCircles),...Object.values(baseInnerCircles),...Object.values(baseLabels)])
-    try{map.removeLayer(x)}catch(e){}
+  // Stash old base layers — remove AFTER new ones are added to avoid a blank frame
+  const _oldBaseLayers = [...Object.values(baseMarkers),...Object.values(baseCircles),...Object.values(baseInnerCircles),...Object.values(baseLabels)];
   for(const d of [baseMarkers,baseCircles,baseInnerCircles,baseLabels]) Object.keys(d).forEach(k=>delete d[k]);
   _baseList=[];
   if(campId) await initBases(_merged, campId);
+  for(const x of _oldBaseLayers) try{map.removeLayer(x)}catch(e){}
   _activating = false;
 }
 

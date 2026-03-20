@@ -611,7 +611,7 @@ function populateSessionSelector(campIdx){
 }
 
 // Load the selected session only and render it.
-async function loadSession(campIdx, sessIdx){
+async function loadSession(campIdx, sessIdx, keepView=false){
   const camp = (CAMPAIGNS_DATA.campaigns || [])[campIdx];
   if(!camp) return;
   const sess = (camp.sessions || [])[sessIdx];
@@ -693,8 +693,8 @@ async function loadSession(campIdx, sessIdx){
     mcKey = MAP_NAMES[mapNameKey] || MAP_NAMES[(camp.map||'').toLowerCase()];
   }
   const mc = MAP_CENTRES[mcKey];
-  if(mc) map.setView([mc.lat, mc.lon], mc.zoom);
-  else console.warn('No MAP_CENTRES entry for campaign_id', camp.campaign_id, 'map:', camp.map);
+  if(mc && !keepView) map.setView([mc.lat, mc.lon], mc.zoom);
+  else if(!mc) console.warn('No MAP_CENTRES entry for campaign_id', camp.campaign_id, 'map:', camp.map);
 }
 
 function timeShift(data,offset){
@@ -1992,7 +1992,7 @@ function navigateSession(dir){
   const sel=document.getElementById('session-selector');
   sel.value=next;
   history.replaceState(null,'',`?campIdx=${_campIdx}&sessIdx=${next}`);
-  loadSession(_campIdx,next);
+  loadSession(_campIdx,next,true);
 }
 function updPlayBtn(){document.getElementById('btn-play').classList.toggle('active',playing);updPauseBtn();}
 function updPauseBtn(){document.getElementById('btn-pause').classList.toggle('active',!playing&&currentTime>0&&currentTime<campaignDur);}
