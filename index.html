@@ -31,7 +31,7 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
 #wallclock{font-size:13px;font-weight:700;color:#fff;font-variant-numeric:tabular-nums;
   margin-left:auto;white-space:nowrap}
 
-#main{display:flex;flex:1;overflow:hidden}
+#main{display:flex;flex:1;overflow:hidden;position:relative}
 #map{flex:1;background:#111;position:relative}
 
 /* SIDEBAR — split into players (scroll) + kill feed (scroll) */
@@ -166,6 +166,13 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
 #obj-counter{position:absolute;bottom:15px;left:15px;z-index:900;pointer-events:none;
   background:rgba(10,12,18,.82);border:1px solid rgba(255,255,255,.1);
   border-radius:7px;padding:11px 16px;min-width:264px;backdrop-filter:blur(4px)}
+#sess-nav{position:absolute;bottom:15px;left:50%;transform:translateX(-50%);
+  z-index:900;display:flex;gap:8px;pointer-events:all}
+.sess-nav-btn{background:rgba(10,12,18,.82);border:1px solid rgba(255,255,255,.1);
+  border-radius:7px;backdrop-filter:blur(4px);color:#fd8310;padding:5px 16px;
+  font-size:17px;font-family:inherit;cursor:pointer;white-space:nowrap;transition:background .15s}
+.sess-nav-btn:hover:not(:disabled){background:rgba(253,131,16,.15)}
+.sess-nav-btn:disabled{opacity:.3;cursor:default}
 .obj-title{font-size:13px;font-weight:700;letter-spacing:.5px;margin-bottom:3px}
 .obj-title.blue{color:#58a6ff}.obj-title.red{color:#f85149}
 .obj-bar-wrap{background:rgba(255,255,255,.08);border-radius:3px;height:8px;margin-bottom:8px;overflow:hidden}
@@ -300,6 +307,11 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
     <div class="obj-bar-wrap"><div class="obj-bar red" id="total-kill-red-bar" style="width:0%"></div></div>
   </div>
 </div>
+  <!-- Session navigation — centered on full page width, same bottom as obj-counter -->
+  <div id="sess-nav">
+    <button id="btn-prev-sess" class="sess-nav-btn" disabled>← Prev Session</button>
+    <button id="btn-next-sess" class="sess-nav-btn" disabled>Next Session →</button>
+  </div>
   <div id="sidebar">
     <div class="sb-sec">
       <h3>Display Layers</h3>
@@ -403,6 +415,7 @@ map.createPane('plabelPane'); map.getPane('plabelPane').style.zIndex=640;  // pl
 //  STATE
 // ════════════════════════════════════════════════════════════════════
 let SESSIONS=[], currentTime=0, campaignDur=0, playing=false, playSpeed=30;
+let _campIdx=-1, _sessIdx=-1;
 let _trackEntries=[];  // cached Object.entries(_merged.tracks) — rebuilt on session load
 let killCountBlue=0, killCountRed=0; // cumulative player kills across all sessions up to current time
 let lastRaf=null, rafId=null, selectedPlayer=null;
@@ -603,6 +616,7 @@ async function loadSession(campIdx, sessIdx){
   if(!camp) return;
   const sess = (camp.sessions || [])[sessIdx];
   if(!sess) return;
+  _campIdx = campIdx; _sessIdx = sessIdx;
 
   setLoad(`Loading ${sess.label||sess.file}…`);
   document.getElementById('loading').style.display = 'flex';
@@ -653,6 +667,7 @@ async function loadSession(campIdx, sessIdx){
   drawTimeline();
   flotLastT = -9999;
   document.getElementById('loading').style.display = 'none';
+  updateSessNav();
 
   // Badge: duration + kill count for this session
   const killsStr = sess.kill_count ? ` · ${sess.kill_count} kills` : '';
@@ -1389,7 +1404,7 @@ function updateUnit(id,track,t){
   const hdgKey=isGnd?0:Math.round((dispHdg||0)/3)*3;
   const selNow=base===selectedPlayer;
   if(hdgKey!==mrk._lastHdg || selNow!==mrk._lastSel){
-    mrk.setIcon(leafletIcon(cat,obj.name,obj.coalition,isGnd?null:dispHdg,selNow,obj.is_human,isGnd));
+    mrk.setIcon(leafletIcon(cat,obj.name,obj.coalition,isGnd?null:dispHdg,selNow,isHumanUnit,isGnd));
     mrk._lastHdg=hdgKey; mrk._lastSel=selNow;
   }
   if(!mrk._vis){mrk.setOpacity(1);mrk._vis=true;mrk.getElement()?.style.setProperty('pointer-events','auto');}
@@ -1964,6 +1979,21 @@ function tick(raf){
 }
 function startPlay(){if(currentTime>=campaignDur)currentTime=parseFloat(document.getElementById('scrubber').min||0);playing=true;lastRaf=null;updPlayBtn();rafId=requestAnimationFrame(tick);}
 function pausePlay(){playing=false;lastRaf=null;updPlayBtn();if(rafId)cancelAnimationFrame(rafId);}
+function updateSessNav(){
+  const sessions=(CAMPAIGNS_DATA.campaigns||[])[_campIdx]?.sessions||[];
+  document.getElementById('btn-prev-sess').disabled=(_sessIdx<=0);
+  document.getElementById('btn-next-sess').disabled=(_sessIdx>=sessions.length-1);
+}
+function navigateSession(dir){
+  const sessions=(CAMPAIGNS_DATA.campaigns||[])[_campIdx]?.sessions||[];
+  const next=_sessIdx+dir;
+  if(next<0||next>=sessions.length) return;
+  pausePlay();
+  const sel=document.getElementById('session-selector');
+  sel.value=next;
+  history.replaceState(null,'',`?campIdx=${_campIdx}&sessIdx=${next}`);
+  loadSession(_campIdx,next);
+}
 function updPlayBtn(){document.getElementById('btn-play').classList.toggle('active',playing);updPauseBtn();}
 function updPauseBtn(){document.getElementById('btn-pause').classList.toggle('active',!playing&&currentTime>0&&currentTime<campaignDur);}
 function seekTo(t){
@@ -1979,6 +2009,8 @@ function seekTo(t){
 //  CONTROLS
 // ════════════════════════════════════════════════════════════════════
 document.getElementById('btn-play').addEventListener('click',()=>{if(!playing)startPlay();});
+document.getElementById('btn-prev-sess').addEventListener('click',()=>navigateSession(-1));
+document.getElementById('btn-next-sess').addEventListener('click',()=>navigateSession(1));
 document.getElementById('btn-pause').addEventListener('click',pausePlay);
 document.getElementById('btn-prev').addEventListener('click',()=>{pausePlay();seekTo(0);});
 document.getElementById('btn-next').addEventListener('click',()=>{pausePlay();seekTo(campaignDur);});

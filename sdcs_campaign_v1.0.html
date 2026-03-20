@@ -515,7 +515,6 @@ async function activateSession(sessIdx, camp) {
     _dp:            {},
     _campaignId:    camp ? camp.campaign_id : (_merged?._campaignId || 0),
     _currentSessionFile: null,
-    _sessionOffset: sess._offset || 0,
   };
 
   // Force immediate base ownership update on session switch
@@ -525,6 +524,7 @@ async function activateSession(sessIdx, camp) {
   buildShelterMap();
   buildGroundKillTimes();
   initUnits(_merged);
+  _trackEntries = Object.entries(_merged.tracks);
 
   // Reinit bases every session — FARPs and factories change between sessions
   const campId = camp ? camp.campaign_id : (_merged?._campaignId || 0);
@@ -534,7 +534,6 @@ async function activateSession(sessIdx, camp) {
   for(const d of [baseMarkers,baseCircles,baseInnerCircles,baseLabels]) Object.keys(d).forEach(k=>delete d[k]);
   _baseList=[];
   if(campId) await initBases(_merged, campId);
-  _trackEntries = Object.entries(_merged.tracks);
   _activating = false;
 }
 
@@ -873,13 +872,7 @@ function updateUnit(id,track,t){
     } else if(elapsed>0){mrk.setOpacity(Math.max(0,1-elapsed/60));mrk._vis=true;}
   }
   if(t<track[0].t){
-    if(t >= (_merged._sessionOffset||0)){
-      // Pre-spawn but session is active: show at first known position so map is populated immediately
-      mrk.setLatLng([track[0].lat,track[0].lon]);
-      if(!mrk._vis){mrk.setOpacity(1);mrk._vis=true;}
-    } else {
-      if(mrk._vis){mrk.setOpacity(0);mrk._vis=false;}
-    }
+    if(mrk._vis){mrk.setOpacity(0);mrk._vis=false;}
     if(poly) for(const p of poly) p.setLatLngs([]);
     return;
   }

@@ -602,6 +602,22 @@ function buildGroundKillTimes(){
       }
     }
   }
+
+  // Pass 3: Visible=0 on Shelter3FARP / Factory3 — use as removal time when no kill event fired
+  for(const [id, obj] of Object.entries(_merged.objects)){
+    const vt = obj.visible_off_t;
+    if(vt == null) continue;
+    if(obj.name === 'Shelter3FARP'){
+      const track = _merged.tracks[id];
+      if(!track || !track.length) continue;
+      const gk = `${track[0].lat.toFixed(3)},${track[0].lon.toFixed(3)}`;
+      const fkey = `farp_${gk}`;
+      if(!(fkey in baseKillTimes) || vt < baseKillTimes[fkey]) baseKillTimes[fkey] = vt;
+    } else if(obj.name === 'Factory3'){
+      const bkey = `factory_${id}`;
+      if(!(bkey in baseKillTimes) || vt < baseKillTimes[bkey]) baseKillTimes[bkey] = vt;
+    }
+  }
 }
 
 function baseOwnerAt(key,t){
