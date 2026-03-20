@@ -403,6 +403,7 @@ map.createPane('plabelPane'); map.getPane('plabelPane').style.zIndex=640;  // pl
 //  STATE
 // ════════════════════════════════════════════════════════════════════
 let SESSIONS=[], currentTime=0, campaignDur=0, playing=false, playSpeed=30;
+let _trackEntries=[];  // cached Object.entries(_merged.tracks) — rebuilt on session load
 let killCountBlue=0, killCountRed=0; // cumulative player kills across all sessions up to current time
 let lastRaf=null, rafId=null, selectedPlayer=null;
 
@@ -627,6 +628,7 @@ async function loadSession(campIdx, sessIdx){
   }
   
   setLoad('Merging…');         _merged = mergeSessions(SESSIONS);
+  _trackEntries = Object.entries(_merged.tracks);
   _merged._currentSessionFile = CAMPAIGNS_DATA.campaigns[campIdx].sessions[sessIdx].file;
   // Set campaignId before buildShelterMap so it can match Shelter3s to DB locations
   _merged._campaignId = camp.campaign_id;
@@ -741,6 +743,7 @@ function clearAll(){
   killLayers.length=0;shownKills.clear();
   for(const k of Object.keys(_baseOwnerCache)) delete _baseOwnerCache[k];
   if(_heatLayer){try{map.removeLayer(_heatLayer)}catch(e){}}_heatLayer=null;_heatKillPoints=[];
+  _trackEntries=[];
   for(const k of Object.keys(groundKillTimes)) delete groundKillTimes[k];
   killFeedEntries.length=0;
   document.getElementById('killfeed-list').innerHTML='<div style="color:var(--dim);font-size:11px;padding:4px 0">No kills yet</div>';
@@ -1266,13 +1269,10 @@ function updateDisplay(rafTs){
   const t=currentTime;
 
   // Fast path — every frame: units, weapons, kills, kill feed
-  for(const s of SESSIONS)
-    for(const [id,track] of Object.entries(s.tracks))
-      updateUnit(id,track,t);
-
-  for(const s of SESSIONS)
-    for(const [id,track] of Object.entries(s.tracks))
-      updateWeapon(id,track,t);
+  for(const [id,track] of _trackEntries){
+    updateUnit(id,track,t);
+    updateWeapon(id,track,t);
+  }
 
   updateKills(t);
   updateKillFeedEvents(t);
@@ -1285,7 +1285,8 @@ function updateDisplay(rafTs){
 
     let wc=fmtT(t);
     if(SESSIONS.length){
-      const s=SESSIONS.slice().reverse().find(s=>t>=s._offset)||SESSIONS[0];
+      let s=SESSIONS[0];
+      for(let i=SESSIONS.length-1;i>=0;i--){if(t>=SESSIONS[i]._offset){s=SESSIONS[i];break;}}
       if(s?.meta?.reference_time){
         const ms=new Date(s.meta.reference_time).getTime()+(t-s._offset)*1000;
         wc=new Date(ms).toUTCString().slice(5,22)+' Z';
@@ -1515,7 +1516,7 @@ function updateUnit(id,track,t){
 // ════════════════════════════════════════════════════════════════════
 function updateKills(t){
   if(!filters.kills) return;
-  for(const ev of SESSIONS.flatMap(s=>s.events)){
+  for(const ev of (_merged?.events||[])){
     if(ev.type!=='kill'&&ev.type!=='crashed') continue;
     if(!ev.lat||!ev.lon) continue;
     const age=t-ev.t;if(age<0||age>25) continue;
@@ -1534,7 +1535,7 @@ function updateKills(t){
 }
 
 function updateKillFeedEvents(t){
-  for(const ev of SESSIONS.flatMap(s=>s.events)){
+  for(const ev of (_merged?.events||[])){
     if(ev.type!=='kill') continue;
     const key=`feed_${ev.t}_${ev.victim_id}`;
     if(shownKillFeed.has(key)) continue;

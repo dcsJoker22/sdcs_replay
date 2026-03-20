@@ -286,6 +286,7 @@ let _sessions      = [];     // array of loaded campaign_session_*.json data
 let _activeSession = null;   // the session object currently being rendered
 let _activeIdx     = -1;     // index of active session in _sessions
 let _activating    = false;  // guard against concurrent activateSession calls
+let _trackEntries  = [];     // cached Object.entries(_merged.tracks) — rebuilt on session switch
 let _allEvents     = [];     // all events across campaign (from index, for heatmap/kills)
 
 let currentTime = 0, campaignDur = 0, playing = false, playSpeed = 30;
@@ -533,6 +534,7 @@ async function activateSession(sessIdx, camp) {
   for(const d of [baseMarkers,baseCircles,baseInnerCircles,baseLabels]) Object.keys(d).forEach(k=>delete d[k]);
   _baseList=[];
   if(campId) await initBases(_merged, campId);
+  _trackEntries = Object.entries(_merged.tracks);
   _activating = false;
 }
 
@@ -818,9 +820,8 @@ function updateDisplay(rafTs){
   }
 
   // Fast path — every frame
-  if(_merged)
-    for(const [id,track] of Object.entries(_merged.tracks))
-      updateUnit(id,track,t);
+  for(const [id,track] of _trackEntries)
+    updateUnit(id,track,t);
 
   updateKills(t);
   updateKillFeedEvents(t);
