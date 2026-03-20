@@ -939,12 +939,13 @@ function updateKillFeedEvents(t){
 // ════════════════════════════════════════════════════════════════════
 //  KILL HEATMAP (FLOT)
 // ════════════════════════════════════════════════════════════════════
-let _heatLastT=-9999;
-const HEAT_UPDATE_INTERVAL=60;
+let _heatLastT=-9999,_heatLastRealT=-9999;
+const HEAT_UPDATE_INTERVAL=60,HEAT_REAL_INTERVAL_MS=200;
 function updateHeatmap(t){
   if(!filters.heatmap){if(_heatLayer){map.removeLayer(_heatLayer);_heatLayer=null;}return;}
-  if(Math.abs(t-_heatLastT)<HEAT_UPDATE_INTERVAL&&_heatLayer) return;
-  _heatLastT=t;
+  const realNow=performance.now();
+  if(Math.abs(t-_heatLastT)<HEAT_UPDATE_INTERVAL&&realNow-_heatLastRealT<HEAT_REAL_INTERVAL_MS&&_heatLayer) return;
+  _heatLastT=t; _heatLastRealT=realNow;
   const points=[];
   for(const pt of _killPoints){
     const age=t-pt.t; if(age<0||age>HEAT_FADE_SECS) continue;
@@ -952,15 +953,21 @@ function updateHeatmap(t){
     if(intensity<0.02) continue;
     points.push([pt.lat,pt.lon,intensity]);
   }
-  if(_heatLayer) map.removeLayer(_heatLayer);
-  if(!points.length){_heatLayer=null;return;}
-  _heatLayer=L.heatLayer(points,{
-    radius:35,blur:22,maxZoom:12,max:0.8,
-    gradient:{0.0:'transparent',0.15:'#0a0a6b',0.35:'#1a3a8c',0.55:'#cc2200',0.75:'#ff4400',0.9:'#ff8800',1.0:'#ffff00'},
-    pane:'heatPane',
-  }).addTo(map);
-  // Lower opacity by 30%
-  if(_heatLayer.getPane()) _heatLayer.getPane().style.opacity='0.7';
+  if(!points.length){
+    if(_heatLayer){map.removeLayer(_heatLayer);_heatLayer=null;}
+    return;
+  }
+  if(_heatLayer){
+    _heatLayer.setLatLngs(points);
+    _heatLayer.redraw();
+  } else {
+    _heatLayer=L.heatLayer(points,{
+      radius:35,blur:22,maxZoom:12,max:0.8,
+      gradient:{0.0:'transparent',0.15:'#0a0a6b',0.35:'#1a3a8c',0.55:'#cc2200',0.75:'#ff4400',0.9:'#ff8800',1.0:'#ffff00'},
+      pane:'heatPane',
+    }).addTo(map);
+    if(_heatLayer.getPane()) _heatLayer.getPane().style.opacity='0.7';
+  }
 }
 
 // ════════════════════════════════════════════════════════════════════
@@ -986,7 +993,7 @@ function updPauseBtn(){document.getElementById('btn-pause').classList.toggle('ac
 function seekTo(t){
   const wasAfter=t<currentTime;
   currentTime=Math.max(0,Math.min(t,campaignDur));
-  _heatLastT=-9999; shownKills.clear();
+  _heatLastT=-9999; _heatLastRealT=-9999; shownKills.clear();
   for(const k of Object.keys(_baseOwnerCache)) delete _baseOwnerCache[k];
   if(wasAfter) shownKillFeed.clear();
   updateDisplay();
@@ -997,8 +1004,23 @@ function seekTo(t){
 // ════════════════════════════════════════════════════════════════════
 document.getElementById('btn-play').addEventListener('click',()=>{if(!playing)startPlay();});
 document.getElementById('btn-pause').addEventListener('click',pausePlay);
-document.getElementById('btn-prev').addEventListener('click',()=>{pausePlay();seekTo(0);});
-document.getElementById('btn-next').addEventListener('click',()=>{pausePlay();seekTo(campaignDur);});
+document.getElementById('btn-prev').addEventListener('click',()=>{
+  const sessions=_campaignIndex?.session_index||[];
+  const idx=_activeIdx;
+  const curOffset=sessions[idx]?.offset??0;
+  pausePlay();
+  // >5s into current session → go to its start; otherwise go to previous session start
+  if(currentTime>curOffset+5) seekTo(curOffset);
+  else if(idx>0) seekTo(sessions[idx-1].offset);
+  else seekTo(0);
+});
+document.getElementById('btn-next').addEventListener('click',()=>{
+  const sessions=_campaignIndex?.session_index||[];
+  const idx=_activeIdx;
+  pausePlay();
+  if(idx+1<sessions.length) seekTo(sessions[idx+1].offset);
+  else seekTo(campaignDur);
+});
 document.getElementById('scrubber').addEventListener('input',e=>{pausePlay();seekTo(parseFloat(e.target.value));});
 document.querySelectorAll('.spdbtn').forEach(btn=>{
   btn.addEventListener('click',()=>{
