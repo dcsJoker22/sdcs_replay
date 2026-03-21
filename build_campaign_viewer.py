@@ -234,11 +234,50 @@ def build_campaign(campaign_folder, campaigns_data=None):
     print(f'    {time_offset/3600:.1f}h  |  {len(session_index)} sessions  |  {len(all_events)} events')
 
 
+def find_new_campaign_folders(data_root):
+    """Return folders that are missing their campaign_index or any campaign_session file."""
+    new_folders = []
+    for folder_name in sorted(os.listdir(data_root)):
+        folder = os.path.join(data_root, folder_name)
+        if not os.path.isdir(folder):
+            continue
+        session_files = [f for f in os.listdir(folder)
+                         if f.startswith('session_') and f.endswith('.json')]
+        if not session_files:
+            continue
+        index_name = f'campaign_index_{folder_name}.json'
+        if not os.path.isfile(os.path.join(folder, index_name)):
+            new_folders.append(folder_name)
+            continue
+        # Check each session has a corresponding campaign_session file
+        for fname in session_files:
+            stem = acmi_stem(fname)
+            if not os.path.isfile(os.path.join(folder, f'campaign_session_{stem}.json')):
+                new_folders.append(folder_name)
+                break
+    return new_folders
+
+
+def prompt_new_only(new_folders, all_folders):
+    """Prompt user; return list of folder names to process."""
+    if not new_folders:
+        print('All campaigns already built (campaign_index + campaign_session files present).')
+        ans = input('Build all campaigns anyway? [y/N] ').strip().lower()
+        return all_folders if ans == 'y' else []
+
+    print(f'\nNew / updated campaigns detected ({len(new_folders)}):')
+    for f in new_folders:
+        print(f'  + {f}')
+    ans = input('\nBuild only new campaigns? [Y/n] ').strip().lower()
+    return new_folders if ans != 'n' else all_folders
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--campaign', default=None)
     parser.add_argument('--data', default='public/data')
     parser.add_argument('--campaigns-json', default='public/campaigns.json')
+    parser.add_argument('--all', action='store_true', help='Skip prompt and build all campaigns')
     args = parser.parse_args()
 
     script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -258,20 +297,32 @@ def main():
             print(f'Warning: {e}', file=sys.stderr)
 
     if args.campaign:
+        # Explicit --campaign: build exactly that one, no prompt
         folder = os.path.join(data_root, args.campaign)
         if not os.path.isdir(folder):
             print(f'ERROR: {folder} not found', file=sys.stderr); sys.exit(1)
         print(f'\n=== {args.campaign} ===')
         build_campaign(folder, campaigns_data)
     else:
-        folders = sorted(d for d in os.listdir(data_root)
-                         if os.path.isdir(os.path.join(data_root, d)))
+        all_folders = sorted(
+            d for d in os.listdir(data_root)
+            if os.path.isdir(os.path.join(data_root, d))
+            and any(f.startswith('session_') and f.endswith('.json')
+                    for f in os.listdir(os.path.join(data_root, d)))
+        )
+
+        if args.all:
+            folders_to_build = all_folders
+        else:
+            new_folders = find_new_campaign_folders(data_root)
+            folders_to_build = prompt_new_only(new_folders, all_folders)
+            if not folders_to_build:
+                print('Nothing to build.')
+                sys.exit(0)
+
         total = 0
-        for folder_name in folders:
+        for folder_name in folders_to_build:
             folder = os.path.join(data_root, folder_name)
-            if not any(f.startswith('session_') and f.endswith('.json')
-                       for f in os.listdir(folder)):
-                continue
             print(f'\n=== {folder_name} ===')
             build_campaign(folder, campaigns_data)
             total += 1

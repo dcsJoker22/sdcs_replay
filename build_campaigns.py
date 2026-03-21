@@ -38,9 +38,63 @@ def session_label(filename: str) -> str:
         return f"{yr}/{mo}/{dy} {hh}:{mm}"
     return filename
 
+def find_new_campaign_folders(public_data, existing_campaigns_json):
+    """Return list of folder names that are new or have new sessions since last build."""
+    all_folders = sorted(
+        d for d in os.listdir(public_data)
+        if os.path.isdir(os.path.join(public_data, d))
+    )
+
+    # Build a set of (folder, session_file) pairs already in campaigns.json
+    built = {}  # folder_name -> set of session filenames
+    if existing_campaigns_json and os.path.isfile(existing_campaigns_json):
+        try:
+            with open(existing_campaigns_json, encoding='utf-8') as f:
+                data = json.load(f)
+            for camp in data.get('campaigns', []):
+                for sess in camp.get('sessions', []):
+                    fname = os.path.basename(sess['file'])
+                    # Derive folder from file path: data/<folder>/<fname>
+                    parts = sess['file'].replace('\\', '/').split('/')
+                    folder = parts[1] if len(parts) >= 3 else ''
+                    built.setdefault(folder, set()).add(fname)
+        except Exception:
+            pass
+
+    new_folders = []
+    for folder in all_folders:
+        folder_path = os.path.join(public_data, folder)
+        session_files = set(
+            f for f in os.listdir(folder_path)
+            if f.startswith('session_') and f.endswith('.json')
+        )
+        if not session_files:
+            continue
+        already_built = built.get(folder, set())
+        if session_files - already_built:  # any session not yet indexed
+            new_folders.append(folder)
+
+    return new_folders
+
+
+def prompt_new_only(new_folders, all_folders):
+    """Prompt user; return list of folders to process."""
+    if not new_folders:
+        print('All campaigns already up to date in campaigns.json.')
+        ans = input('Build all campaigns anyway? [y/N] ').strip().lower()
+        return all_folders if ans == 'y' else []
+
+    print(f'\nNew / updated campaigns detected ({len(new_folders)}):')
+    for f in new_folders:
+        print(f'  + {f}')
+    ans = input('\nBuild only new campaigns? [Y/n] ').strip().lower()
+    return new_folders if ans != 'n' else all_folders
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--output', default='public/campaigns.json', help='Output path for campaigns.json')
+    parser.add_argument('--all', action='store_true', help='Skip prompt and build all campaigns')
     args = parser.parse_args()
 
     # Map name keywords -> campaign_id
@@ -78,19 +132,41 @@ def main():
         return folder_name
 
     # Scan public/data/ for campaign subfolders
-    public_data = os.path.join(os.path.dirname(args.output), 'data')
+    output_path = args.output
+    public_dir  = os.path.dirname(os.path.abspath(output_path))
+    public_data = os.path.join(public_dir, 'data')
     if not os.path.isdir(public_data):
         print(f"No public/data/ folder found. Run parse_acmi.py on your ACMI files first.", file=sys.stderr)
         sys.exit(1)
 
-    campaign_folders = sorted(
+    all_folders = sorted(
         d for d in os.listdir(public_data)
         if os.path.isdir(os.path.join(public_data, d))
     )
 
-    if not campaign_folders:
+    if not all_folders:
         print(f"No campaign subfolders found in {public_data}", file=sys.stderr)
         sys.exit(1)
+
+    if args.all:
+        campaign_folders = all_folders
+    else:
+        new_folders = find_new_campaign_folders(public_data, output_path)
+        campaign_folders = prompt_new_only(new_folders, all_folders)
+        if not campaign_folders:
+            print('Nothing to build.')
+            sys.exit(0)
+
+    # When building only a subset, carry forward existing entries for untouched campaigns
+    existing_campaigns = {}
+    if os.path.isfile(output_path):
+        try:
+            with open(output_path, encoding='utf-8') as f:
+                existing_data = json.load(f)
+            for camp in existing_data.get('campaigns', []):
+                existing_campaigns[camp['id']] = camp
+        except Exception:
+            pass
 
     campaigns = []
     for folder in campaign_folders:
@@ -146,25 +222,36 @@ def main():
             first_date = sessions[0]['date'][:10]  # YYYY-MM-DD
 
         camp_id = re.sub(r'^\d{4}-\d{2}-\d{2}\s*', '', folder).lower().replace(' ', '_')
-        campaigns.append({
+        rebuilt = {
             "id":          camp_id,
             "campaign_id": guess_campaign_id(folder),
             "name":        re.sub(r'^\d{4}-\d{2}-\d{2}\s*', '', folder),
             "map":         guess_map(folder),
             "date":        first_date,
             "sessions":    sessions,
-        })
+        }
+        existing_campaigns[camp_id] = rebuilt
+        campaigns.append(rebuilt)
+
+    # Merge: preserve untouched campaigns in their original order from all_folders
+    merged = []
+    seen_ids = set()
+    for folder in all_folders:
+        camp_id = re.sub(r'^\d{4}-\d{2}-\d{2}\s*', '', folder).lower().replace(' ', '_')
+        if camp_id in existing_campaigns and camp_id not in seen_ids:
+            merged.append(existing_campaigns[camp_id])
+            seen_ids.add(camp_id)
 
     out = {
         "_comment": "SDCS Campaign Registry — generated by build_campaigns.py",
-        "campaigns": campaigns,
+        "campaigns": merged,
     }
-    os.makedirs(os.path.dirname(os.path.abspath(args.output)), exist_ok=True)
-    with open(args.output, 'w', encoding='utf-8') as f:
+    os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
+    with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(out, f, indent=2, ensure_ascii=False)
 
-    total = sum(len(c['sessions']) for c in campaigns)
-    print(f"\n✓ Written {len(campaigns)} campaigns, {total} sessions → {args.output}")
+    total = sum(len(c['sessions']) for c in merged)
+    print(f"\n✓ Written {len(merged)} campaigns, {total} sessions → {output_path}")
 
 if __name__ == '__main__':
     main()
