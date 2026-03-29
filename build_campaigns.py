@@ -221,7 +221,7 @@ def main():
         if sessions and sessions[0]['date']:
             first_date = sessions[0]['date'][:10]  # YYYY-MM-DD
 
-        camp_id = re.sub(r'^\d{4}-\d{2}-\d{2}\s*', '', folder).lower().replace(' ', '_')
+        camp_id = folder.lower().replace(' ', '_')
         rebuilt = {
             "id":          camp_id,
             "campaign_id": guess_campaign_id(folder),
@@ -237,7 +237,7 @@ def main():
     merged = []
     seen_ids = set()
     for folder in all_folders:
-        camp_id = re.sub(r'^\d{4}-\d{2}-\d{2}\s*', '', folder).lower().replace(' ', '_')
+        camp_id = folder.lower().replace(' ', '_')
         if camp_id in existing_campaigns and camp_id not in seen_ids:
             merged.append(existing_campaigns[camp_id])
             seen_ids.add(camp_id)
