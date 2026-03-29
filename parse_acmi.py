@@ -24,6 +24,7 @@ from datetime import datetime, timedelta
 
 # ── Config ────────────────────────────────────────────────────────────────────
 SAMPLE_INTERVAL = 5.0   # seconds between track snapshots (5s = smooth enough, small file)
+MAX_SESSION_SECONDS = 21_600   # 6 hours — max valid SDCS session length
 # ─────────────────────────────────────────────────────────────────────────────
 
 
@@ -136,7 +137,13 @@ def parse_acmi(path, sample_interval=SAMPLE_INTERVAL):
         # Timestamp
         if line.startswith('#'):
             try:
-                current_time = float(line[1:])
+                t = float(line[1:])
+                if t > MAX_SESSION_SECONDS and (t - current_time) > MAX_SESSION_SECONDS:
+                    print(f"  WARNING: Corrupted timestamp #{t:.0f} "
+                          f"(jump of {t - current_time:.0f}s exceeds {MAX_SESSION_SECONDS}s max) — "
+                          f"truncating at {current_time:.1f}s")
+                    break
+                current_time = t
             except ValueError:
                 pass
             continue
