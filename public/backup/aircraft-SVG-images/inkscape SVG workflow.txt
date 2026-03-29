@@ -1,0 +1,15 @@
+import image
+path - trace bitmap
+tick use assisted trace
+use pen tool - trace half the image for symmetry
+delete reference image
+layer - duplicate
+ctrl click and drag
+object - flip horizontal
+shift click both layers
+path - union
+path - simplify (for claude)
+export as plain.svg
+
+get claude to produce as 64x64 json
+import json to vs code

@@ -2,9 +2,9 @@
 
 Interactive web-based replay of [Strategic DCS](https://strategic-dcs.com) campaign sessions. Displays aircraft tracks, ground units, base ownership, kill events, kill heatmap, objective progress, and pilot telemetry on a live map.
 
-## Live Demo
+## Live
 
-Hosted at [strategic-dcs.com](https://strategic-dcs.com) — currently in development.
+Hosted at [replay.strategic-dcs.com](https://replay.strategic-dcs.com/).
 
 ---
 
