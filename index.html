@@ -383,6 +383,7 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
 //  SDCS_API: set to your map API URL if you have one.
 // ════════════════════════════════════════════════════════════════════
 let CAMPAIGNS_DATA = null;   // populated by loadCampaignsJSON()
+let CACHE_KEY = '';          // cache-buster appended to all data fetches
 const SDCS_API = null;
 
 // All bases/objectives drawn from CAMPAIGN_GEODATA (DB coords). Shelter3 = colour only.
@@ -446,10 +447,11 @@ let filters={playerAir:true,aiAir:true,shadows:true,ground:true,groundLabels:fal
 // (so the viewer still works during local dev with the old single-file setup).
 async function loadCampaignsJSON(){
   try {
-    const r = await fetch('public/campaigns.json');
+    const r = await fetch('public/campaigns.json?nocache=' + Date.now());
     if(!r.ok) throw new Error(`HTTP ${r.status}`);
     const data = await r.json();
     CAMPAIGNS_DATA = data;
+    CACHE_KEY = data.cache_key || '';
     return data;
   } catch(e) {
     console.warn('campaigns.json not found, using fallback stub:', e.message);
@@ -626,7 +628,7 @@ async function loadSession(campIdx, sessIdx, keepView=false){
 
   try {
     // sess.file is a path relative to public/ e.g. data/2026-02-26 Germany/session_*.json
-    const r = await fetch(('public/' + sess.file).replace(/ /g, '%20'));
+    const r = await fetch(('public/' + sess.file).replace(/ /g, '%20') + (CACHE_KEY ? '?v=' + CACHE_KEY : ''));
     if(!r.ok) throw new Error(`Could not load ${sess.file} (HTTP ${r.status})`);
     const raw = await r.json();
     const dur = raw.meta?.duration_seconds || 0;

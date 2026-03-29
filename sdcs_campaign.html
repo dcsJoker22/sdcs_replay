@@ -249,6 +249,7 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
 // CONFIG
 // ════════════════════════════════════════════════════════════════════
 let CAMPAIGNS_DATA = null;
+let CACHE_KEY = '';          // cache-buster appended to all data fetches
 const SDCS_API = null;
 
 function switchToSession() {
@@ -316,9 +317,10 @@ const HEAT_FADE_SECS = 10800;
 // ════════════════════════════════════════════════════════════════════
 async function loadCampaignsJSON(){
   try {
-    const r = await fetch('public/campaigns.json');
+    const r = await fetch('public/campaigns.json?nocache=' + Date.now());
     if(!r.ok) throw new Error(`HTTP ${r.status}`);
     CAMPAIGNS_DATA = await r.json();
+    CACHE_KEY = CAMPAIGNS_DATA.cache_key || '';
     return CAMPAIGNS_DATA;
   } catch(e) {
     console.warn('campaigns.json not found:', e.message);
@@ -390,7 +392,7 @@ async function loadCampaign(campIdx) {
   const indexPath = ('public/' + folder + '/campaign_index_' + folderName + '.json').replace(/ /g, '%20');
   try {
     setLoad('Loading campaign index…');
-    const r = await fetch(indexPath);
+    const r = await fetch(indexPath + (CACHE_KEY ? '?v=' + CACHE_KEY : ''));
     if(!r.ok) throw new Error(`campaign_index not found (HTTP ${r.status}). Run build_campaign_viewer.py first.`);
     _campaignIndex = await r.json();
   } catch(e) {
@@ -406,7 +408,7 @@ async function loadCampaign(campIdx) {
   setLoad(`Loading ${sessionEntries.length} sessions…`);
 
   const fetches = sessionEntries.map((entry, i) =>
-    fetch(('public/' + entry.file).replace(/ /g, '%20'))
+    fetch(('public/' + entry.file).replace(/ /g, '%20') + (CACHE_KEY ? '?v=' + CACHE_KEY : ''))
       .then(r => { if(!r.ok) throw new Error(`HTTP ${r.status} for ${entry.file}`); return r.json(); })
       .then(data => ({ idx: i, entry, data }))
       .catch(e => { console.warn(`Session ${i} failed:`, e); return null; })
