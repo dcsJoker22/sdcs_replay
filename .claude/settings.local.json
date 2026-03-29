@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(py:*)",
-      "Bash(\"/c/Program Files/Python311/python.exe\":*)"
+      "Bash(\"/c/Program Files/Python311/python.exe\":*)",
+      "Bash(python build_campaign_viewer.py)"
     ]
   }
 }

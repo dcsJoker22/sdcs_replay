@@ -1,6 +1,6 @@
 // ════════════════════════════════════════════════════════════════════
 // sdcs_shared.js — shared constants and functions
-// Loaded by index.html and sdcs_campaign_v1.0.html
+// Loaded by index.html and sdcs_campaign.html
 // Edit here; changes apply to both viewers automatically.
 // DO NOT define UI_SCALE, map, or state variables here.
 // ════════════════════════════════════════════════════════════════════
@@ -402,8 +402,8 @@ const AC_ICONS = {
 
   // ── f14: F-14 Tomcat ──────────────────────────────────────────────
   'f14': `
-  <path d="M 32.2487,2.413 L 32.2487,2.4251 L 31.8648,2.4678 L 30.5485,5.8679 L 29.6711,11.2974 L 29.5066,14.8622 L 29.342,21.3333 L 26.6549,21.3333 L 26.6001,22.5946 L 13.1638,56.048 L 13.4929,58.0223 L 14.4253,59.5579 L 15.7414,61.3129 L 17.8802,63.4515 L 25.0645,61.6965 L 25.5031,60.49 L 26.3257,60.49 L 26.3808,63.0676 L 27.0936,63.0676 L 27.9712,60.5451 L 30.9324,60.49 L 31.097,62.6837 L 32.2487,62.734 L 32.2487,62.7387 L 32.3035,62.7364 L 32.3585,62.7387 L 32.3585,62.734 L 33.51,62.6837 L 33.6745,60.49 L 36.636,60.5451 L 37.5134,63.0676 L 38.2264,63.0676 L 38.2812,60.49 L 39.1038,60.49 L 39.5427,61.6965 L 46.7269,63.4515 L 48.8656,61.3129 L 50.1819,59.5579 L 51.1143,58.0223 L 51.4431,56.048 L 38.0071,22.5946 L 37.9523,21.3333 L 35.2649,21.3333 L 35.1004,14.8622 L 34.9358,11.2974 L 34.0584,5.8679 L 32.7421,2.4678 L 32.3585,2.4253 L 32.3585,2.413 L 32.3035,2.419 Z"/>`,
-
+  <path d="M 31.8593,1.0245 L 31.3218,2.1154 L 30.8182,3.542 L 30.2517,5.4089 L 29.7692,8.1154 L 29.4546,11.8495 L 29.2448,21.2691 L 28.9302,21.2901 L 28.9302,20.7866 L 26.056,20.7866 L 26.035,22.4229 L 21.0211,35.1573 L 2.3079,42.0383 L 1.5734,42.6048 L 1.1749,43.2761 L 0.0,47.1153 L 23.1819,45.5419 L 24.1678,44.451 L 24.2309,48.6258 L 15.5874,59.7657 L 15.4827,60.6468 L 15.5874,61.1712 L 17.3917,62.9755 L 24.5141,61.5802 L 25.4581,59.6396 L 25.9195,62.2096 L 28.7204,62.2202 L 29.0456,60.3426 L 30.8603,60.3216 L 30.8811,61.727 L 31.9126,61.727 L 32.0874,61.727 L 33.1189,61.727 L 33.1399,60.3216 L 34.9546,60.3426 L 35.2796,62.2202 L 38.0805,62.2096 L 38.5419,59.6396 L 39.4859,61.5802 L 46.6085,62.9755 L 48.4126,61.1712 L 48.5176,60.6468 L 48.4126,59.7657 L 39.7693,48.6258 L 39.8322,44.451 L 40.8181,45.5419 L 64.0,47.1153 L 62.8251,43.2761 L 62.4266,42.6048 L 61.6924,42.0383 L 42.9791,35.1573 L 37.965,22.4229 L 37.944,20.7866 L 35.0698,20.7866 L 35.0698,21.2901 L 34.7552,21.2691 L 34.5454,11.8495 L 34.2308,8.1154 L 33.7483,5.4089 L 33.1818,3.542 L 32.6782,2.1154 L 32.1407,1.0245 Z"/>`,
+  
   // ── f18: F/A-18C Hornet ───────────────────────────────────────────
   'f18': `
   <path d="M 30.2313,3.8389 l 1.042,2.0291 l 0.5484,2.5227 l 0.2742,7.1294 l 0.7678,1.5904 l 0.329,3.126 l 0.5484,4.3325 l 0.8226,3.455 l 0.5484,2.4679 l 0.1097,2.9066 l 14.3136,6.6907 l -0.0548,-2.9066 l 0.329,-0.329 l 0.1645,-0.9323 l 0.329,0 l 0,9.3231 l -0.2194,-0.0548 l 0,0.4387 l -15.1362,0.9323 l 1.4807,3.7292 l 0.0548,1.9195 l 4.7164,5.539 l 0.0548,2.5227 l -0.2742,0.5484 l -1.0968,0.2742 l -6.91,-3.2905 l -0.2742,1.2065 l -1.6452,-0.0548 l -0.7129,-2.084 Z"/>
@@ -513,7 +513,7 @@ function makeGroundDiamond(color, sz) {
 }
 
 
-function makeACSVG(key, color, sz, hdg, selected, isHuman) {
+function makeACSVG(key, color, sz, hdg, selected, isHuman, altK=0, showShadow=true) {
   const body = AC_ICONS[key] || AC_ICONS['default-air'];
   const rot = hdg != null ? `rotate(${hdg},32,32)` : '';
   const sel = selected
@@ -522,12 +522,15 @@ function makeACSVG(key, color, sz, hdg, selected, isHuman) {
   // Both player and AI icons get black outline; player outline is thicker
   const outlineW = isHuman ? '4' : '2.5';
   const outline = `<g transform="${rot}" style="color:#000" fill="#000" stroke="#000" stroke-width="${outlineW}" stroke-linejoin="round" stroke-linecap="round" opacity=".85">${body}</g>`;
+  const altShadow = (showShadow && altK >= 1)
+    ? ` drop-shadow(0 ${Math.min(altK * 0.6, 30).toFixed(1)}px 1.5px rgba(0,0,0,.88))`
+    : '';
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${sz}" height="${sz}" viewBox="0 0 64 64"
-    style="color:${color}">${outline}
+    style="color:${color};filter:drop-shadow(0 0 2px rgba(255,255,255,.7))${altShadow}">${outline}
     <g transform="${rot}" fill="${color}" stroke="${color}" stroke-width=".7" opacity=".93">${body}</g>${sel}</svg>`;
 }
 
-function leafletIcon(cat, name, coalition, hdg, sel, isHuman, forceGnd) {
+function leafletIcon(cat, name, coalition, hdg, sel, isHuman, forceGnd, altK=0, showShadow=true) {
   const blue = coalition === 'Friendlies';
   const color = blue ? '#58a6ff' : '#f85149';
 
@@ -541,7 +544,7 @@ function leafletIcon(cat, name, coalition, hdg, sel, isHuman, forceGnd) {
 
   const key = iconKey(name);
   const sz = Math.round((isHuman ? 36 : 28) * UI_SCALE);
-  const svg = makeACSVG(key, color, sz, hdg, sel, isHuman);
+  const svg = makeACSVG(key, color, sz, hdg, sel, isHuman, altK, showShadow);
   return L.divIcon({ html:svg, className:'', iconSize:[sz,sz], iconAnchor:[sz/2,sz/2] });
 }
 
@@ -594,6 +597,24 @@ function buildShelterMap(){
   const geodataBases = campaignId ? (CAMPAIGN_GEODATA.bases[campaignId]||[]) : [];
   const geodataObjs  = campaignId ? (CAMPAIGN_GEODATA.objectives[campaignId]||[]) : [];
 
+  // Nearest-only for bases: each Shelter3 assigned exclusively to its closest base within 10nm
+  const shelterToBase = {};
+  for(const sh of shelters){
+    let bestKey=null, bestDist=NM10;
+    for(const b of geodataBases){
+      const d=haverKm(sh.pt.lat, sh.pt.lon, b.lat, b.lon);
+      if(d<bestDist){ bestDist=d; bestKey='airbase_'+b.name; }
+    }
+    if(bestKey) shelterToBase[sh.id]=bestKey;
+  }
+  for(const b of geodataBases){
+    const key='airbase_'+b.name;
+    const nearby=shelters.filter(sh=>shelterToBase[sh.id]===key).sort((a,b)=>a.startT-b.startT);
+    const initialCoal=nearby.length?nearby[0].obj.coalition:'Neutral';
+    _shelter3Map[key]={shelterHistory:nearby, initialCoal};
+  }
+
+  // Original radius logic for objectives (shared Shelter3s are fine here)
   function registerLocation(lat, lon, key, fallbackCoal){
     const nearby = shelters
       .filter(sh => haverKm(lat, lon, sh.pt.lat, sh.pt.lon) < NM10)
@@ -601,9 +622,6 @@ function buildShelterMap(){
     const initialCoal = nearby.length ? nearby[0].obj.coalition : (fallbackCoal||'Neutral');
     _shelter3Map[key] = { shelterHistory: nearby, initialCoal };
   }
-
-  for(const b of geodataBases)
-    registerLocation(b.lat, b.lon, 'airbase_'+b.name, 'Neutral');
   for(const o of geodataObjs){
     const key = o.code ? o.code+'_'+o.name : 'obj_'+o.name;
     registerLocation(o.lat, o.lon, key, 'Neutral');

@@ -210,7 +210,7 @@ def build_campaign(campaign_folder, campaigns_data=None):
             'player_kills_red':  cmeta.get('player_kills_red',  0),
         })
 
-        print(f'    ✓ {out_name}  {size_kb:.0f}KB  '
+        print(f'    OK {out_name}  {size_kb:.0f}KB  '
               f'offset={time_offset:.0f}s  dur={dur/3600:.2f}h  '
               f'kills={len(events)}  objs={len(objects)}')
 
@@ -230,7 +230,7 @@ def build_campaign(campaign_folder, campaigns_data=None):
         }, f, separators=(',', ':'))
 
     index_kb = os.path.getsize(index_path) / 1024
-    print(f'\n  ✓ Index → {index_name}  ({index_kb:.0f}KB)')
+    print(f'\n  OK Index -> {index_name}  ({index_kb:.0f}KB)')
     print(f'    {time_offset/3600:.1f}h  |  {len(session_index)} sessions  |  {len(all_events)} events')
 
 
@@ -326,7 +326,7 @@ def main():
             print(f'\n=== {folder_name} ===')
             build_campaign(folder, campaigns_data)
             total += 1
-        print(f'\n✓ Done — {total} campaign(s).')
+        print(f'\nDone - {total} campaign(s).')
 
 
 if __name__ == '__main__':

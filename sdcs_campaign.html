@@ -254,7 +254,11 @@ const SDCS_API = null;
 function switchToSession() {
   const sel = document.getElementById('campaign-selector');
   const campIdx = parseInt(sel.value);
-  const url = 'index.html' + (!isNaN(campIdx) ? '?campIdx=' + campIdx : '');
+  let url = 'index.html';
+  if(!isNaN(campIdx)){
+    url += '?campIdx=' + campIdx;
+    if(_activeIdx >= 0) url += '&sessIdx=' + _activeIdx;
+  }
   window.location.href = url;
 }
 
