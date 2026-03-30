@@ -1,0 +1,27 @@
+name: Cache-bust sdcs_shared.js
+
+on:
+  push:
+    paths:
+      - 'sdcs_shared.js'
+
+jobs:
+  bust:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compute hash and patch HTML
+        run: |
+          HASH=$(sha256sum sdcs_shared.js | cut -c1-8)
+          sed -i "s|sdcs_shared\.js[^\"]*|sdcs_shared.js?v=${HASH}|g" index.html sdcs_campaign.html
+
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git diff --quiet || (
+            git add index.html sdcs_campaign.html &&
+            git commit -m "chore: cache-bust sdcs_shared.js [skip ci]"
+          )
+          git push
