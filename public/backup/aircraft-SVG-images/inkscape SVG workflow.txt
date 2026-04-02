@@ -13,3 +13,9 @@ export as plain.svg
 
 get claude to produce as 64x64 json
 import json to vs code
+
+Claude instructions:
+
+Convert this SVG for my website 
+single clean path, baked 64×64 coordinates, fit vertically (or horizontally for wide aircraft), 
+centred on the other axis, output a preview SVG and a JS snippet.
