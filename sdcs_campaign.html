@@ -322,6 +322,8 @@ let _allEvents     = [];     // all events across campaign (from index, for heat
 let currentTime = 0, campaignDur = 0, playing = false, playSpeed = 30;
 let lastRaf = null, rafId = null, selectedPlayer = null;
 let killCountBlue = 0, killCountRed = 0;
+let _kcCursor=0, _kcBlue=0, _kcRed=0, _kcLastT=-1; // kill counter cursor — avoid full rescan every tick
+const killDotQueue=[];     // {dot, expireAt, key} — replaces individual setTimeouts for kill dot fades
 
 const unitMarkers = {}, unitTrails = {}, groundLabels = {}, baseInnerCircles = {};
 const groundKillTimes = {}, unitHideTimes = {}, baseKillTimes = {};
@@ -629,7 +631,8 @@ function clearAll(){
   for(const segs of Object.values(unitTrails)) for(const p of segs) try{map.removeLayer(p)}catch(e){}
   for(const d of [unitMarkers,unitTrails,groundLabels,baseMarkers,baseCircles,baseInnerCircles,baseLabels])
     Object.keys(d).forEach(k=>delete d[k]);
-  killLayers.length=0; shownKills.clear(); shownKillFeed.clear();
+  killLayers.length=0; shownKills.clear(); shownKillFeed.clear(); killDotQueue.length=0;
+  _kcCursor=0; _kcBlue=0; _kcRed=0; _kcLastT=-1;
   for(const k of Object.keys(groundKillTimes)) delete groundKillTimes[k];
   for(const k of Object.keys(unitHideTimes))   delete unitHideTimes[k];
   for(const k of Object.keys(baseKillTimes))   delete baseKillTimes[k];
@@ -736,15 +739,18 @@ function initUnits(merged){
 //  KILL COUNTER
 // ════════════════════════════════════════════════════════════════════
 function updateKillCounter() {
-  // Campaign kills: count all player kills up to currentTime across all sessions
-  let campBlue=0, campRed=0;
-  for(const ev of _allEvents){
-    if(ev.t > currentTime) break;
-    if(ev.type !== 'kill') continue;
-    if(!ev.killer || /^\d+/.test(ev.killer)) continue;
-    if(ev.victim_coalition === 'Hostiles')    campBlue++;
-    else if(ev.victim_coalition === 'Friendlies') campRed++;
+  // Cursor-based: walk forward from last position, reset on backward scrub
+  if(currentTime < _kcLastT){ _kcCursor=0; _kcBlue=0; _kcRed=0; }
+  _kcLastT = currentTime;
+  const events=_allEvents;
+  while(_kcCursor<events.length && events[_kcCursor].t<=currentTime){
+    const ev=events[_kcCursor++];
+    if(ev.type==='kill' && ev.killer && !/^\d+/.test(ev.killer)){
+      if(ev.victim_coalition==='Hostiles') _kcBlue++;
+      else if(ev.victim_coalition==='Friendlies') _kcRed++;
+    }
   }
+  const campBlue=_kcBlue, campRed=_kcRed;
   const campTotal=campBlue+campRed||1;
   document.getElementById('total-kill-blue-title').textContent=`Campaign Blue: ${campBlue}`;
   document.getElementById('total-kill-red-title').textContent =`Campaign Red: ${campRed}`;
@@ -936,12 +942,12 @@ function drawTimeline(){
 const TRAIL_SECS=3600;
 
 function getActiveSessionIdx(t){
-  // Find which session contains time t
-  // Sessions are sorted by offset; active session is the last one where offset <= t
-  let active = 0;
-  for(let i = 0; i < _sessions.length; i++){
-    if(_sessions[i]._offset <= t) active = i;
-    else break;
+  // Binary search: last session where _offset <= t
+  let lo=0, hi=_sessions.length-1, active=0;
+  while(lo<=hi){
+    const mid=(lo+hi)>>1;
+    if(_sessions[mid]._offset<=t){active=mid;lo=mid+1;}
+    else hi=mid-1;
   }
   return active;
 }
@@ -985,6 +991,7 @@ function updateDisplay(rafTs){
     updateBaseOwnership(t);
     updateKillCounter();
     updateHeatmap(t);
+    drainKillDots();
   }
 }
 
@@ -1041,13 +1048,19 @@ function updateUnit(id,track,t){
   } else if(poly){for(const p of poly) p.setLatLngs([]);}
 }
 
-// updateKills — uses _allEvents for explosions, _activeSession events for feed
+// updateKills — uses _allEvents for explosions; binary search to find the active window
 function updateKills(t){
   if(!filters.kills) return;
-  for(const ev of _allEvents){
+  const events=_allEvents;
+  const windowStart=t-25;
+  // Binary search for first event in the [t-25, t] window
+  let lo=0,hi=events.length;
+  while(lo<hi){const mid=(lo+hi)>>1;if(events[mid].t<windowStart)lo=mid+1;else hi=mid;}
+  for(let i=lo;i<events.length;i++){
+    const ev=events[i];
+    if(ev.t>t) break;
     if(ev.type!=='kill'&&ev.type!=='crashed') continue;
     if(!ev.lat||!ev.lon) continue;
-    const age=t-ev.t; if(age<0||age>25) continue;
     const key=`${ev.t}_${ev.victim_id}`;
     if(shownKills.has(key)) continue;
     shownKills.add(key);
@@ -1058,8 +1071,23 @@ function updateKills(t){
     dot.bindTooltip(`💥 ${ev.victim_name||ev.victim_pilot||'?'}`,{sticky:true});
     killLayers.push(dot);
     const fade=Math.max(5000,25000/Math.max(playSpeed,1));
-    setTimeout(()=>{try{map.removeLayer(dot)}catch(e){};shownKills.delete(key);},fade);
+    killDotQueue.push({dot,expireAt:performance.now()+fade,key});
   }
+}
+
+function drainKillDots(){
+  const now=performance.now();
+  let kept=0;
+  for(let i=0;i<killDotQueue.length;i++){
+    const item=killDotQueue[i];
+    if(now>=item.expireAt){
+      try{map.removeLayer(item.dot)}catch(e){}
+      shownKills.delete(item.key);
+    } else {
+      killDotQueue[kept++]=item;
+    }
+  }
+  killDotQueue.length=kept;
 }
 
 function updateKillFeedEvents(t){
@@ -1248,22 +1276,6 @@ document.addEventListener('keydown',e=>{
         const gFS = Math.round(11 * UI_SCALE);
         const nm = isSAMUnit(obj) ? samDisplayName(obj.name) : obj.name;
         glbl.setIcon(L.divIcon({html:`<div class="glabel-name ${gclr}" style="font-size:${gFS}px">${nm}</div>`,className:'glabel',iconSize:[120,14],iconAnchor:[-9,7]}));
-      }
-      // Update label font sizes for all pilot/AI labels
-      for(const [id, lbl] of Object.entries(pilotLabels)){
-        const obj = _merged.objects[id]; if(!obj) continue;
-        const nameEl = lbl.getElement()?.querySelector(`[id="ln-${id}"]`);
-        const telemEl = lbl.getElement()?.querySelector(`[id="lt-${id}"]`);
-        if(obj.is_human){ if(nameEl) nameEl.style.fontSize=Math.round(16*UI_SCALE)+'px'; if(telemEl) telemEl.style.fontSize=Math.round(12*UI_SCALE)+'px'; }
-        else { if(nameEl) nameEl.style.fontSize=Math.round(12*UI_SCALE)+'px'; if(telemEl) telemEl.style.fontSize=Math.round(10*UI_SCALE)+'px'; }
-      }
-      // Update weapon label font sizes
-      for(const [id, lbl] of Object.entries(weaponLabels)){
-        const wFS = Math.round(9 * UI_SCALE);
-        const nameEl = lbl.getElement()?.querySelector('.wlabel-name');
-        const telemEl = lbl.getElement()?.querySelector(`[id="wt-${id}"]`);
-        if(nameEl) nameEl.style.fontSize = wFS+'px';
-        if(telemEl) telemEl.style.fontSize = wFS+'px';
       }
       // Force icon rebuild for all unit markers via dirty flag
       for(const mrk of Object.values(unitMarkers)){ mrk._lastHdg = undefined; mrk._lastSel = undefined; }

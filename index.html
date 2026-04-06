@@ -420,6 +420,7 @@ let SESSIONS=[], currentTime=0, campaignDur=0, playing=false, playSpeed=30;
 let _campIdx=-1, _sessIdx=-1;
 let _trackEntries=[];  // cached Object.entries(_merged.tracks) — rebuilt on session load
 let killCountBlue=0, killCountRed=0; // cumulative player kills across all sessions up to current time
+let _kcCursor=0, _kcBlue=0, _kcRed=0, _kcLastT=-1; // kill counter cursor — avoid full rescan every tick
 let lastRaf=null, rafId=null, selectedPlayer=null;
 
 const unitMarkers={}, unitTrails={}, pilotLabels={}, groundLabels={}, baseInnerCircles={};
@@ -428,6 +429,7 @@ const groundKillTimes={};  // unit id -> game-time of kill event (from kill even
 const unitHideTimes={};    // unit id -> game-time to begin fade (Visible=0, or kill if no Visible=0)
 const baseKillTimes={};    // base key -> game-time of kill event
 const baseMarkers={}, baseCircles={}, baseLabels={};
+const killDotQueue=[];     // {dot, expireAt, key} — replaces individual setTimeouts for kill dot fades
 let _merged=null, _baseList=[], _shelter3Map={};
 let flotBlueFill=null, flotBlueLine=null, flotRedFill=null, flotRedLine=null;
 let flotLastT=-9999;
@@ -758,7 +760,8 @@ function clearAll(){
   for(const segs of Object.values(weaponTrails)) for(const poly of segs) try{map.removeLayer(poly)}catch(e){}
   for(const d of [unitMarkers,unitTrails,pilotLabels,groundLabels,baseMarkers,baseCircles,baseInnerCircles,baseLabels,weaponMarkers,weaponTrails,weaponLabels])
     Object.keys(d).forEach(k=>delete d[k]);
-  killLayers.length=0;shownKills.clear();
+  killLayers.length=0;shownKills.clear();killDotQueue.length=0;
+  _kcCursor=0;_kcBlue=0;_kcRed=0;_kcLastT=-1;
   for(const k of Object.keys(_baseOwnerCache)) delete _baseOwnerCache[k];
   if(_heatLayer){try{map.removeLayer(_heatLayer)}catch(e){}}_heatLayer=null;_heatKillPoints=[];
   _trackEntries=[];
@@ -994,22 +997,22 @@ function updateWeapon(id,track,t){
 // A "Blue kill" = a player killed a Hostiles unit.
 // A "Red kill"  = a player killed a Friendlies unit.
 function updateKillCounter() {
-  // Count player kills in the current session up to currentTime
-  let blueKills = 0, redKills = 0;
+  // Cursor-based: walk forward from last position, reset on backward scrub
   const merged = _merged;
-  if (merged && merged.events) {
-    for (const ev of merged.events) {
-      if (ev.t > currentTime) break; // events are sorted by time
-      if (ev.type !== 'kill') continue;
-      if (!ev.killer) continue;
-      // Only count if killer is a human player
-      if (!merged.players || !merged.players[ev.killer]) continue;
-      if (ev.victim_coalition === 'Hostiles') blueKills++;
-      else if (ev.victim_coalition === 'Friendlies') redKills++;
+  if (merged?.events) {
+    if (currentTime < _kcLastT) { _kcCursor=0; _kcBlue=0; _kcRed=0; }
+    _kcLastT = currentTime;
+    const events = merged.events;
+    while (_kcCursor < events.length && events[_kcCursor].t <= currentTime) {
+      const ev = events[_kcCursor++];
+      if (ev.type==='kill' && ev.killer && merged.players?.[ev.killer]) {
+        if (ev.victim_coalition==='Hostiles') _kcBlue++;
+        else if (ev.victim_coalition==='Friendlies') _kcRed++;
+      }
     }
   }
-  killCountBlue = blueKills;
-  killCountRed  = redKills;
+  killCountBlue = _kcBlue;
+  killCountRed  = _kcRed;
 
   const total = killCountBlue + killCountRed || 1;
   document.getElementById('kill-blue-title').textContent = `Blue Kills: ${killCountBlue}`;
@@ -1325,6 +1328,7 @@ function updateDisplay(rafTs){
     updateBaseOwnership(t);
     updateKillCounter();
     updateHeatmap(t);
+    drainKillDots();
     // FLOT disabled — if(filters.flot) updateFLOT(t);
   }
 }
@@ -1558,8 +1562,23 @@ function updateKills(t){
     dot.bindTooltip(`💥 ${ev.victim_name||ev.victim_pilot||'?'}`,{sticky:true});
     killLayers.push(dot);
     const fade=Math.max(5000,25000/Math.max(playSpeed,1));
-    setTimeout(()=>{try{map.removeLayer(dot)}catch(e){};shownKills.delete(key);},fade);
+    killDotQueue.push({dot, expireAt:performance.now()+fade, key});
   }
+}
+
+function drainKillDots(){
+  const now=performance.now();
+  let kept=0;
+  for(let i=0;i<killDotQueue.length;i++){
+    const item=killDotQueue[i];
+    if(now>=item.expireAt){
+      try{map.removeLayer(item.dot)}catch(e){}
+      shownKills.delete(item.key);
+    } else {
+      killDotQueue[kept++]=item;
+    }
+  }
+  killDotQueue.length=kept;
 }
 
 function updateKillFeedEvents(t){
