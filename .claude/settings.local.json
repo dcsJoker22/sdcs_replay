@@ -3,10 +3,11 @@
     "allow": [
       "Bash(py:*)",
       "Bash(\"/c/Program Files/Python311/python.exe\":*)",
-      "Bash(python build_campaign_viewer.py)",
+      "Bash(python campaign_viewer_build.py)",
       "Bash(unzip -p \"raw/2025-11-09 Persian Gulf Inverted/20251110_152014.zip.acmi\")",
       "Bash(ls -la H:/SDCS_replay/*.html)",
-      "Bash(python build_campaigns.py --all)"
+      "Bash(python build_campaigns.py --all)",
+      "Bash(python:*)"
     ]
   }
 }

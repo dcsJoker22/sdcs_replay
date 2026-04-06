@@ -30,7 +30,7 @@ sdcs_replay/                          ← root (GitHub Pages serves from here)
 ├── sdcs_shared.js                    ← shared JS library (loaded by both viewers)
 ├── parse_acmi.py                     ← converts .acmi → session JSON
 ├── build_campaigns.py                ← scans public/data/ → writes campaigns.json
-├── build_campaign_viewer.py          ← builds campaign_session_*.json + campaign_index_*.json
+├── campaign_viewer_build.py          ← builds campaign_session_*.json + campaign_index_*.json
 ├── watch_acmi.py                     ← auto-parses new .acmi files on save
 ├── download_campaign.py              ← downloads campaign files from strategic-dcs.com
 ├── CLAUDE.md                         ← Claude project instructions
@@ -92,10 +92,10 @@ Scans all `public/data/*/session_*.json` and writes `public/campaigns.json`.
 
 ```
 # All campaigns
-python build_campaign_viewer.py
+python campaign_viewer_build.py
 
 # Single campaign
-python build_campaign_viewer.py --campaign "2026-03-05 Caucasus"
+python campaign_viewer_build.py --campaign "2026-03-05 Caucasus"
 ```
 
 Writes one `campaign_session_<stem>.json` per session and one `campaign_index_<folder>.json` per campaign into each campaign folder.
@@ -107,7 +107,7 @@ Writes one `campaign_session_<stem>.json` per session and one `campaign_index_<f
 1. Run `python download_campaign.py` and enter the campaign URL
 2. Run `python parse_acmi.py` (batch)
 3. Run `python build_campaigns.py`
-4. Run `python build_campaign_viewer.py`
+4. Run `python campaign_viewer_build.py`
 
 Folder name auto-detection:
 
@@ -135,7 +135,7 @@ public/data/<campaign>/session_<stem>.json
         │                                    │
         │                               index.html
         │
-        └──► build_campaign_viewer.py
+        └──► campaign_viewer_build.py
                     │
                     ├──► campaign_session_<stem>.json  (one per session)
                     └──► campaign_index_<folder>.json  (one per campaign)

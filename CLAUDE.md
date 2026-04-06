@@ -22,7 +22,7 @@ Parser converts Tacview `.acmi` files to session JSON. Both viewers are static H
 | `sdcs_shared.js` | root | Shared JS library loaded by both viewers |
 | `parse_acmi.py` | root | ACMI → session JSON |
 | `build_campaigns.py` | root | Scans `public/data/` → `public/campaigns.json` |
-| `build_campaign_viewer.py` | root | Builds per-session and index JSON for campaign viewer |
+| `campaign_viewer_build.py` | root | Builds per-session and index JSON for campaign viewer |
 | `watch_acmi.py` | root | Live watcher — calls parse + build on new files |
 | `download_campaign.py` | root | Downloads ACMI files from strategic-dcs.com |
 | `public/campaigns.json` | public/ | Campaign index loaded by both viewers on startup |
@@ -42,7 +42,7 @@ H:\SDCS_replay\
 ├── sdcs_shared.js
 ├── parse_acmi.py
 ├── build_campaigns.py
-├── build_campaign_viewer.py
+├── campaign_viewer_build.py
 ├── watch_acmi.py
 ├── download_campaign.py
 ├── CLAUDE.md
@@ -112,12 +112,12 @@ python parse_acmi.py
 python build_campaigns.py
 
 # Build campaign viewer files
-python build_campaign_viewer.py
+python campaign_viewer_build.py
 # or single campaign:
-python build_campaign_viewer.py --campaign "2026-03-05 Caucasus"
+python campaign_viewer_build.py --campaign "2026-03-05 Caucasus"
 ```
 
-`build_campaign_viewer.py` outputs:
+`campaign_viewer_build.py` outputs:
 - `campaign_session_YYYYMMDD_HHMMSS.json` — one per session, stripped data
 - `campaign_index_<folder>.json` — lightweight index with session metadata + all kill events
 
@@ -209,7 +209,7 @@ MAP_CENTRES (in sdcs_shared.js):
 
 ## Campaign Session JSON Schema
 
-Stripped version written by `build_campaign_viewer.py`:
+Stripped version written by `campaign_viewer_build.py`:
 
 ```json
 {

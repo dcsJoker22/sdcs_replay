@@ -317,11 +317,14 @@ def main():
     # -- 2. Download all URLs -------------------------------------------------
     all_acmi_paths = []
     any_failures = False
+    downloaded_folders = []
 
     for i, url in enumerate(urls, 1):
         print(f"\n[{i}/{len(urls)}] {url}")
         acmi_paths, folder_name, had_failures = process_url(url, project_root)
         all_acmi_paths.extend(acmi_paths)
+        if folder_name and folder_name not in downloaded_folders:
+            downloaded_folders.append(folder_name)
         if had_failures:
             any_failures = True
 
@@ -392,6 +395,42 @@ def main():
             print("\n  \u2717 build_campaigns.py failed -- check output above.")
     else:
         print("\n  Skipped. Run build_campaigns.py manually when ready.")
+
+    # -- 5. Prompt to build campaign viewer files ------------------------------
+    print(f"\n{'-'*60}")
+    answer = input("  Build campaign viewer files now? [Y/n] ").strip().lower()
+    if answer in ('', 'y', 'yes'):
+        print()
+        if len(downloaded_folders) == 1:
+            cmds = [[sys.executable, 'campaign_viewer_build.py', '--campaign', downloaded_folders[0]]]
+        else:
+            cmds = [[sys.executable, 'campaign_viewer_build.py']]
+        for cmd in cmds:
+            result = subprocess.run(cmd, capture_output=False)
+        if result.returncode == 0:
+            print("\n  \u2713 Campaign viewer files updated.")
+        else:
+            print("\n  \u2717 campaign_viewer_build.py failed -- check output above.")
+    else:
+        print("\n  Skipped. Run campaign_viewer_build.py manually when ready.")
+
+    # -- 6. Prompt to run awards_parse.py -------------------------------------
+    print(f"\n{'-'*60}")
+    answer = input("  Run awards_parse.py now? [Y/n] ").strip().lower()
+    if answer in ('', 'y', 'yes'):
+        print()
+        if len(downloaded_folders) == 1:
+            cmds = [[sys.executable, 'awards_parse.py', downloaded_folders[0]]]
+        else:
+            cmds = [[sys.executable, 'awards_parse.py', folder] for folder in downloaded_folders]
+        for cmd in cmds:
+            result = subprocess.run(cmd, capture_output=False)
+        if result.returncode == 0:
+            print("\n  \u2713 campaign_awards.json updated.")
+        else:
+            print("\n  \u2717 awards_parse.py failed -- check output above.")
+    else:
+        print("\n  Skipped. Run awards_parse.py manually when ready.")
 
     print(f"\nDone!\n")
 

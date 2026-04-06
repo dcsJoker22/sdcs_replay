@@ -19,6 +19,7 @@ import zipfile
 import re
 import json
 import os
+import subprocess
 from collections import defaultdict
 from datetime import datetime, timedelta
 
@@ -91,7 +92,7 @@ def clean_pilot_name(pilot_str):
         return None
     # Strip tracking suffixes like " - 14ups", " - interpolated - 0ups"
     name = re.sub(r'\s*-\s*\d+ups$', '', pilot_str).strip()
-    name = re.sub(r'\s*-\s*interpolated\s*-?\s*\d*ups?$', '', name).strip()
+    name = re.sub(r'\s*-\s*interpolated(\s*-\s*\d+ups)?$', '', name).strip()
     # Strip ID numbers in parens: "Joker22 (16791298)"
     name = re.sub(r'\s*\(\d+\)\s*$', '', name).strip()
     # Strip radar track suffixes
@@ -535,6 +536,7 @@ def main():
         acmi_path = sys.argv[1]
         if len(sys.argv) > 2:
             out_path = sys.argv[2]
+            campaign_folder = None
         else:
             acmi_dir = os.path.dirname(os.path.abspath(acmi_path))
             campaign_folder = os.path.basename(acmi_dir)
@@ -542,6 +544,57 @@ def main():
             out_path = os.path.join(script_dir, 'public', 'data',
                                     campaign_folder, f'session_{stem}.json')
         parse_and_write(acmi_path, out_path)
+
+    _post_parse_prompts(script_dir, campaign_folder if len(sys.argv) != 1 else None)
+
+
+def _post_parse_prompts(script_dir, campaign_folder=None):
+    """Offer to run build_campaigns, campaign_viewer_build, and awards_parse."""
+    sep = '-' * 60
+
+    # build_campaigns.py
+    print(f"\n{sep}")
+    answer = input("  Rebuild campaigns.json now? [Y/n] ").strip().lower()
+    if answer in ('', 'y', 'yes'):
+        result = subprocess.run([sys.executable, 'build_campaigns.py'], capture_output=False)
+        if result.returncode == 0:
+            print("\n  \u2713 campaigns.json updated.")
+        else:
+            print("\n  \u2717 build_campaigns.py failed -- check output above.")
+    else:
+        print("  Skipped. Run build_campaigns.py manually when ready.")
+
+    # campaign_viewer_build.py
+    print(f"\n{sep}")
+    answer = input("  Build campaign viewer files now? [Y/n] ").strip().lower()
+    if answer in ('', 'y', 'yes'):
+        cmd = [sys.executable, 'campaign_viewer_build.py']
+        if campaign_folder:
+            cmd += ['--campaign', campaign_folder]
+        result = subprocess.run(cmd, capture_output=False)
+        if result.returncode == 0:
+            print("\n  \u2713 Campaign viewer files updated.")
+        else:
+            print("\n  \u2717 campaign_viewer_build.py failed -- check output above.")
+    else:
+        print("  Skipped. Run campaign_viewer_build.py manually when ready.")
+
+    # awards_parse.py
+    print(f"\n{sep}")
+    answer = input("  Run awards_parse.py now? [Y/n] ").strip().lower()
+    if answer in ('', 'y', 'yes'):
+        cmd = [sys.executable, 'awards_parse.py']
+        if campaign_folder:
+            cmd += [campaign_folder]
+        result = subprocess.run(cmd, capture_output=False)
+        if result.returncode == 0:
+            print("\n  \u2713 campaign_awards.json updated.")
+        else:
+            print("\n  \u2717 awards_parse.py failed -- check output above.")
+    else:
+        print("  Skipped. Run awards_parse.py manually when ready.")
+
+    print(f"\nDone!\n")
 
 
 if __name__ == '__main__':

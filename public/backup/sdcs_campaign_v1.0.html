@@ -383,7 +383,7 @@ async function loadCampaign(campIdx) {
   try {
     setLoad('Loading campaign index…');
     const r = await fetch(indexPath);
-    if(!r.ok) throw new Error(`campaign_index not found (HTTP ${r.status}). Run build_campaign_viewer.py first.`);
+    if(!r.ok) throw new Error(`campaign_index not found (HTTP ${r.status}). Run campaign_viewer_build.py first.`);
     _campaignIndex = await r.json();
   } catch(e) {
     setLoad('Error: ' + e.message); console.error(e);

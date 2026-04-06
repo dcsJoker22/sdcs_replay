@@ -113,6 +113,20 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
   background:rgba(10,12,18,.82);border:1px solid rgba(255,255,255,.1);
   border-radius:7px;padding:11px 16px;min-width:264px;backdrop-filter:blur(4px)}
 .obj-title{font-size:13px;font-weight:700;letter-spacing:.5px;margin-bottom:3px}
+#awards-panel{position:absolute;top:15px;right:15px;z-index:900;
+  display:flex;flex-direction:column;gap:7px;width:280px}
+.award-box{background:rgba(10,12,18,.82);border:1px solid rgba(255,255,255,.1);
+  border-radius:7px;padding:10px 13px;backdrop-filter:blur(4px)}
+.award-header-box{text-align:center}
+.award-title-main{font-size:15px;font-weight:700;letter-spacing:.5px;color:#e27b3a}
+.award-box-title{font-size:14px;font-weight:700;letter-spacing:.4px;margin-bottom:7px;text-align:center}
+.award-content{display:flex;gap:11px;align-items:stretch}
+.award-img{width:80px;height:80px;object-fit:contain;flex-shrink:0}
+.award-rows{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center}
+.award-row{display:flex;align-items:baseline;gap:4px;font-size:13px;line-height:1.6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.award-row-name{flex:1;overflow:hidden;text-overflow:ellipsis;font-weight:600}
+.award-row-kills{flex-shrink:0;font-variant-numeric:tabular-nums}
+.award-row-total{flex-shrink:0;color:var(--dim);font-size:12px}
 .obj-title.blue{color:#58a6ff}.obj-title.red{color:#f85149}
 .obj-bar-wrap{background:rgba(255,255,255,.08);border-radius:3px;height:8px;margin-bottom:8px;overflow:hidden}
 .obj-bar{height:100%;border-radius:3px;transition:width .6s ease}
@@ -188,6 +202,16 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
       <div class="obj-title red" id="total-kill-red-title">Campaign Red: 0</div>
       <div class="obj-bar-wrap"><div class="obj-bar red" id="total-kill-red-bar" style="width:0%"></div></div>
     </div>
+    <div id="awards-panel">
+      <div class="award-box award-header-box">
+        <div class="award-title-main">Campaign Awards</div>
+      </div>
+      <div class="award-box" id="award-box-0"><div style="color:var(--dim);font-size:11px">Loading…</div></div>
+      <div class="award-box" id="award-box-1"><div style="color:var(--dim);font-size:11px">Loading…</div></div>
+      <div class="award-box" id="award-box-2"><div style="color:var(--dim);font-size:11px">Loading…</div></div>
+      <div class="award-box" id="award-box-3"><div style="color:var(--dim);font-size:11px">Loading…</div></div>
+      <div class="award-box" id="award-box-4"><div style="color:var(--dim);font-size:11px">Loading…</div></div>
+    </div>
   </div>
 
   <div id="sidebar">
@@ -200,9 +224,10 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
       <label class="frow"><input type="checkbox" id="f-bases" checked><span class="dot" style="background:#d29922"></span>Bases / FARPs</label>
       <label class="frow" style="padding-left:18px"><input type="checkbox" id="f-bases-only" checked><span class="dot" style="background:#d29922;opacity:.6"></span>Bases</label>
       <label class="frow" style="padding-left:18px"><input type="checkbox" id="f-farps-only" checked><span class="dot" style="background:#d29922;opacity:.6"></span>FARPs &amp; Factories</label>
+      <label class="frow"><input type="checkbox" id="f-awards" checked><span class="dot" style="background:#e27b3a;border-radius:2px"></span>Campaign Awards</label>
     </div>
     <div id="players-section">
-      <div id="players-header" style="display:flex;align-items:center;justify-content:space-between;padding-right:9px"><span>Players This Campaign</span><div style="display:flex;gap:3px"><button id="sort-az-btn" style="background:var(--accent);border:1px solid var(--border);color:#fff;font-size:9px;padding:1px 6px;border-radius:3px;cursor:pointer" title="Sort A-Z">A-Z</button><button id="sort-kills-btn" style="background:none;border:1px solid var(--border);color:var(--dim);font-size:9px;padding:1px 6px;border-radius:3px;cursor:pointer" title="Sort by kills">💀</button></div></div>
+      <div id="players-header" style="display:flex;align-items:center;justify-content:space-between;padding-right:9px"><span>Players This Campaign</span><div style="display:flex;gap:3px"><button id="sort-az-btn" style="background:none;border:1px solid var(--border);color:var(--dim);font-size:9px;padding:1px 6px;border-radius:3px;cursor:pointer" title="Sort A-Z">A-Z</button><button id="sort-kills-btn" style="background:var(--accent);border:1px solid var(--border);color:#fff;font-size:9px;padding:1px 6px;border-radius:3px;cursor:pointer" title="Sort by kills">💀</button></div></div>
       <div id="players-list"></div>
     </div>
     <div id="killfeed-section">
@@ -393,7 +418,7 @@ async function loadCampaign(campIdx) {
   try {
     setLoad('Loading campaign index…');
     const r = await fetch(indexPath + (CACHE_KEY ? '?v=' + CACHE_KEY : ''));
-    if(!r.ok) throw new Error(`campaign_index not found (HTTP ${r.status}). Run build_campaign_viewer.py first.`);
+    if(!r.ok) throw new Error(`campaign_index not found (HTTP ${r.status}). Run campaign_viewer_build.py first.`);
     _campaignIndex = await r.json();
   } catch(e) {
     setLoad('Error: ' + e.message); console.error(e);
@@ -430,6 +455,24 @@ async function loadCampaign(campIdx) {
   if(!_sessions.length){
     setLoad('No session data loaded.'); return;
   }
+
+  // 2b. Load campaign medals (best-effort, non-blocking)
+  const medalsPath = ('public/' + folder + '/campaign_awards.json').replace(/ /g, '%20');
+  fetch(medalsPath + (CACHE_KEY ? '?v=' + CACHE_KEY : ''))
+    .then(r => {
+      if(r.ok) return r.json();
+      // No medals file — hide panel and toggle row
+      document.getElementById('awards-panel').style.display = 'none';
+      const tog = document.getElementById('f-awards');
+      if(tog) tog.closest('label').style.display = 'none';
+      return null;
+    })
+    .then(medals => { if(medals) renderAwards(medals); })
+    .catch(() => {
+      document.getElementById('awards-panel').style.display = 'none';
+      const tog = document.getElementById('f-awards');
+      if(tog) tog.closest('label').style.display = 'none';
+    });
 
   // 3. Build heatmap kill points from all events in the index
   _killPoints = [];
@@ -598,6 +641,64 @@ function clearAll(){
   if(_heatLayer){map.removeLayer(_heatLayer);_heatLayer=null;}
   _killPoints=[]; _merged=null; _baseList=[]; _shelter3Map={};
   for(const k of Object.keys(_baseOwnerCache)) delete _baseOwnerCache[k];
+  for(let i=0;i<5;i++){
+    const b=document.getElementById('award-box-'+i);
+    if(b){ b.innerHTML='<div style="color:var(--dim);font-size:11px">Loading…</div>'; b.style.display=''; }
+  }
+  // Re-show panel and toggle in case previous campaign had no medals
+  const awardsPanel=document.getElementById('awards-panel');
+  if(awardsPanel && document.getElementById('f-awards').checked) awardsPanel.style.display='flex';
+  const togLbl=document.getElementById('f-awards');
+  if(togLbl) togLbl.closest('label').style.display='';
+}
+
+// ════════════════════════════════════════════════════════════════════
+//  CAMPAIGN AWARDS
+// ════════════════════════════════════════════════════════════════════
+function renderAwards(medals){
+  const cc = c => (c === 'red') ? '#f85149' : '#58a6ff';
+  const imgCoal = c => (c === 'red') ? 'red' : 'blue';
+  const allPlayers = Object.entries(medals.players || {});
+
+  const BOXES = [
+    { idx:0, title:'Top Gun',            key:'aa_kills_human', totalKey:'aa_kills_ai', img:'aa',     tooltip:'A/A Kills'         },
+    { idx:1, title:'Ground Pounder',     key:'ag_kills',        totalKey:null,          img:'ag',     tooltip:'A/G Kills'         },
+    { idx:2, title:'Tactical Commander', key:'routes_set',      totalKey:null,          img:'taccom', tooltip:'Ground Unit Routes' },
+    { idx:3, title:'Logistics Expert',   key:'farps_built',     totalKey:null,          img:'farps',  tooltip:'FARPs Built'       },
+    { idx:4, title:'Tank Destruction',   key:'gg_kills',        totalKey:null,          img:'gg',     tooltip:'G/G Kills'         },
+  ];
+
+  for(const def of BOXES){
+    const el = document.getElementById('award-box-' + def.idx);
+    if(!el) continue;
+
+    const sorted = allPlayers
+      .map(([name, d]) => ({name, coalition:d.coalition||'blue', score:d[def.key]||0, extra:def.totalKey?(d[def.totalKey]||0):0}))
+      .filter(p => p.score > 0)
+      .sort((a,b) => b.score - a.score || (b.score+b.extra) - (a.score+a.extra));
+
+    if(!sorted.length){ el.style.display='none'; continue; }
+    el.style.display='';
+    el.title = def.tooltip;
+
+    const coal = imgCoal(sorted[0].coalition);
+    const titleColor = cc(sorted[0].coalition);
+
+    const rowsHtml = sorted.slice(0,3).map(p => {
+      const totalStr = def.totalKey ? ` <span class="award-row-total">(${p.score+p.extra})</span>` : '';
+      return `<div class="award-row">
+        <span class="award-row-name" style="color:${cc(p.coalition)}">${p.name}</span>
+        <span class="award-row-kills" style="color:${cc(p.coalition)}">${p.score}</span>${totalStr}
+      </div>`;
+    }).join('');
+
+    el.innerHTML = `
+      <div class="award-box-title" style="color:${titleColor}">${def.title}</div>
+      <div class="award-content">
+        <img class="award-img" src="public/${def.img}_${coal}.png" alt="">
+        <div class="award-rows">${rowsHtml}</div>
+      </div>`;
+  }
 }
 
 // ════════════════════════════════════════════════════════════════════
@@ -741,7 +842,7 @@ function updateBaseOwnership(t){
 
 
 // buildPlayerList — identical to current version
-let _playerSortByKills = false;
+let _playerSortByKills = true;
 let _lastPlayerMerged = null;
 function buildPlayerList(merged){
   if(merged) _lastPlayerMerged = merged;
@@ -1090,6 +1191,9 @@ document.getElementById('f-bases').addEventListener('change',e=>{
 });
 document.getElementById('f-bases-only').addEventListener('change',e=>{filters.basesOnly=e.target.checked;applyBaseSubfilters();});
 document.getElementById('f-farps-only').addEventListener('change',e=>{filters.farpsOnly=e.target.checked;applyBaseSubfilters();});
+document.getElementById('f-awards').addEventListener('change',e=>{
+  document.getElementById('awards-panel').style.display=e.target.checked?'flex':'none';
+});
 function applyBaseSubfilters(){
   if(!filters.bases) return;
   for(const b of _baseList){

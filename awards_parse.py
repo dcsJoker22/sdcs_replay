@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """
-ACMI Medal Parser for Strategic DCS
+ACMI Awards Parser for Strategic DCS
 Reads all .acmi files in a campaign folder and aggregates per-player stats
-into campaign_medals.json.
+into campaign_awards.json.
 
 Usage:
-    python medal_parse.py "2026-03-28 Caucasus Inverted"   # single campaign
-    python medal_parse.py                                   # all campaigns under raw/
+    python awards_parse.py "2026-03-28 Caucasus Inverted"   # single campaign
+    python awards_parse.py                                   # all campaigns under raw/
 """
 
 import sys, io
@@ -53,7 +53,7 @@ def clean_pilot_name(pilot_str):
     if not pilot_str:
         return None
     name = re.sub(r'\s*-\s*\d+ups$', '', pilot_str).strip()
-    name = re.sub(r'\s*-\s*interpolated\s*-?\s*\d*ups?$', '', name).strip()
+    name = re.sub(r'\s*-\s*interpolated(\s*-\s*\d+ups)?$', '', name).strip()
     name = re.sub(r'\s*\(\d+\).*$', '', name).strip()
     name = re.sub(r'\s*-\s*(RT|VT|ET) by .*$', '', name).strip()
     name = re.sub(r'\s*-\s*jamming$', '', name).strip()
@@ -157,10 +157,21 @@ def parse_session(path):
             obj['pilot']       = props['Pilot']
             obj['pilot_clean'] = clean_pilot_name(props['Pilot'])
 
+        # Track coalition for human pilots via their aircraft object
+        pilot_clean = obj.get('pilot_clean')
+        if pilot_clean and obj.get('coalition') and is_human_pilot(obj.get('pilot', '')):
+            player_coalition[pilot_clean] = obj['coalition']
+
         # FARP spawn: first time we see this FARP-type object
         if obj_id not in farp_seen and obj.get('name') in FARP_NAMES:
             farp_seen.add(obj_id)
             _attribute_farp(obj, current_time, pending_unpacks, stats)
+
+    # Sync detected coalitions into stats
+    for player, raw_coal in player_coalition.items():
+        norm = _norm_coalition(raw_coal)
+        if norm:
+            stats[player]['coalition'] = norm
 
     kills = sum(s['aa_kills_human'] + s['aa_kills_ai'] + s['ag_kills'] + s['gg_kills']
                 for s in stats.values())
@@ -170,6 +181,7 @@ def parse_session(path):
 
 def _new_stats_store():
     return defaultdict(lambda: {
+        'coalition':      None,
         'aa_kills_human': 0,
         'aa_kills_ai':    0,
         'ag_kills':       0,
@@ -179,6 +191,18 @@ def _new_stats_store():
         'flights':        0,
         'weapons_fired':  defaultdict(int),
     })
+
+
+def _norm_coalition(raw):
+    """Normalise raw ACMI coalition string to 'blue' or 'red'."""
+    if not raw:
+        return None
+    r = raw.lower()
+    if 'friend' in r or 'allie' in r or r == 'blue':
+        return 'blue'
+    if 'hostile' in r or 'enem' in r or r == 'red':
+        return 'red'
+    return None
 
 
 def _handle_message(msg, t, stats, player_slot, player_coalition, objects, pending_unpacks):
@@ -311,6 +335,8 @@ def merge_stats(totals, session_stats):
     """Accumulate per-session stats into campaign totals."""
     for player, s in session_stats.items():
         t = totals[player]
+        if not t['coalition']:
+            t['coalition'] = s['coalition']
         t['aa_kills_human'] += s['aa_kills_human']
         t['aa_kills_ai']    += s['aa_kills_ai']
         t['ag_kills']       += s['ag_kills']
@@ -353,6 +379,7 @@ def process_campaign(campaign_folder, raw_dir, out_dir):
     for player, s in sorted(campaign_totals.items()):
         wf = dict(sorted(s['weapons_fired'].items()))
         output_players[player] = {
+            'coalition':      s['coalition'],
             'flights':        s['flights'],
             'aa_kills_human': s['aa_kills_human'],
             'aa_kills_ai':    s['aa_kills_ai'],
@@ -371,8 +398,13 @@ def process_campaign(campaign_folder, raw_dir, out_dir):
         'players':   output_players,
     }
 
-    out_path = os.path.join(out_dir, campaign_folder, 'campaign_medals.json')
+    out_path = os.path.join(out_dir, campaign_folder, 'campaign_awards.json')
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    if os.path.exists(out_path):
+        answer = input(f"\n  {out_path} already exists. Overwrite? [y/N] ").strip().lower()
+        if answer != 'y':
+            print("  Skipped.")
+            return output
     with open(out_path, 'w', encoding='utf-8') as f:
         json.dump(output, f, indent=2, ensure_ascii=False)
 
