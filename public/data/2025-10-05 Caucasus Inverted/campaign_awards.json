@@ -1,0 +1,1802 @@
+{
+  "campaign": "2025-10-05 Caucasus Inverted",
+  "generated": "2026-04-06T13:02:49Z",
+  "sessions": 16,
+  "players": {
+    "-=WildCat=-": {
+      "coalition": "red",
+      "flights": 15,
+      "aa_kills_human": 4,
+      "aa_kills_ai": 2,
+      "ag_kills": 3,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {
+        "C_8OFP2": 20,
+        "P_27PE": 9,
+        "P_27TE": 8,
+        "P_73": 15,
+        "Vikhr_M": 7
+      },
+      "weapons_total": 59
+    },
+    "024 -- Karat": {
+      "coalition": "red",
+      "flights": 1,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {},
+      "weapons_total": 0
+    },
+    "132nd.MartinCo": {
+      "coalition": "red",
+      "flights": 0,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {},
+      "weapons_total": 0
+    },
+    "159th_ShallowG": {
+      "coalition": "red",
+      "flights": 18,
+      "aa_kills_human": 1,
+      "aa_kills_ai": 0,
+      "ag_kills": 1,
+      "gg_kills": 0,
+      "routes_set": 1,
+      "farps_built": 0,
+      "weapons_fired": {
+        "Ataka_9M120": 6,
+        "C_8": 40,
+        "LD-10": 16,
+        "LS_6": 8,
+        "LS_6_500": 4,
+        "PL-5EII": 6,
+        "P_27PE": 7,
+        "P_27TE": 4,
+        "P_73": 8
+      },
+      "weapons_total": 99
+    },
+    "163_Comrade": {
+      "coalition": "red",
+      "flights": 7,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 7,
+      "gg_kills": 2,
+      "routes_set": 15,
+      "farps_built": 0,
+      "weapons_fired": {
+        "OFL_120F2_AP": 2,
+        "Vikhr_M": 4,
+        "ZTZ_125_AP": 3
+      },
+      "weapons_total": 9
+    },
+    "327 - Kasarch": {
+      "coalition": "red",
+      "flights": 16,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 2,
+      "ag_kills": 1,
+      "gg_kills": 0,
+      "routes_set": 18,
+      "farps_built": 0,
+      "weapons_fired": {
+        "AGM_65D": 3,
+        "AGM_65H": 2,
+        "AIM_120": 5,
+        "AIM_120C": 1,
+        "AIM_54A_Mk60": 7,
+        "OFL_120F2_AP": 1
+      },
+      "weapons_total": 19
+    },
+    "451 -- Stork -- Shatunez": {
+      "coalition": "red",
+      "flights": 1,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {},
+      "weapons_total": 0
+    },
+    "9g - paniker": {
+      "coalition": "red",
+      "flights": 22,
+      "aa_kills_human": 2,
+      "aa_kills_ai": 3,
+      "ag_kills": 3,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {
+        "AGM_154A": 1,
+        "AGM_65H": 5,
+        "AGM_88": 15,
+        "AIM_120C": 27,
+        "CBU_97": 2,
+        "GBU_12": 2,
+        "GBU_24": 1,
+        "GBU_38": 6,
+        "SD-10": 8,
+        "Vikhr_M": 2
+      },
+      "weapons_total": 69
+    },
+    "<09>Wawar": {
+      "coalition": "blue",
+      "flights": 5,
+      "aa_kills_human": 7,
+      "aa_kills_ai": 2,
+      "ag_kills": 3,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {
+        "AIM_120C": 40,
+        "GBU_54_V_1B": 7
+      },
+      "weapons_total": 47
+    },
+    "=Evans=": {
+      "coalition": "red",
+      "flights": 2,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 6,
+      "routes_set": 99,
+      "farps_built": 0,
+      "weapons_fired": {
+        "P_9M117": 15,
+        "REFLEX": 1,
+        "ZTZ_125_HE": 1
+      },
+      "weapons_total": 17
+    },
+    "=HAWKEYE=": {
+      "coalition": "red",
+      "flights": 2,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {
+        "P_27PE": 2
+      },
+      "weapons_total": 2
+    },
+    "=KAG=Bacha": {
+      "coalition": "red",
+      "flights": 8,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {},
+      "weapons_total": 0
+    },
+    "ACROBAT - Yaricc03": {
+      "coalition": "blue",
+      "flights": 5,
+      "aa_kills_human": 1,
+      "aa_kills_ai": 3,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {
+        "AIM_120C": 9
+      },
+      "weapons_total": 9
+    },
+    "BASH": {
+      "coalition": "blue",
+      "flights": 5,
+      "aa_kills_human": 3,
+      "aa_kills_ai": 1,
+      "ag_kills": 4,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {
+        "AIM_120C": 10,
+        "GBU_38": 16
+      },
+      "weapons_total": 26
+    },
+    "BRINGER 1 - FyzeX": {
+      "coalition": "blue",
+      "flights": 2,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 1,
+      "gg_kills": 0,
+      "routes_set": 1,
+      "farps_built": 0,
+      "weapons_fired": {
+        "AGM_84H": 6,
+        "AGM_88": 2,
+        "AIM_120C": 14
+      },
+      "weapons_total": 22
+    },
+    "BURNERZ": {
+      "coalition": "red",
+      "flights": 0,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {},
+      "weapons_total": 0
+    },
+    "Baelor_48": {
+      "coalition": "blue",
+      "flights": 2,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 1,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {
+        "GBU_38": 4
+      },
+      "weapons_total": 4
+    },
+    "Balt": {
+      "coalition": "blue",
+      "flights": 35,
+      "aa_kills_human": 2,
+      "aa_kills_ai": 0,
+      "ag_kills": 31,
+      "gg_kills": 14,
+      "routes_set": 87,
+      "farps_built": 0,
+      "weapons_fired": {
+        "AGM_114": 10,
+        "AGM_114K": 23,
+        "AIM_120C": 17,
+        "AIM_9X": 1,
+        "HYDRA_70_M151": 35,
+        "M256_120_AP": 26
+      },
+      "weapons_total": 112
+    },
+    "Blackfinger": {
+      "coalition": "red",
+      "flights": 5,
+      "aa_kills_human": 2,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 2,
+      "routes_set": 25,
+      "farps_built": 0,
+      "weapons_fired": {
+        "AGM_65D": 3,
+        "AIM_120C": 1,
+        "GBU_38": 5,
+        "REFLEX": 3,
+        "ZTZ_125_AP": 14
+      },
+      "weapons_total": 26
+    },
+    "Blackfyre": {
+      "coalition": "red",
+      "flights": 8,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 15,
+      "gg_kills": 0,
+      "routes_set": 51,
+      "farps_built": 0,
+      "weapons_fired": {
+        "AGM_122": 4,
+        "AGR_20A": 4,
+        "AGR_20_M282": 4,
+        "AIM_120C": 6,
+        "GBU_38": 2,
+        "GBU_54_V_1B": 24
+      },
+      "weapons_total": 44
+    },
+    "Bober 1-1 - Nikolemy": {
+      "coalition": "red",
+      "flights": 1,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {
+        "AGM_88": 4
+      },
+      "weapons_total": 4
+    },
+    "BospaddaZa": {
+      "coalition": "blue",
+      "flights": 0,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {},
+      "weapons_total": 0
+    },
+    "Bravo One": {
+      "coalition": "blue",
+      "flights": 0,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 1,
+      "farps_built": 0,
+      "weapons_fired": {
+        "M256_120_AP": 2
+      },
+      "weapons_total": 2
+    },
+    "CTE4KIH": {
+      "coalition": "red",
+      "flights": 26,
+      "aa_kills_human": 2,
+      "aa_kills_ai": 0,
+      "ag_kills": 11,
+      "gg_kills": 0,
+      "routes_set": 16,
+      "farps_built": 0,
+      "weapons_fired": {
+        "AGM_65D": 18,
+        "AGM_88": 31,
+        "AIM-9L": 2,
+        "AIM_120C": 11,
+        "HYDRA_70_M151": 7
+      },
+      "weapons_total": 69
+    },
+    "Dani84": {
+      "coalition": "blue",
+      "flights": 52,
+      "aa_kills_human": 3,
+      "aa_kills_ai": 0,
+      "ag_kills": 66,
+      "gg_kills": 7,
+      "routes_set": 44,
+      "farps_built": 0,
+      "weapons_fired": {
+        "AGM_114": 26,
+        "AGM_114K": 19,
+        "AGM_88": 4,
+        "AIM_120C": 9,
+        "AIM_9X": 1,
+        "GBU_38": 57,
+        "M256_120_AP": 30,
+        "Mistral": 4
+      },
+      "weapons_total": 150
+    },
+    "Darkstar 1-1": {
+      "coalition": "blue",
+      "flights": 0,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {},
+      "weapons_total": 0
+    },
+    "Darkstar 2-1": {
+      "coalition": "blue",
+      "flights": 0,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {},
+      "weapons_total": 0
+    },
+    "DobrbIu_KoT": {
+      "coalition": "red",
+      "flights": 1,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {},
+      "weapons_total": 0
+    },
+    "Draga_042": {
+      "coalition": "red",
+      "flights": 20,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 2,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {
+        "AT_6": 6,
+        "X_58": 2
+      },
+      "weapons_total": 8
+    },
+    "DunluN": {
+      "coalition": "blue",
+      "flights": 21,
+      "aa_kills_human": 2,
+      "aa_kills_ai": 1,
+      "ag_kills": 13,
+      "gg_kills": 0,
+      "routes_set": 14,
+      "farps_built": 0,
+      "weapons_fired": {
+        "AGM_114": 16,
+        "AGM_114K": 10,
+        "AGM_88": 2,
+        "AIM_120C": 9,
+        "GBU_38": 4
+      },
+      "weapons_total": 41
+    },
+    "Dutch Falcon": {
+      "coalition": "blue",
+      "flights": 4,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 5,
+      "routes_set": 165,
+      "farps_built": 0,
+      "weapons_fired": {
+        "GBU_38": 2,
+        "M256_120_AP": 3,
+        "M256_120_HE": 20,
+        "TOW2": 1
+      },
+      "weapons_total": 26
+    },
+    "ECHO-419": {
+      "coalition": "blue",
+      "flights": 3,
+      "aa_kills_human": 1,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {
+        "AIM_120C": 1
+      },
+      "weapons_total": 1
+    },
+    "EGFF/VF84 - BigJim": {
+      "coalition": "red",
+      "flights": 2,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {
+        "GBU_12": 1
+      },
+      "weapons_total": 1
+    },
+    "Edoain": {
+      "coalition": "blue",
+      "flights": 2,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {},
+      "weapons_total": 0
+    },
+    "EmirMunzoz": {
+      "coalition": "red",
+      "flights": 6,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 3,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {
+        "Vikhr_M": 4
+      },
+      "weapons_total": 4
+    },
+    "EugeneH": {
+      "coalition": "red",
+      "flights": 14,
+      "aa_kills_human": 1,
+      "aa_kills_ai": 0,
+      "ag_kills": 6,
+      "gg_kills": 0,
+      "routes_set": 29,
+      "farps_built": 0,
+      "weapons_fired": {
+        "BetAB_500ShP": 6,
+        "P_73": 2,
+        "Vikhr_M": 7,
+        "X_25MP": 6,
+        "X_29T": 3,
+        "X_58": 1
+      },
+      "weapons_total": 25
+    },
+    "Falcon": {
+      "coalition": "blue",
+      "flights": 1,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {},
+      "weapons_total": 0
+    },
+    "Gus": {
+      "coalition": "red",
+      "flights": 18,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 7,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {
+        "Ataka_9M120F": 11,
+        "C_8": 20
+      },
+      "weapons_total": 31
+    },
+    "HITMAN 4-2": {
+      "coalition": "blue",
+      "flights": 1,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {
+        "AGM_88": 2,
+        "AIM_120C": 3
+      },
+      "weapons_total": 5
+    },
+    "HRP - Guericke": {
+      "coalition": "blue",
+      "flights": 4,
+      "aa_kills_human": 1,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {
+        "AIM_120C": 2,
+        "AIM_9X": 2
+      },
+      "weapons_total": 4
+    },
+    "Hal8000": {
+      "coalition": "blue",
+      "flights": 5,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 4,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {
+        "AGM_88": 4,
+        "GBU_38": 7
+      },
+      "weapons_total": 11
+    },
+    "HanSolo": {
+      "coalition": "red",
+      "flights": 1,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {
+        "AIM_120C": 6
+      },
+      "weapons_total": 6
+    },
+    "Holo": {
+      "coalition": "red",
+      "flights": 3,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {},
+      "weapons_total": 0
+    },
+    "Hunter62": {
+      "coalition": "red",
+      "flights": 9,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 1,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {
+        "Ataka_9M120": 4,
+        "P_27PE": 3
+      },
+      "weapons_total": 7
+    },
+    "IlyaHope": {
+      "coalition": "red",
+      "flights": 1,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {
+        "LD-10": 2
+      },
+      "weapons_total": 2
+    },
+    "IsuckNow": {
+      "coalition": "blue",
+      "flights": 2,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {},
+      "weapons_total": 0
+    },
+    "Jackodiamonds": {
+      "coalition": "red",
+      "flights": 6,
+      "aa_kills_human": 5,
+      "aa_kills_ai": 1,
+      "ag_kills": 6,
+      "gg_kills": 0,
+      "routes_set": 2,
+      "farps_built": 0,
+      "weapons_fired": {
+        "AGM_65D": 8,
+        "AIM_120C": 16,
+        "GBU_38": 1
+      },
+      "weapons_total": 25
+    },
+    "Joker22": {
+      "coalition": "blue",
+      "flights": 15,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 2,
+      "ag_kills": 90,
+      "gg_kills": 94,
+      "routes_set": 866,
+      "farps_built": 5,
+      "weapons_fired": {
+        "AGM_114": 8,
+        "AGM_114K": 8,
+        "AGM_65F": 8,
+        "AGM_88": 6,
+        "AIM_120C": 5,
+        "GBU_31_V_3B": 4,
+        "GBU_38": 124,
+        "HYDRA_70_M229": 6,
+        "M256_120_AP": 91,
+        "M256_120_HE": 18
+      },
+      "weapons_total": 278
+    },
+    "Kasakki": {
+      "coalition": "red",
+      "flights": 3,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 3,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {
+        "Vikhr_M": 10
+      },
+      "weapons_total": 10
+    },
+    "Kikpine": {
+      "coalition": "red",
+      "flights": 13,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 3,
+      "gg_kills": 0,
+      "routes_set": 3,
+      "farps_built": 0,
+      "weapons_fired": {
+        "120_EXPL_F1_120mm_HE": 2,
+        "C_8": 2,
+        "C_8OFP2": 28,
+        "Igla_1E": 2,
+        "P_27PE": 3,
+        "REFLEX": 2,
+        "Vikhr_M": 3
+      },
+      "weapons_total": 42
+    },
+    "MRZ": {
+      "coalition": "red",
+      "flights": 6,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 3,
+      "ag_kills": 8,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {
+        "GB-6-SFW": 10,
+        "SD-10": 31
+      },
+      "weapons_total": 41
+    },
+    "NOZZLE 1-1 - exxotix": {
+      "coalition": "blue",
+      "flights": 1,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {},
+      "weapons_total": 0
+    },
+    "OWS": {
+      "coalition": "blue",
+      "flights": 9,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 19,
+      "farps_built": 0,
+      "weapons_fired": {
+        "AGM_154": 2,
+        "AIM_120C": 3,
+        "AIM_9X": 1
+      },
+      "weapons_total": 6
+    },
+    "Orange": {
+      "coalition": "red",
+      "flights": 1,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {
+        "P_77": 1
+      },
+      "weapons_total": 1
+    },
+    "Osseus": {
+      "coalition": "red",
+      "flights": 2,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {
+        "P_27PE": 2
+      },
+      "weapons_total": 2
+    },
+    "Overlord 1-1": {
+      "coalition": "red",
+      "flights": 0,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {},
+      "weapons_total": 0
+    },
+    "Overlord 2-1": {
+      "coalition": "red",
+      "flights": 0,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {},
+      "weapons_total": 0
+    },
+    "OviDiuS": {
+      "coalition": "red",
+      "flights": 7,
+      "aa_kills_human": 1,
+      "aa_kills_ai": 3,
+      "ag_kills": 5,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {
+        "AGM_88": 5,
+        "AIM_120": 1,
+        "AIM_120C": 9,
+        "GBU_38": 19
+      },
+      "weapons_total": 34
+    },
+    "PANTHERA": {
+      "coalition": "red",
+      "flights": 2,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {},
+      "weapons_total": 0
+    },
+    "PanosHeineken": {
+      "coalition": "red",
+      "flights": 1,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {},
+      "weapons_total": 0
+    },
+    "PipiPupu": {
+      "coalition": "red",
+      "flights": 4,
+      "aa_kills_human": 1,
+      "aa_kills_ai": 0,
+      "ag_kills": 1,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {
+        "AGM_88": 2,
+        "AIM_120C": 13,
+        "GBU_12": 2,
+        "GBU_38": 1
+      },
+      "weapons_total": 18
+    },
+    "Player": {
+      "coalition": "red",
+      "flights": 0,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {},
+      "weapons_total": 0
+    },
+    "PoLeTaL_u_XvATuT": {
+      "coalition": "red",
+      "flights": 2,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 2,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {
+        "AIM_54C_Mk60": 5
+      },
+      "weapons_total": 5
+    },
+    "Potny": {
+      "coalition": "red",
+      "flights": 2,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {},
+      "weapons_total": 0
+    },
+    "Proof": {
+      "coalition": "red",
+      "flights": 6,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 1,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {
+        "AGM_114K": 5
+      },
+      "weapons_total": 5
+    },
+    "PuffRider 1-1": {
+      "coalition": "red",
+      "flights": 0,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {
+        "120_EXPL_F1_120mm_HE": 2
+      },
+      "weapons_total": 2
+    },
+    "Rahkoon": {
+      "coalition": "red",
+      "flights": 3,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {
+        "ADM_141A": 2,
+        "AIM_54C_Mk60": 3,
+        "GBU_12": 4,
+        "LD-10": 4,
+        "PL-5EII": 2
+      },
+      "weapons_total": 15
+    },
+    "RammKruger": {
+      "coalition": "blue",
+      "flights": 23,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {
+        "AIM-9P5": 3,
+        "HYDRA_70_MK5": 24
+      },
+      "weapons_total": 27
+    },
+    "ReaperHawkGR": {
+      "coalition": "red",
+      "flights": 18,
+      "aa_kills_human": 4,
+      "aa_kills_ai": 4,
+      "ag_kills": 25,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {
+        "AGM_65D": 12,
+        "AGM_88": 4,
+        "AIM_120C": 38,
+        "AIM_54C_Mk60": 4,
+        "C_8": 40,
+        "Vikhr_M": 25
+      },
+      "weapons_total": 123
+    },
+    "Rozjkeee": {
+      "coalition": "blue",
+      "flights": 29,
+      "aa_kills_human": 5,
+      "aa_kills_ai": 1,
+      "ag_kills": 26,
+      "gg_kills": 7,
+      "routes_set": 220,
+      "farps_built": 1,
+      "weapons_fired": {
+        "AGM_114": 50,
+        "AGM_114K": 5,
+        "AGM_88": 24,
+        "AIM_120C": 24,
+        "GBU_38": 2,
+        "GBU_54_V_1B": 30,
+        "HOT3_MBDA": 4,
+        "M256_120_AP": 10
+      },
+      "weapons_total": 149
+    },
+    "RubyN⁼ᵏᵃᶢ⁼": {
+      "coalition": "red",
+      "flights": 4,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 1,
+      "ag_kills": 0,
+      "gg_kills": 3,
+      "routes_set": 205,
+      "farps_built": 0,
+      "weapons_fired": {
+        "120_EXPL_F1_120mm_HE": 12,
+        "AGM_88": 8,
+        "AIM_120C": 2,
+        "CBU_105": 2,
+        "GBU_31_V_3B": 2,
+        "OFL_120F2_AP": 2,
+        "REFLEX": 1,
+        "ZTZ_125_AP": 1,
+        "ZTZ_125_HE": 2
+      },
+      "weapons_total": 32
+    },
+    "SRALKER": {
+      "coalition": "red",
+      "flights": 5,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 2,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {
+        "AGM_65D": 7,
+        "Vikhr_M": 1
+      },
+      "weapons_total": 8
+    },
+    "Saker": {
+      "coalition": "red",
+      "flights": 6,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 5,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {
+        "AIM-7P": 2,
+        "AIM_54C_Mk60": 2,
+        "LD-10": 4
+      },
+      "weapons_total": 8
+    },
+    "Sean B.": {
+      "coalition": "blue",
+      "flights": 4,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 10,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {
+        "AGM_114": 6,
+        "AGM_114K": 12
+      },
+      "weapons_total": 18
+    },
+    "SilverGhost": {
+      "coalition": "red",
+      "flights": 9,
+      "aa_kills_human": 1,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {
+        "P_27PE": 1,
+        "P_27TE": 2
+      },
+      "weapons_total": 3
+    },
+    "Smoke 1-1 - Masterblaster": {
+      "coalition": "red",
+      "flights": 2,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {
+        "AGM_88": 2,
+        "GBU_38": 1
+      },
+      "weapons_total": 3
+    },
+    "Soviet Kitty": {
+      "coalition": "blue",
+      "flights": 27,
+      "aa_kills_human": 15,
+      "aa_kills_ai": 0,
+      "ag_kills": 72,
+      "gg_kills": 1,
+      "routes_set": 372,
+      "farps_built": 1,
+      "weapons_fired": {
+        "AGM_114": 32,
+        "AGM_114K": 11,
+        "AGM_65F": 20,
+        "AIM_120C": 57,
+        "AIM_9X": 6,
+        "GBU_38": 46,
+        "M256_120_AP": 2,
+        "MMagicII": 2,
+        "Mistral": 3
+      },
+      "weapons_total": 179
+    },
+    "Starodumov": {
+      "coalition": "red",
+      "flights": 7,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {
+        "P_27PE": 1
+      },
+      "weapons_total": 1
+    },
+    "Stinger0815": {
+      "coalition": "blue",
+      "flights": 1,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 1,
+      "farps_built": 0,
+      "weapons_fired": {
+        "AGM_114K": 2
+      },
+      "weapons_total": 2
+    },
+    "Surgat": {
+      "coalition": "blue",
+      "flights": 7,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 10,
+      "gg_kills": 0,
+      "routes_set": 71,
+      "farps_built": 0,
+      "weapons_fired": {
+        "AGM_114": 15,
+        "C_8": 40
+      },
+      "weapons_total": 55
+    },
+    "Swampy": {
+      "coalition": "red",
+      "flights": 1,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {
+        "AIM_54C_Mk47": 2
+      },
+      "weapons_total": 2
+    },
+    "Sword 2-9 - Babouchka": {
+      "coalition": "blue",
+      "flights": 2,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {
+        "AGM_88": 2
+      },
+      "weapons_total": 2
+    },
+    "TALON 1-1 - Weyland": {
+      "coalition": "blue",
+      "flights": 9,
+      "aa_kills_human": 2,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 1,
+      "farps_built": 0,
+      "weapons_fired": {
+        "MMagicII": 2,
+        "Matra Super 530D": 2
+      },
+      "weapons_total": 4
+    },
+    "Timbotronisch": {
+      "coalition": "blue",
+      "flights": 2,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 1,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {
+        "AGM_114": 2
+      },
+      "weapons_total": 2
+    },
+    "Ugly 5-1 - deissh": {
+      "coalition": "red",
+      "flights": 2,
+      "aa_kills_human": 1,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 12,
+      "farps_built": 0,
+      "weapons_fired": {
+        "120_EXPL_F1_120mm_HE": 4,
+        "AIM_120C": 5,
+        "OFL_120F2_AP": 5
+      },
+      "weapons_total": 14
+    },
+    "VODKA 51 - Glimmer": {
+      "coalition": "red",
+      "flights": 11,
+      "aa_kills_human": 1,
+      "aa_kills_ai": 0,
+      "ag_kills": 4,
+      "gg_kills": 0,
+      "routes_set": 12,
+      "farps_built": 0,
+      "weapons_fired": {
+        "AGM_88": 6,
+        "AIM_120C": 16,
+        "AIM_9X": 3,
+        "GBU_31_V_3B": 1,
+        "GBU_38": 4,
+        "LD-10": 4,
+        "SD-10": 4
+      },
+      "weapons_total": 38
+    },
+    "Valera2-0-0-1": {
+      "coalition": "red",
+      "flights": 3,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {},
+      "weapons_total": 0
+    },
+    "ValeraRubilnik": {
+      "coalition": "red",
+      "flights": 1,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {},
+      "weapons_total": 0
+    },
+    "Vase": {
+      "coalition": "red",
+      "flights": 9,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 1,
+      "ag_kills": 6,
+      "gg_kills": 0,
+      "routes_set": 1,
+      "farps_built": 0,
+      "weapons_fired": {
+        "AIM_54C_Mk60": 3,
+        "GB-6-SFW": 2,
+        "LD-10": 10,
+        "LS_6": 16,
+        "SD-10": 6
+      },
+      "weapons_total": 37
+    },
+    "VlasGTM": {
+      "coalition": "red",
+      "flights": 1,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {
+        "X_25MP": 4,
+        "X_58": 2
+      },
+      "weapons_total": 6
+    },
+    "Vsem-Xana.ru": {
+      "coalition": "red",
+      "flights": 3,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 2,
+      "ag_kills": 2,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {
+        "AGM_88": 4,
+        "AIM_120C": 8,
+        "GBU_38": 16
+      },
+      "weapons_total": 28
+    },
+    "[BAFG] Harry - EAST 1-1": {
+      "coalition": "blue",
+      "flights": 2,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {
+        "AGM_88": 1
+      },
+      "weapons_total": 1
+    },
+    "[Dow]Net_Man": {
+      "coalition": "red",
+      "flights": 1,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 1,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {
+        "Vikhr_M": 1
+      },
+      "weapons_total": 1
+    },
+    "[FB]Dragonax": {
+      "coalition": "red",
+      "flights": 11,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 10,
+      "gg_kills": 0,
+      "routes_set": 22,
+      "farps_built": 0,
+      "weapons_fired": {
+        "AGM_88": 2,
+        "AIM_120C": 12,
+        "AIM_54C_Mk60": 1,
+        "GBU_16": 2,
+        "GBU_24": 2,
+        "HOT3_MBDA": 2,
+        "LS_6": 6,
+        "OFL_120F2_AP": 1,
+        "SNEB_TYPE253_H1": 1
+      },
+      "weapons_total": 29
+    },
+    "[FB]LTRMcrew": {
+      "coalition": "red",
+      "flights": 13,
+      "aa_kills_human": 1,
+      "aa_kills_ai": 1,
+      "ag_kills": 32,
+      "gg_kills": 5,
+      "routes_set": 339,
+      "farps_built": 1,
+      "weapons_fired": {
+        "120_EXPL_F1_120mm_HE": 1,
+        "2A46M_125_AP": 2,
+        "2A46M_125_HE": 3,
+        "AGM_114K": 4,
+        "AGM_154A": 2,
+        "AGM_88": 6,
+        "AGR_20A": 7,
+        "AIM_120C": 14,
+        "CBU_97": 12,
+        "GBU_31_V_3B": 2,
+        "GBU_38": 20,
+        "OFL_120F2_AP": 16,
+        "REFLEX": 6,
+        "ZTZ_125_AP": 14,
+        "ZTZ_125_HE": 4
+      },
+      "weapons_total": 113
+    },
+    "[FB]Reagan": {
+      "coalition": "red",
+      "flights": 17,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 1,
+      "routes_set": 80,
+      "farps_built": 0,
+      "weapons_fired": {
+        "2A46M_125_AP": 2,
+        "ADM_141A": 4,
+        "AIM-7P": 3,
+        "AIM_54C_Mk47": 4,
+        "AIM_54C_Mk60": 14,
+        "AIM_9": 2,
+        "C_13": 10,
+        "C_8": 20,
+        "Vikhr_M": 15
+      },
+      "weapons_total": 74
+    },
+    "[MA] Kestrel": {
+      "coalition": "red",
+      "flights": 0,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {},
+      "weapons_total": 0
+    },
+    "[vjFC] Frank.S": {
+      "coalition": "blue",
+      "flights": 1,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {},
+      "weapons_total": 0
+    },
+    "aim-120": {
+      "coalition": "blue",
+      "flights": 14,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 24,
+      "gg_kills": 4,
+      "routes_set": 38,
+      "farps_built": 0,
+      "weapons_fired": {
+        "ADM_141A": 18,
+        "AGM_114": 8,
+        "AGM_154": 28,
+        "AGM_65D": 2,
+        "AGM_84H": 20,
+        "AGM_88": 18,
+        "AIM_120C": 2,
+        "GBU_32_V_2B": 9,
+        "M256_120_AP": 4
+      },
+      "weapons_total": 109
+    },
+    "deissh": {
+      "coalition": "red",
+      "flights": 0,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 2,
+      "farps_built": 0,
+      "weapons_fired": {},
+      "weapons_total": 0
+    },
+    "foxsoqa": {
+      "coalition": "red",
+      "flights": 5,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {
+        "AIM_120C": 9,
+        "AIM_9X": 2
+      },
+      "weapons_total": 11
+    },
+    "guse": {
+      "coalition": "red",
+      "flights": 17,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 21,
+      "gg_kills": 41,
+      "routes_set": 91,
+      "farps_built": 0,
+      "weapons_fired": {
+        "AGM_65H": 8,
+        "AGM_88": 8,
+        "CBU_105": 8,
+        "GB-6-SFW": 6,
+        "LD-10": 8,
+        "LS_6_500": 1,
+        "P_9M117": 4,
+        "REFLEX": 8,
+        "UOF_17_100HE": 2,
+        "Vikhr_M": 16,
+        "X_25MP": 2,
+        "X_29T": 2,
+        "ZTZ_125_AP": 71,
+        "ZTZ_125_HE": 8
+      },
+      "weapons_total": 152
+    },
+    "oduvawka": {
+      "coalition": "blue",
+      "flights": 4,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 1,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 8,
+      "farps_built": 0,
+      "weapons_fired": {
+        "AIM_120C": 1,
+        "C_8": 114
+      },
+      "weapons_total": 115
+    },
+    "off": {
+      "coalition": "red",
+      "flights": 6,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 3,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {
+        "AGM_88": 10,
+        "AIM_120C": 9,
+        "Ataka_9M120": 1,
+        "GBU_38": 2
+      },
+      "weapons_total": 22
+    },
+    "pashaf18": {
+      "coalition": "red",
+      "flights": 8,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 6,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {
+        "AGM_88": 10,
+        "AIM_120": 6,
+        "AIM_120C": 2
+      },
+      "weapons_total": 18
+    },
+    "pitsa": {
+      "coalition": "red",
+      "flights": 13,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 1,
+      "ag_kills": 10,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {
+        "AGM_65D": 4,
+        "AGM_88": 7,
+        "AIM_120C": 11,
+        "CBU_105": 4,
+        "GBU_38": 6
+      },
+      "weapons_total": 32
+    },
+    "ross_qwerty": {
+      "coalition": "red",
+      "flights": 14,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 4,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {
+        "Ataka_9M120": 10,
+        "C_8OFP2": 20
+      },
+      "weapons_total": 30
+    },
+    "secman": {
+      "coalition": "red",
+      "flights": 0,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {},
+      "weapons_total": 0
+    },
+    "sektorstrike": {
+      "coalition": "red",
+      "flights": 3,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {
+        "X_25MP": 1,
+        "X_29T": 1
+      },
+      "weapons_total": 2
+    },
+    "the tk12": {
+      "coalition": "red",
+      "flights": 8,
+      "aa_kills_human": 1,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {
+        "AIM_120C": 18,
+        "AIM_9X": 1
+      },
+      "weapons_total": 19
+    },
+    "viper37": {
+      "coalition": "red",
+      "flights": 7,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 4,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {
+        "AGM_88": 6,
+        "Ataka_9M120": 6,
+        "CBU_105": 8
+      },
+      "weapons_total": 20
+    },
+    "viper49xx": {
+      "coalition": "blue",
+      "flights": 15,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 5,
+      "gg_kills": 31,
+      "routes_set": 176,
+      "farps_built": 0,
+      "weapons_fired": {
+        "ADM_141A": 36,
+        "AGM_114": 9,
+        "AGM_88": 4,
+        "GBU_38": 11,
+        "KDA_35_HE": 30,
+        "M256_120_AP": 40,
+        "M256_120_HE": 15
+      },
+      "weapons_total": 145
+    },
+    "Игрок": {
+      "coalition": "blue",
+      "flights": 7,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {},
+      "weapons_total": 0
+    },
+    "Тот самый Влад": {
+      "coalition": "blue",
+      "flights": 11,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 0,
+      "farps_built": 0,
+      "weapons_fired": {},
+      "weapons_total": 0
+    },
+    "хрю": {
+      "coalition": "blue",
+      "flights": 31,
+      "aa_kills_human": 5,
+      "aa_kills_ai": 5,
+      "ag_kills": 15,
+      "gg_kills": 1,
+      "routes_set": 11,
+      "farps_built": 0,
+      "weapons_fired": {
+        "ADM_141A": 21,
+        "AGM_154": 12,
+        "AGM_84H": 2,
+        "AGM_88": 11,
+        "AIM_120C": 78,
+        "AIM_9X": 10,
+        "GBU_32_V_2B": 13,
+        "GBU_38": 42,
+        "M256_120_AP": 13,
+        "M256_120_HE": 6
+      },
+      "weapons_total": 208
+    }
+  }
+}
