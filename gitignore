@@ -31,3 +31,5 @@ public/sdcs_replay_v*.html
 node_modules/
 
 to_do.md
+
+__pycache__
