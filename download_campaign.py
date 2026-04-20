@@ -367,14 +367,14 @@ def main():
             fname = os.path.basename(acmi)
             print(f"  [{i}/{len(to_parse)}] {fname}")
             result = subprocess.run(
-                [sys.executable, 'parse_acmi.py', acmi],
+                [sys.executable, 'parse_acmi.py', acmi, '--no-prompts'],
                 capture_output=False
             )
             if result.returncode == 0:
                 parse_ok.append(acmi)
             else:
                 parse_fail.append(acmi)
-                print(f"    \u2717 parse_acmi.py failed for {fname}")
+                print(f"    ✗ parse_acmi.py failed for {fname}")
 
         print(f"\n  Parsed: {len(parse_ok)}  Failed: {len(parse_fail)}")
         if parse_fail:

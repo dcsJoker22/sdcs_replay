@@ -496,22 +496,28 @@ def main():
     # Batch mode walks:  raw/<campaign_folder>/*.acmi
     # and writes to:     public/data/<campaign_folder>/session_<stem>.json
     # Both paths are relative to the directory containing this script.
-
     script_dir = os.path.dirname(os.path.abspath(__file__))
+    args = [a for a in sys.argv[1:] if a != '--no-prompts']
+    no_prompts = len(args) < len(sys.argv[1:])
+    campaign_folder = None
 
-    if len(sys.argv) == 1:
+    if len(args) == 0:
         # ── Batch mode ────────────────────────────────────────────────────────
         raw_root = os.path.join(script_dir, 'raw')
         if not os.path.isdir(raw_root):
             print(f"ERROR: raw/ directory not found at {raw_root}")
             sys.exit(1)
-
+        # ── Warning ───────────────────────────────────────────────────────────
+        print(f"\n  WARNING: This will reparse ALL campaigns and files under raw/")
+        answer = input("  Continue? [Y/n] ").strip().lower()
+        if answer not in ('', 'y', 'yes'):
+            print("  Aborted.")
+            sys.exit(0)
         total = 0
         for campaign_folder in sorted(os.listdir(raw_root)):
             campaign_dir = os.path.join(raw_root, campaign_folder)
             if not os.path.isdir(campaign_dir):
                 continue
-
             acmi_files = sorted(
                 f for f in os.listdir(campaign_dir)
                 if re.search(r'\.acmi$', f, re.I)
@@ -519,7 +525,6 @@ def main():
             if not acmi_files:
                 print(f"\n(no .acmi files in {campaign_folder})")
                 continue
-
             print(f"\n=== {campaign_folder} ({len(acmi_files)} files) ===")
             for fname in acmi_files:
                 acmi_path = os.path.join(campaign_dir, fname)
@@ -528,14 +533,13 @@ def main():
                                         campaign_folder, f'session_{stem}.json')
                 parse_and_write(acmi_path, out_path)
                 total += 1
-
-        print(f"\n\u2713 Batch complete \u2014 {total} sessions parsed.")
-
+        print(f"\n✓ Batch complete — {total} sessions parsed.")
+        campaign_folder = None
     else:
         # ── Single-file mode ──────────────────────────────────────────────────
-        acmi_path = sys.argv[1]
-        if len(sys.argv) > 2:
-            out_path = sys.argv[2]
+        acmi_path = args[0]
+        if len(args) > 1:
+            out_path = args[1]
             campaign_folder = None
         else:
             acmi_dir = os.path.dirname(os.path.abspath(acmi_path))
@@ -545,7 +549,8 @@ def main():
                                     campaign_folder, f'session_{stem}.json')
         parse_and_write(acmi_path, out_path)
 
-    _post_parse_prompts(script_dir, campaign_folder if len(sys.argv) != 1 else None)
+    if not no_prompts:
+        _post_parse_prompts(script_dir, campaign_folder)
 
 
 def _post_parse_prompts(script_dir, campaign_folder=None):
