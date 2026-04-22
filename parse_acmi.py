@@ -30,7 +30,7 @@ MAX_SESSION_SECONDS = 21_600   # 6 hours — max valid SDCS session length
 
 # acmi missile names, then preferred display name
 SAM_MISSILE_NAMES = {
-    'MIM-104':       'Patriot',
+    'MIM_104':       'Patriot',
     'SA9M330':       'SA-15',
     'SA5B55':        'SA-10',
     'SA_IRIS_T_SL':  'IRIS-T',
@@ -43,6 +43,8 @@ SAM_MISSILE_NAMES = {
     'SA3M9M':        'SA-6',
     'SA9M33':        'SA-8',
     'SA2V755':       'SA-2',
+    'AIM_120C':      'NASAMS',
+    'SA5B27':        'SA-3',
 }
 
 def open_acmi(path):
@@ -87,8 +89,14 @@ def classify_object(obj_type, name, pilot):
     t = obj_type or ''
     n = name or ''
     # SAM missiles — identified by name, regardless of who fired them
+    # AIM_120C is shared with aircraft — use pilot string to distinguish NASAMS launches
     if n in SAM_MISSILE_NAMES:
-        return 'sam_weapon'
+        if n == 'AIM_120C':
+            if pilot and 'NASAMS' in pilot:
+                return 'sam_weapon'
+            # otherwise fall through to normal weapon/player_weapon classification
+        else:
+            return 'sam_weapon'
     if 'Weapon' in t or 'Missile' in t or 'Bomb' in t or 'Rocket' in t:
         if is_human_pilot(pilot):
             return 'player_weapon'
@@ -254,7 +262,7 @@ def parse_acmi(path, sample_interval=SAMPLE_INTERVAL):
         # Mark human players
         obj['is_human'] = is_human_pilot(obj['pilot'])
         # Resolve SAM display name
-        obj['display_name'] = SAM_MISSILE_NAMES.get(obj['name'])
+        obj['display_name'] = SAM_MISSILE_NAMES.get(obj['name']) if obj['category'] == 'sam_weapon' else None
 
     # ── Pass 3: Sample tracks at fixed interval ───────────────────────────────
     # For each object, interpolate/subsample positions
