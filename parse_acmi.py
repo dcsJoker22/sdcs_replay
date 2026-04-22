@@ -28,6 +28,22 @@ SAMPLE_INTERVAL = 5.0   # seconds between track snapshots (5s = smooth enough, s
 MAX_SESSION_SECONDS = 21_600   # 6 hours — max valid SDCS session length
 # ─────────────────────────────────────────────────────────────────────────────
 
+# acmi missile names, then preferred display name
+SAM_MISSILE_NAMES = {
+    'MIM-104':       'Patriot',
+    'SA9M330':       'SA-15',
+    'SA5B55':        'SA-10',
+    'SA_IRIS_T_SL':  'IRIS-T',
+    'SA9M38M1':      'SA-11',
+    'SA9M311':       'SA-19',
+    'FIM_92C':       'Stinger',
+    'ROLAND_R':      'Roland',
+    'MIM_72G':       'Chaparral',
+    'HAWK_RAKETA':   'HAWK',
+    'SA3M9M':        'SA-6',
+    'SA9M33':        'SA-8',
+    'SA2V755':       'SA-2',
+}
 
 def open_acmi(path):
     """Open .acmi file - handles both zipped and plain text."""
@@ -69,6 +85,10 @@ def parse_props(raw):
 def classify_object(obj_type, name, pilot):
     """Determine if object is player aircraft, AI aircraft, ground unit, weapon, etc."""
     t = obj_type or ''
+    n = name or ''
+    # SAM missiles — identified by name, regardless of who fired them
+    if n in SAM_MISSILE_NAMES:
+        return 'sam_weapon'
     if 'Weapon' in t or 'Missile' in t or 'Bomb' in t or 'Rocket' in t:
         if is_human_pilot(pilot):
             return 'player_weapon'
@@ -233,6 +253,8 @@ def parse_acmi(path, sample_interval=SAMPLE_INTERVAL):
             obj['category'] = classify_object(obj['type'], obj['name'], obj['pilot'])
         # Mark human players
         obj['is_human'] = is_human_pilot(obj['pilot'])
+        # Resolve SAM display name
+        obj['display_name'] = SAM_MISSILE_NAMES.get(obj['name'])
 
     # ── Pass 3: Sample tracks at fixed interval ───────────────────────────────
     # For each object, interpolate/subsample positions
@@ -244,7 +266,7 @@ def parse_acmi(path, sample_interval=SAMPLE_INTERVAL):
         obj = objects.get(obj_id, {})
         cat = obj.get('category', 'other')
 
-        # Skip AI weapons (too many, short lived). Keep player_weapon for map rendering.
+        # Skip AI weapons (too many, short lived). Keep player_weapon and sam_weapon for map rendering.
         if cat == 'weapon':
             continue
         # Skip navaids (static, handled separately)
@@ -262,7 +284,7 @@ def parse_acmi(path, sample_interval=SAMPLE_INTERVAL):
         last_yaw = None
         next_sample = updates[0][0]  # first sample at first appearance
         # Player weapons are short-lived — keep every raw update, no subsampling
-        is_player_wpn = (cat == 'player_weapon')
+        is_dense_wpn = cat in ('player_weapon', 'sam_weapon')
 
         for (t, pos) in updates:
             # Carry forward
@@ -271,7 +293,7 @@ def parse_acmi(path, sample_interval=SAMPLE_INTERVAL):
             if pos['alt'] is not None: last_alt = pos['alt']
             if pos['yaw'] is not None: last_yaw = pos['yaw']
 
-            if (is_player_wpn or t >= next_sample) and last_lat is not None and last_lon is not None:
+            if (is_dense_wpn or t >= next_sample) and last_lat is not None and last_lon is not None:
                 sampled.append({
                     't': round(t, 1),
                     'lat': round(last_lat, 6),
@@ -279,7 +301,7 @@ def parse_acmi(path, sample_interval=SAMPLE_INTERVAL):
                     'alt': round(last_alt, 1) if last_alt is not None else None,
                     'hdg': round(last_yaw, 1) if last_yaw is not None else None,
                 })
-                if not is_player_wpn:
+                if not is_dense_wpn:
                     next_sample = t + sample_interval
 
         if sampled:
@@ -440,6 +462,7 @@ def parse_acmi(path, sample_interval=SAMPLE_INTERVAL):
             oid: {
                 'id': oid,
                 'name': obj['name'],
+                'display_name': obj['display_name'],
                 'type': obj['type'],
                 'category': obj['category'],
                 'coalition': obj['coalition'],
@@ -451,7 +474,7 @@ def parse_acmi(path, sample_interval=SAMPLE_INTERVAL):
                 'visible_off_t': round(obj['visible_off_t'], 1) if obj['visible_off_t'] is not None else None,
             }
             for oid, obj in objects.items()
-            if obj['category'] not in ('weapon',)  # skip AI weapons (player_weapon retained)
+            if obj['category'] not in ('weapon',)  # skip generic AI weapons; player_weapon and sam_weapon retained
         },
         'tracks': tracks,
         'events': parsed_kills,
@@ -497,27 +520,46 @@ def main():
     # and writes to:     public/data/<campaign_folder>/session_<stem>.json
     # Both paths are relative to the directory containing this script.
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    args = [a for a in sys.argv[1:] if a != '--no-prompts']
-    no_prompts = len(args) < len(sys.argv[1:])
+    # Parse --campaign flag before separating --no-prompts
+    _camp_flag = None
+    _filtered_args = []
+    _it = iter(sys.argv[1:])
+    for a in _it:
+        if a == '--campaign':
+            _camp_flag = next(_it, None)
+        elif a.startswith('--campaign='):
+            _camp_flag = a.split('=', 1)[1]
+        else:
+            _filtered_args.append(a)
+
+    args = [a for a in _filtered_args if a != '--no-prompts']
+    no_prompts = len(args) < len(_filtered_args)
     campaign_folder = None
 
     if len(args) == 0:
-        # ── Batch mode ────────────────────────────────────────────────────────
+        # ── Batch mode (all campaigns, or single campaign via --campaign) ─────
         raw_root = os.path.join(script_dir, 'raw')
         if not os.path.isdir(raw_root):
             print(f"ERROR: raw/ directory not found at {raw_root}")
             sys.exit(1)
-        # ── Warning ───────────────────────────────────────────────────────────
-        print(f"\n  WARNING: This will reparse ALL campaigns and files under raw/")
-        answer = input("  Continue? [Y/n] ").strip().lower()
-        if answer not in ('', 'y', 'yes'):
-            print("  Aborted.")
-            sys.exit(0)
+
+        if _camp_flag:
+            # Single campaign mode
+            candidates = [_camp_flag]
+        else:
+            print(f"\n  WARNING: This will reparse ALL campaigns and files under raw/")
+            answer = input("  Continue? [Y/n] ").strip().lower()
+            if answer not in ('', 'y', 'yes'):
+                print("  Aborted.")
+                sys.exit(0)
+            candidates = sorted(os.listdir(raw_root))
+
         total = 0
-        for campaign_folder in sorted(os.listdir(raw_root)):
+        for campaign_folder in candidates:
             campaign_dir = os.path.join(raw_root, campaign_folder)
             if not os.path.isdir(campaign_dir):
-                continue
+                print(f"ERROR: campaign folder not found: {campaign_dir}")
+                sys.exit(1)
             acmi_files = sorted(
                 f for f in os.listdir(campaign_dir)
                 if re.search(r'\.acmi$', f, re.I)
@@ -534,7 +576,7 @@ def main():
                 parse_and_write(acmi_path, out_path)
                 total += 1
         print(f"\n✓ Batch complete — {total} sessions parsed.")
-        campaign_folder = None
+        campaign_folder = _camp_flag  # pass to post-parse prompts if single campaign
     else:
         # ── Single-file mode ──────────────────────────────────────────────────
         acmi_path = args[0]

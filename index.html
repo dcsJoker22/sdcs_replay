@@ -329,6 +329,7 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
       <label class="frow" style="padding-left:18px"><input type="checkbox" id="f-bases-only" checked><span class="dot" style="background:#d29922;opacity:.6"></span>Bases</label>
       <label class="frow" style="padding-left:18px"><input type="checkbox" id="f-farps-only" checked><span class="dot" style="background:#d29922;opacity:.6"></span>FARPs</label>
       <label class="frow"><input type="checkbox" id="f-weapons" checked><span class="dot" style="background:#e0e060"></span>Weapons (Player)</label>
+      <label class="frow"><input type="checkbox" id="f-sam-weapons" checked><span class="dot" style="background:#02ff89"></span>Weapons (SAM)</label>
       <!-- FLOT disabled — code intact, re-enable by restoring this label and uncommenting updateFLOT call
       <label class="frow"><input type="checkbox" id="f-flot" checked><span class="dot" style="background:#aaa;border-radius:2px"></span>Front Line (FLOT)</label>
       -->
@@ -439,7 +440,7 @@ const killFeedEntries=[];  // [{t, killer, victim, weapon, pvp, killerCoal, el}]
 
 let _heatLayer=null,_heatLastT=-9999,_heatLastRealT=-9999,_heatKillPoints=[];
 const HEAT_FADE_SECS=10800,HEAT_UPDATE_INTERVAL=60,HEAT_REAL_INTERVAL_MS=200;
-let filters={playerAir:true,aiAir:true,shadows:true,ground:true,groundLabels:false,playerLabels:true,aiLabels:true,trails:true,kills:true,heatmap:true,bases:true,basesOnly:true,farpsOnly:true,flot:true,weapons:true};
+let filters={playerAir:true,aiAir:true,shadows:true,ground:true,groundLabels:false,playerLabels:true,aiLabels:true,trails:true,kills:true,heatmap:true,bases:true,basesOnly:true,farpsOnly:true,flot:true,weapons:true,samWeapons:true};
 
 // ════════════════════════════════════════════════════════════════════
 //  HELPERS
@@ -880,14 +881,14 @@ function initWeapons(merged){
   for(const [id,track] of Object.entries(merged.tracks)){
     if(!track.length) continue;
     const obj=merged.objects[id];
-    if(!obj||obj.category!=='player_weapon') continue;
+    if(!obj||(obj.category!=='player_weapon'&&obj.category!=='sam_weapon')) continue;
     if(!isAirLaunchedWeapon(obj.name)) continue;
 
     const pt0=track[0];
     const blue=obj.coalition==='Friendlies';
     const color=blue?'#58a6ff':'#f85149';
     const clr=blue?'blue':'red';
-    const label=(obj.name||'').replace(/^weapons\.\w+\./i,'').replace(/_/g,' ');
+    const label=obj.display_name||(obj.name||'').replace(/^weapons\.\w+\./i,'').replace(/_/g,' ');
 
     const marker=L.circleMarker([pt0.lat,pt0.lon],{
       radius:Math.max(2,Math.round(3*UI_SCALE)),color:'#000',weight:1,fillColor:color,fillOpacity:0.9,pane:'wlabelPane',
@@ -912,13 +913,15 @@ function initWeapons(merged){
 }
 
 function updateWeapon(id,track,t){
-  const obj=_merged?.objects[id];if(!obj||obj.category!=='player_weapon') return;
+  const obj=_merged?.objects[id];
+  if(!obj||(obj.category!=='player_weapon'&&obj.category!=='sam_weapon')) return;
   const mrk=weaponMarkers[id];
   const segs=weaponTrails[id];
   const lbl=weaponLabels[id];
   if(!mrk) return;
 
-  if(!filters.weapons){
+  const isSAM = obj.category==='sam_weapon';
+  if(isSAM ? !filters.samWeapons : !filters.weapons){
     mrk.setStyle({opacity:0,fillOpacity:0});mrk._vis=false;
     if(lbl&&lbl._vis){lbl.setOpacity(0);lbl._vis=false;}
     if(segs) for(const p of segs) p.setLatLngs([]);
@@ -2054,6 +2057,7 @@ document.querySelectorAll('.spdbtn').forEach(btn=>{
   });
 });
 document.getElementById('f-weapons').addEventListener('change',e=>{filters.weapons=e.target.checked;updateDisplay();});
+document.getElementById('f-sam-weapons').addEventListener('change',e=>{filters.samWeapons=e.target.checked;});
 document.getElementById('f-player').addEventListener('change',e=>{filters.playerAir=e.target.checked;updateDisplay();});
 document.getElementById('f-ai').addEventListener('change',e=>{filters.aiAir=e.target.checked;updateDisplay();});
 document.getElementById('f-shadows').addEventListener('change',e=>{filters.shadows=e.target.checked;updateDisplay();});
