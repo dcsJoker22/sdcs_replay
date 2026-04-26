@@ -186,6 +186,10 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
 .leaflet-tooltip{background:var(--panel)!important;border:1px solid var(--border)!important;
   color:var(--text)!important;font-size:11px!important;border-radius:4px!important;
   padding:3px 7px!important;box-shadow:0 2px 8px rgba(0,0,0,.4)!important}
+.ruler-tip{background:#fd8310!important;border:none!important;color:#fff!important;
+  font-size:11px!important;font-weight:700!important;padding:2px 7px!important;
+  border-radius:3px!important;box-shadow:none!important;white-space:nowrap!important}
+.ruler-tip::before{border-top-color:#fd8310!important}
 
 /* PILOT LABELS — only show when airborne */
 .plabel{background:none!important;border:none!important;box-shadow:none!important;padding:0!important;pointer-events:none}
@@ -276,6 +280,15 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
   <span id="session-badge">—</span>
   <button id="switch-btn" onclick="window.location.href='sdcs_campaign.html?campIdx='+document.getElementById('campaign-selector').value" style="background:var(--panel2);border:1px solid var(--border);color:var(--blue);padding:3px 10px;border-radius:var(--r);font-size:11px;cursor:pointer;white-space:nowrap;transition:background .15s">⇄ Campaign View</button>
   <a href="https://map.strategic-dcs.com/map" target="_blank" style="background:var(--panel2);border:1px solid var(--border);color:#fd8310;padding:3px 10px;border-radius:var(--r);font-size:11px;cursor:pointer;white-space:nowrap;text-decoration:none">🗺 Live Map</a>
+  <div id="ruler-controls" style="display:flex;align-items:center;gap:5px">
+    <button id="btn-ruler" class="cbtn" onclick="rulerToggle()" style="font-size:11px;padding:3px 8px">📏 Ruler</button>
+    <button id="btn-ruler-clear" class="cbtn" onclick="rulerClear()" style="font-size:11px;padding:3px 8px;display:none">✕ Clear</button>
+    <select id="ruler-unit" onchange="rulerUnitChange()" style="background:var(--panel2);border:1px solid var(--border);color:var(--text);padding:3px 7px;border-radius:var(--r);font-size:11px;cursor:pointer">
+      <option value="nm">Imperial</option>
+      <option value="km">Metric</option>
+    </select>
+    <span id="ruler-dist" style="font-size:11px;font-weight:700;color:#fd8310;white-space:nowrap;display:none"></span>
+  </div>
   <div id="wallclock">—</div>
 </div>
 
@@ -411,6 +424,7 @@ map.createPane('aiPane');     map.getPane('aiPane').style.zIndex=620;      // ai
 map.createPane('wpnPane');    map.getPane('wpnPane').style.zIndex=350;     // weapon dots + trails (below icons)
 map.createPane('wlabelPane'); map.getPane('wlabelPane').style.zIndex=630;  // weapon labels
 map.createPane('plabelPane'); map.getPane('plabelPane').style.zIndex=640;  // player names — top
+map.createPane('rulerPane');  map.getPane('rulerPane').style.zIndex=700;   // ruler — above everything
 
 // ════════════════════════════════════════════════════════════════════
 
@@ -2230,6 +2244,95 @@ document.addEventListener('keydown',e=>{
   populateSelector();
   // populateSelector calls populateSessionSelector which calls loadSession automatically
 })();
+// ════════════════════════════════════════════════════════════════════
+//  RULER TOOL
+// ════════════════════════════════════════════════════════════════════
+(function(){
+  let active=false, pts=[], markers=[], line=null;
+  let _rulerBlockStyle=null;
+
+  function setPanes(enabled){
+    if(!enabled){
+      if(_rulerBlockStyle) return;
+      _rulerBlockStyle=document.createElement('style');
+      _rulerBlockStyle.textContent=
+        '#map .leaflet-pane{pointer-events:none!important}' +
+        '#map .leaflet-pane *{pointer-events:none!important}' +
+        '#map .leaflet-rulerPane-pane,#map .leaflet-rulerPane-pane *{pointer-events:auto!important}';
+      document.head.appendChild(_rulerBlockStyle);
+    } else {
+      if(_rulerBlockStyle){_rulerBlockStyle.remove();_rulerBlockStyle=null;}
+    }
+  }
+
+  function haversineKm(a,b){
+    const R=6371,dLat=(b.lat-a.lat)*Math.PI/180,dLon=(b.lng-a.lng)*Math.PI/180;
+    const lat1=a.lat*Math.PI/180,lat2=b.lat*Math.PI/180;
+    const x=Math.sin(dLat/2)**2+Math.cos(lat1)*Math.cos(lat2)*Math.sin(dLon/2)**2;
+    return R*2*Math.asin(Math.sqrt(x));
+  }
+
+  function fmt(km){
+    const u=document.getElementById('ruler-unit').value;
+    if(u==='nm'){const v=km*0.539957;return v.toFixed(2)+' Nm';}
+    return km.toFixed(2)+' km';
+  }
+
+  function redraw(){
+    if(pts.length!==2) return;
+    const txt=fmt(haversineKm(pts[0],pts[1]));
+    document.getElementById('ruler-dist').style.display='';
+    document.getElementById('ruler-dist').textContent='↔ '+txt;
+    if(line) map.removeLayer(line);
+    line=L.polyline(pts,{color:'#fd8310',weight:2,dashArray:'6,5',opacity:.9,pane:'rulerPane'}).addTo(map);
+    line.bindTooltip(txt,{permanent:true,direction:'top',className:'ruler-tip',offset:[0,-4]}).openTooltip();
+    document.getElementById('btn-ruler-clear').style.display='';
+  }
+
+  window.rulerToggle=function(){
+    active=!active;
+    const btn=document.getElementById('btn-ruler');
+    if(active){
+      btn.style.background='var(--accent)';btn.style.color='#fff';
+      map.getContainer().style.cursor='crosshair';
+      setPanes(false);
+    } else {
+      rulerClear();
+    }
+  };
+
+  window.rulerClear=function(){
+    active=false;
+    pts=[];
+    markers.forEach(m=>map.removeLayer(m)); markers=[];
+    if(line){map.removeLayer(line);line=null;}
+    document.getElementById('ruler-dist').style.display='none';
+    document.getElementById('btn-ruler-clear').style.display='none';
+    const btn=document.getElementById('btn-ruler');
+    btn.style.background='';btn.style.color='';
+    map.getContainer().style.cursor='';
+    setPanes(true);
+  };
+
+  window.rulerUnitChange=function(){
+    if(pts.length===2) redraw();
+  };
+
+  map.on('click',function(e){
+    if(!active) return;
+    if(pts.length>=2) return;
+    pts.push(e.latlng);
+    const icon=L.divIcon({className:'',
+      html:'<div style="width:9px;height:9px;border-radius:50%;background:#fd8310;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.5);pointer-events:all"></div>',
+      iconSize:[9,9],iconAnchor:[4,4]});
+    const mk=L.marker(e.latlng,{icon,draggable:true,pane:'rulerPane'}).addTo(map);
+    const idx=pts.length-1;
+    mk.on('drag',function(){pts[idx]=mk.getLatLng();if(pts.length===2)redraw();});
+    markers.push(mk);
+    if(pts.length===2){redraw();active=false;map.getContainer().style.cursor='';}
+  });
+})();
+
 // ── MOBILE: close sidebar when tapping outside it ──
 document.getElementById('map').addEventListener('click', () => {
   const sb = document.getElementById('sidebar');
