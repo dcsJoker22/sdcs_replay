@@ -101,12 +101,12 @@ def classify_object(obj_type, name, pilot):
         if is_human_pilot(pilot):
             return 'player_weapon'
         return 'weapon'
+    if 'Ground' in t or 'Anti' in t:
+        return 'ground'
     if 'Air' in t:
         if is_human_pilot(pilot):
             return 'player_air'
         return 'ai_air'
-    if 'Ground' in t or 'Anti' in t:
-        return 'ground'
     if 'Navaid' in t or 'Waypoint' in t:
         return 'navaid'
     if 'Sea' in t:

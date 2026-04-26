@@ -729,12 +729,13 @@ function isSAMUnit(obj){
   return true;
 }
 
-// Strip group prefix for display: 'BDREDMRSAM-SA-11 Buk LN 9A310M1' → 'SA-11 Buk LN 9A310M1'
 function samDisplayName(nm){
+  // Strip BD coalition prefixes: 'BDREDMRSAM-SA-11 Buk LN' → 'SA-11 Buk LN'
+  nm = nm.replace(/^BD(?:RED|BLUE)(?:MR|LR)SAM-/i, '');
   const dashIdx = nm.indexOf('-');
   if(dashIdx > 0 && !SAM_STANDALONE.has(nm)){
     const prefix = nm.slice(0, dashIdx);
-    if(!AIRCRAFT_PREFIXES.has(prefix) && !/^[A-Z]-?$/.test(prefix))
+    if(!AIRCRAFT_PREFIXES.has(prefix) && !/^[A-Z]{1,2}-?$/.test(prefix))
       return nm.slice(dashIdx+1);
   }
   return nm;
@@ -751,7 +752,7 @@ function isGroundVehicle(obj){
   // Exclude known structures and logistics clutter
   if(STRUCT_NAMES.has(nm)) return false;
   // Exclude BD/SA10/SA11 prefixed ground spawn markers
-  if(nm.startsWith('BD')||nm.startsWith('SA11-')||nm.startsWith('SA10-')) return false;
+  // if(nm.startsWith('BD')||nm.startsWith('SA11-')||nm.startsWith('SA10-')) return false;
   return true;
 }
 
