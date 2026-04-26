@@ -10,6 +10,63 @@ Output structure:
 - events: kills, crashes, messages, pilot connect/disconnect
 - players: human pilot summary with flights and kills
 """
+# ══════════════════════════════════════════════════════════════════════════════
+#  USAGE
+# ══════════════════════════════════════════════════════════════════════════════
+#
+#  SINGLE FILE — auto-derive output path from file location:
+#
+#    python parse_acmi.py raw/my_campaign/20260226_074617.acmi
+#
+#    Output goes to: public/data/my_campaign/session_20260226_074617.json
+#    (campaign folder name is inferred from the parent directory of the .acmi)
+#
+#  SINGLE FILE — explicit output path:
+#
+#    python parse_acmi.py raw/my_campaign/20260226_074617.acmi out/custom.json
+#
+#  SINGLE CAMPAIGN — reparse all .acmi files under raw/<campaign>/:
+#
+#    python parse_acmi.py --campaign "2026-04-20 Caucasus"
+#
+#    NOTE: pass the folder name only — do NOT include the raw/ prefix.
+#    The script looks for: raw/<campaign>/*.acmi
+#
+#    Walks:   raw/my_campaign/*.acmi
+#    Writes:  public/data/my_campaign/session_<stem>.json  (one per file)
+#    Prompts to rebuild campaigns.json, viewer files, and awards after parsing.
+#
+#  BATCH — reparse ALL campaigns under raw/:
+#
+#    python parse_acmi.py
+#
+#    Walks every subdirectory of raw/ and processes all .acmi files found.
+#    Will prompt for confirmation before starting (destructive — overwrites all).
+#    Prompts to rebuild campaigns.json, viewer files, and awards after parsing.
+#
+#  FLAGS:
+#
+#    --campaign <name>   Limit batch mode to a single campaign folder.
+#                        Can be written as --campaign=my_campaign.
+#
+#    --no-prompts        Skip the post-parse rebuild prompts (useful for
+#                        scripting / CI). Works with all modes.
+#                        e.g. python parse_acmi.py --campaign my_campaign --no-prompts
+#
+#  FILE LAYOUT EXPECTED:
+#
+#    raw/
+#      <campaign_folder>/
+#        *.acmi  (zipped or plain text)
+#    public/
+#      data/
+#        <campaign_folder>/
+#          session_<stem>.json   ← output written here
+#
+#  Both .acmi and .zip.acmi extensions are supported.
+#
+# ══════════════════════════════════════════════════════════════════════════════
+
 
 import sys, io
 if sys.stdout.encoding and sys.stdout.encoding.lower() != 'utf-8':
