@@ -810,7 +810,7 @@ function initUnits(merged){
       icon:leafletIcon(cat,obj.name,obj.coalition,pt0.hdg,false,isHuman,isGnd),
       zIndexOffset:isHuman?2000:(isAir?1000:0),
     });
-    const dispNm=isGnd?isSAMUnit(obj)?samDisplayName(obj.name):obj.name:obj.name;
+    const dispNm = isGnd ? samDisplayName(obj.name) : obj.name;
     const tip=isHuman?`<b>${obj.pilot||obj.name}</b><br>${obj.name}`
       :isGnd?dispNm:`${obj.name}${obj.pilot?' ['+obj.pilot+']':''}`;
     marker.bindTooltip(tip,{direction:'top',offset:[0,-6]});
