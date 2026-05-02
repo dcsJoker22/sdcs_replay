@@ -18,9 +18,19 @@ import os
 import re
 import sys
 import subprocess
+import threading
 import urllib.request
 import urllib.error
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from html.parser import HTMLParser
+
+# Global print lock -- prevents concurrent downloads interleaving their output.
+_print_lock = threading.Lock()
+
+def tprint(*args, **kwargs):
+    """Thread-safe print."""
+    with _print_lock:
+        print(*args, **kwargs)
 
 
 # Files under this size are considered junk (aborted/crashed sessions).
@@ -104,13 +114,19 @@ def get_remote_size(url):
 
 
 def download_file(url, dest_path):
-    """Download url -> dest_path with a simple progress indicator."""
+    """Download url -> dest_path, printing progress at 25/50/75/100% milestones.
+
+    Uses milestone-based progress instead of a carriage-return bar so that
+    concurrent downloads don't overwrite each other's output lines.
+    """
+    fname = os.path.basename(dest_path)
     try:
         req = urllib.request.Request(url, headers={'User-Agent': 'sdcs-downloader/1.0'})
         with urllib.request.urlopen(req, timeout=60) as resp:
             total = int(resp.headers.get('Content-Length', 0))
             downloaded = 0
             chunk = 65536
+            last_milestone = 0
             with open(dest_path, 'wb') as f:
                 while True:
                     data = resp.read(chunk)
@@ -120,15 +136,16 @@ def download_file(url, dest_path):
                     downloaded += len(data)
                     if total:
                         pct = downloaded / total * 100
-                        bar = '\u2588' * int(pct / 5) + '\u2591' * (20 - int(pct / 5))
-                        print(f"\r    [{bar}] {pct:5.1f}%  {human_size(downloaded)}", end='', flush=True)
-            print()
+                        milestone = int(pct // 25) * 25  # 0, 25, 50, 75
+                        if milestone > last_milestone:
+                            last_milestone = milestone
+                            tprint(f"    {fname}  {milestone:3d}%  ({human_size(downloaded)} / {human_size(total)})")
         return downloaded
     except urllib.error.HTTPError as e:
-        print(f"\n    \u2717 HTTP {e.code}: {e.reason}")
+        tprint(f"    \u2717 {fname}  HTTP {e.code}: {e.reason}")
         return None
     except Exception as e:
-        print(f"\n    \u2717 Error: {e}")
+        tprint(f"    \u2717 {fname}  Error: {e}")
         return None
 
 
@@ -233,39 +250,57 @@ def process_url(url, project_root):
     else:
         print(f"  Already exists.")
 
-    print(f"\n  Downloading {len(acmi_links)} file(s)...\n")
+    # How many files to download simultaneously.  Cap at 4 to be polite to the
+    # server; raising it further rarely helps since the bottleneck is bandwidth.
+    MAX_WORKERS = min(4, len(acmi_links))
+
+    print(f"\n  Downloading {len(acmi_links)} file(s) "
+          f"({MAX_WORKERS} concurrent)...\n")
 
     downloaded_ok = []
     skipped = []
     failed = []
 
+    # Pre-flight: decide which links actually need downloading.
+    to_fetch = []
     for link in acmi_links:
-        file_url = f"{url}/{link}"
         dest = os.path.join(raw_dir, link)
-
         if os.path.exists(dest):
             ok, info = verify_file(dest)
             if ok:
-                print(f"  \u21b7  {link}  (already downloaded, {info})")
+                tprint(f"  \u21b7  {link}  (already downloaded, {info})")
                 skipped.append(dest)
-                continue
             else:
-                print(f"  \u26a0  {link}  (exists but {info}, re-downloading)")
+                tprint(f"  \u26a0  {link}  (exists but {info}, re-downloading)")
+                to_fetch.append(link)
+        else:
+            to_fetch.append(link)
 
-        print(f"  \u2193  {link}")
+    def _download_one(link):
+        """Worker: download one file and return (link, dest, 'ok'|'fail')."""
+        file_url = f"{url}/{link}"
+        dest = os.path.join(raw_dir, link)
+        tprint(f"  \u2193  {link}")
         size = download_file(file_url, dest)
-
         if size is None:
-            failed.append(link)
-            continue
-
+            return link, dest, 'fail'
         ok, info = verify_file(dest)
         if ok:
-            print(f"    \u2713  {info}")
-            downloaded_ok.append(dest)
+            tprint(f"  \u2713  {link}  ({info})")
+            return link, dest, 'ok'
         else:
-            print(f"    \u2717  Verification failed: {info}")
-            failed.append(link)
+            tprint(f"  \u2717  {link}  verification failed: {info}")
+            return link, dest, 'fail'
+
+    if to_fetch:
+        with ThreadPoolExecutor(max_workers=MAX_WORKERS) as pool:
+            futures = {pool.submit(_download_one, link): link for link in to_fetch}
+            for future in as_completed(futures):
+                link, dest, status = future.result()
+                if status == 'ok':
+                    downloaded_ok.append(dest)
+                else:
+                    failed.append(link)
 
     print(f"\n  {'-'*56}")
     print(f"  Downloaded:  {len(downloaded_ok)}")
