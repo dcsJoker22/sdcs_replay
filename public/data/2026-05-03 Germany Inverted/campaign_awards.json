@@ -1,6 +1,6 @@
 {
   "campaign": "2026-05-03 Germany Inverted",
-  "generated": "2026-05-17T04:14:52Z",
+  "generated": "2026-05-24T11:39:33Z",
   "sessions": 55,
   "players": {
     "-=SerGun=-": {
@@ -127,19 +127,19 @@
     },
     "=HAWKEYE=": {
       "coalition": "blue",
-      "flights": 119,
+      "flights": 121,
       "aa_kills_human": 3,
       "aa_kills_ai": 4,
-      "ag_kills": 40,
-      "gg_kills": 143,
-      "routes_set": 4603,
+      "ag_kills": 46,
+      "gg_kills": 147,
+      "routes_set": 4852,
       "farps_built": 2,
       "weapons_fired": {
         "AGM_114": 6,
         "AGM_114K": 17,
-        "AGM_65D": 15,
+        "AGM_65D": 19,
         "AGM_88": 4,
-        "AGR_20_M282": 42,
+        "AGR_20_M282": 45,
         "AIM_120C": 18,
         "CBU_105": 8,
         "C_8": 60,
@@ -151,12 +151,12 @@
         "HYDRA_70_M151": 30,
         "HYDRA_70_MK5": 38,
         "KDA_35_HE": 310,
-        "M256_120_AP": 69,
-        "M256_120_HE": 147,
+        "M256_120_AP": 76,
+        "M256_120_HE": 151,
         "MK_82SNAKEYE": 2,
-        "TOW2": 34
+        "TOW2": 35
       },
-      "weapons_total": 822
+      "weapons_total": 841
     },
     "ATOM": {
       "coalition": "blue",
@@ -449,7 +449,7 @@
     },
     "DNA9881": {
       "coalition": "blue",
-      "flights": 67,
+      "flights": 68,
       "aa_kills_human": 1,
       "aa_kills_ai": 4,
       "ag_kills": 101,
@@ -698,22 +698,23 @@
     },
     "Hal8000": {
       "coalition": "red",
-      "flights": 23,
+      "flights": 27,
       "aa_kills_human": 3,
       "aa_kills_ai": 5,
-      "ag_kills": 17,
-      "gg_kills": 2,
-      "routes_set": 1,
+      "ag_kills": 19,
+      "gg_kills": 4,
+      "routes_set": 3,
       "farps_built": 0,
       "weapons_fired": {
-        "2A46M_125_HE": 4,
+        "2A46M_125_HE": 8,
         "AGM_122": 5,
-        "AGM_65F": 16,
-        "AIM_120C": 22,
+        "AGM_65F": 18,
+        "AIM_120C": 24,
         "GBU_54_V_1B": 15,
-        "HYDRA_70_M151": 10
+        "HYDRA_70_M151": 10,
+        "ZTZ_125_AP": 1
       },
-      "weapons_total": 72
+      "weapons_total": 81
     },
     "Hangman 1-1 - Unicorn": {
       "coalition": "blue",
@@ -909,26 +910,26 @@
     },
     "Mr. Wilson": {
       "coalition": "blue",
-      "flights": 28,
+      "flights": 31,
       "aa_kills_human": 10,
       "aa_kills_ai": 4,
-      "ag_kills": 54,
-      "gg_kills": 12,
-      "routes_set": 375,
+      "ag_kills": 59,
+      "gg_kills": 16,
+      "routes_set": 432,
       "farps_built": 0,
       "weapons_fired": {
         "AGM_65D": 6,
         "AGM_65H": 7,
-        "AGM_88": 89,
-        "AIM_120C": 48,
+        "AGM_88": 97,
+        "AIM_120C": 53,
         "CBU_97": 6,
         "FIM_92C": 2,
         "GBU_12": 17,
-        "GBU_38": 34,
-        "M256_120_AP": 13,
-        "M256_120_HE": 17
+        "GBU_38": 42,
+        "M256_120_AP": 18,
+        "M256_120_HE": 19
       },
-      "weapons_total": 239
+      "weapons_total": 267
     },
     "NAZA": {
       "coalition": "blue",
@@ -1154,9 +1155,11 @@
         "Ataka_9M120": 4,
         "Ataka_9M120F": 1,
         "P_60": 2,
-        "R-13M1": 2
+        "R-13M1": 2,
+        "REFLEX": 1,
+        "ZTZ_125_AP": 5
       },
-      "weapons_total": 9
+      "weapons_total": 15
     },
     "Sebastian": {
       "coalition": "blue",
@@ -1624,7 +1627,7 @@
     },
     "[Dow]Net_Man": {
       "coalition": "blue",
-      "flights": 44,
+      "flights": 45,
       "aa_kills_human": 1,
       "aa_kills_ai": 0,
       "ag_kills": 22,
