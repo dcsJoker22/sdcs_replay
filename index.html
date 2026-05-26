@@ -907,7 +907,7 @@ function initWeapons(merged){
     const marker=L.circleMarker([pt0.lat,pt0.lon],{
       radius:Math.max(2,Math.round(3*UI_SCALE)),color:'#000',weight:1,fillColor:color,fillOpacity:0.9,pane:'wlabelPane',
     });
-    marker.bindTooltip(`<b>${label}</b>${obj.pilot?' · '+obj.pilot:''}`,{direction:'top',offset:[0,-4]});
+    marker.bindTooltip(`🚀 ${label}${obj.pilot?' · '+obj.pilot:''}`, {direction:'top', offset:[0,-4]});
     marker.addTo(map);marker._vis=false;marker.setStyle({opacity:0,fillOpacity:0});marker._idx=0;
     weaponMarkers[id]=marker;
 
@@ -945,11 +945,15 @@ function updateWeapon(id,track,t){
   const first=track[0].t,last=track[track.length-1].t;
   const alive=(t>=first&&t<=last+2);
   if(!alive){
-    if(mrk._vis){mrk.setStyle({opacity:0,fillOpacity:0});mrk._vis=false;}
-    if(lbl&&lbl._vis){lbl.setOpacity(0);lbl._vis=false;}
-    if(segs) for(const p of segs) p.setLatLngs([]);
-    return;
+  if(mrk._vis){
+    mrk.setStyle({opacity:0,fillOpacity:0});
+    mrk._vis=false;
+    mrk.getElement()?.setAttribute('pointer-events','none');
   }
+  if(lbl&&lbl._vis){lbl.setOpacity(0);lbl._vis=false;}
+  if(segs) for(const p of segs) p.setLatLngs([]);
+  return;
+}
 
   const idx=trackIdxAt(track,t,mrk._idx||0);
   mrk._idx=idx;
@@ -1392,6 +1396,7 @@ function updateUnit(id,track,t){
     const elapsed = t - hideT;
     if(elapsed >= 60){
       mrk.setOpacity(0); mrk._vis=false;
+      mrk.getElement()?.style.setProperty('pointer-events','none');
       const _glk=groundLabels[id]; if(_glk&&_glk._vis){map.removeLayer(_glk);_glk._vis=false;}
       return;
     } else if(elapsed > 0){
