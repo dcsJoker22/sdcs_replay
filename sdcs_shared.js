@@ -955,15 +955,14 @@ function drawBase(b){
       }
       return pts;
     };
-    const outerHex=L.polygon(hexPts(circR),{
-      pane:'basePane',color:teamColor,weight:2,opacity:1,
+    const outerHex=L.polygon(hexPts(circR+1000),{
+      pane:'basePane',color:teamColor,weight:2,opacity:0.7,
       fillColor:circFill,fillOpacity:circFillOp*1.5,interactive:false,
-      
     });
     if(filters.bases) outerHex.addTo(map);
     baseCircles[b.key]=outerHex;
-    const innerHex=L.polygon(hexPts(circR-800),{
-      pane:'basePane',color:teamColor,weight:1.5,opacity:1,
+    const innerHex=L.polygon(hexPts(circR),{
+      pane:'basePane',color:teamColor,weight:1.5,opacity:0.7,
       fill:false,interactive:false,
     });
     if(filters.bases) innerHex.addTo(map);
@@ -971,7 +970,7 @@ function drawBase(b){
   } else {
     const circ=L.circle([b.lat,b.lon],{
       radius:circR,pane:'basePane',
-      color:teamColor,weight:2,opacity:1,
+      color:teamColor,weight:2,opacity:0.7,
       fillColor:circFill,fillOpacity:circFillOp*1.5,interactive:false,
     });
     if(filters.bases) circ.addTo(map);
@@ -979,7 +978,7 @@ function drawBase(b){
     if(isAB){
       const innerCirc=L.circle([b.lat,b.lon],{
         radius:circR-800,pane:'basePane',
-        color:teamColor,weight:1.5,opacity:0.75,
+        color:teamColor,weight:1.5,opacity:0.8,
         fill:false,interactive:false,
       });
       if(filters.bases) innerCirc.addTo(map);
