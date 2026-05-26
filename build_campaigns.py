@@ -16,6 +16,8 @@ Usage (run from project root, i.e. the folder containing raw/ and public/):
 
 Or specify paths:
     python build_campaigns.py --raw raw/ --output public/campaigns.json
+
+When campaign maps are changed, edit "MAP_IDS = {" to match the new campaign_ID in sdcs_shared.js
 """
 import json, os, re, sys, argparse, time
 
@@ -105,7 +107,7 @@ def main():
         'germanyinverted': 192,  # same map, coalitions swapped
         'germany': 192,
         'syria': 185,
-        'persiangulf': 189, 'gulf': 189,
+        'persiangulf': 206, 'gulf': 206,
         'nevada': 194, 'nttr': 194,
         'marianas': 195,
         'southatlantic': 196, 'falklands': 196,
