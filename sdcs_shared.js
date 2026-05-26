@@ -9,37 +9,37 @@ const CAMPAIGN_GEODATA = {
   bases: {
     189: [
       // Persian Gulf — E=pos_u-fe, N=pos_v-fn, fe=75756 fn=-2894933 lon0=57 (persiangulf.js)
-      {id:1,  name:'Abu Musa Island',      lat:25.875991, lon:55.032918},
+      {id:1,  name:'Abu Musa Island',      lat:25.875991, lon:55.032918, shape:'hex'},
       {id:2,  name:'Bandar Abbas Intl',    lat:27.217687, lon:56.378962},
       {id:3,  name:'Bandar Lengeh',        lat:26.532264, lon:54.824667},
       {id:5,  name:'Dubai Intl',           lat:25.256376, lon:55.365261},
       {id:7,  name:'Fujairah Intl',        lat:25.110940, lon:56.327351},
-      {id:8,  name:'Tunb Island AFB',      lat:26.258888, lon:55.315782},
+      {id:8,  name:'Tunb Island AFB',      lat:26.258888, lon:55.315782, shape:'hex'},
       {id:10, name:'Khasab',               lat:26.169826, lon:56.240170},
-      {id:11, name:'Lar',                  lat:27.674732, lon:54.383145},
+      {id:11, name:'Lar',                  lat:27.674732, lon:54.383145, shape:'hex'},
       {id:13, name:'Qeshm Island',         lat:26.754669, lon:55.902384},
       {id:15, name:'Sirri Island',         lat:25.909603, lon:54.539254},
       {id:16, name:'Tunb Kochak',          lat:26.243322, lon:55.145568},
-      {id:23, name:'Al-Bateen',            lat:24.428077, lon:54.458580},
+      {id:23, name:'Al-Bateen',            lat:24.428077, lon:54.458580, shape:'hex'},
       {id:24, name:'Kish Intl',            lat:26.528148, lon:53.981049},
-      {id:25, name:'Al Ain Intl',          lat:24.261428, lon:55.609245},
-      {id:26, name:'Lavan Island',         lat:26.811108, lon:53.353293},
-      {id:27, name:'Jiroft',               lat:28.723517, lon:57.675095},
+      {id:25, name:'Al Ain Intl',          lat:24.261428, lon:55.609245, shape:'hex'},
+      {id:26, name:'Lavan Island',         lat:26.811108, lon:53.353293, shape:'hex'},
+      {id:27, name:'Jiroft',               lat:28.723517, lon:57.675095, shape:'hex'},
       {id:28, name:'Ras Al Khaimah Intl',  lat:25.613494, lon:55.938797},
-      {id:29, name:'Liwa AFB',             lat:23.650775, lon:53.824429},
+      {id:29, name:'Liwa AFB',             lat:23.650775, lon:53.824429, shape:'hex'},
     ],
     190: [
-      {id:12, name:'Anapa-Vityazevo', lat:45.004999, lon:37.343321},
-      {id:16, name:'Maykop-Khanskaya', lat:44.681441, lon:40.030793},
-      {id:18, name:'Sochi-Adler', lat:43.444500, lon:39.936706},
-      {id:20, name:'Sukhumi-Babushara', lat:42.861280, lon:41.120683},
+      {id:12, name:'Anapa-Vityazevo', lat:45.004999, lon:37.343321, shape:'hex'},
+      {id:16, name:'Maykop-Khanskaya', lat:44.681441, lon:40.030793, shape:'hex'},
+      {id:18, name:'Sochi-Adler', lat:43.444500, lon:39.936706, shape:'hex'},
+      {id:20, name:'Sukhumi-Babushara', lat:42.861280, lon:41.120683, shape:'hex'},
       {id:24, name:'Kobuleti', lat:41.930129, lon:41.859032},
-      {id:25, name:'Kutaisi', lat:42.177850, lon:42.477044},
-      {id:26, name:'Mineralnye Vody', lat:44.228123, lon:43.076812},
+      {id:25, name:'Kutaisi', lat:42.177850, lon:42.477044, shape:'hex'},
+      {id:26, name:'Mineralnye Vody', lat:44.228123, lon:43.076812, shape:'hex'},
       {id:27, name:'Nalchik', lat:43.514288, lon:43.632140},
       {id:28, name:'Mozdok', lat:43.792035, lon:44.601546},
-      {id:31, name:'Vaziani', lat:41.629347, lon:45.023104},
-      {id:32, name:'Beslan', lat:43.206026, lon:44.601557},
+      {id:31, name:'Vaziani', lat:41.629347, lon:45.023104, shape:'hex'},
+      {id:32, name:'Beslan', lat:43.206026, lon:44.601557, shape:'hex'},
     ],
     192: [
       // Germany — E=pos_u-fe, N=pos_v-fn, fe=35427.62 fn=-6061633.128 lon0=21 (germanycw.js)
@@ -63,56 +63,56 @@ const CAMPAIGN_GEODATA = {
       {id:166, name:'Fulda',        lat:50.539909, lon:9.642956},
     ],
     193: [
-      {id:12, name:'Anapa-Vityazevo', lat:45.004999, lon:37.343321},
-      {id:16, name:'Maykop-Khanskaya', lat:44.681441, lon:40.030793},
-      {id:18, name:'Sochi-Adler', lat:43.444500, lon:39.936706},
-      {id:20, name:'Sukhumi-Babushara', lat:42.861280, lon:41.120683},
+      {id:12, name:'Anapa-Vityazevo', lat:45.004999, lon:37.343321, shape:'hex'},
+      {id:16, name:'Maykop-Khanskaya', lat:44.681441, lon:40.030793, shape:'hex'},
+      {id:18, name:'Sochi-Adler', lat:43.444500, lon:39.936706, shape:'hex'},
+      {id:20, name:'Sukhumi-Babushara', lat:42.861280, lon:41.120683, shape:'hex'},
       {id:24, name:'Kobuleti', lat:41.930129, lon:41.859032},
-      {id:25, name:'Kutaisi', lat:42.177850, lon:42.477044},
-      {id:26, name:'Mineralnye Vody', lat:44.228123, lon:43.076812},
+      {id:25, name:'Kutaisi', lat:42.177850, lon:42.477044, shape:'hex'},
+      {id:26, name:'Mineralnye Vody', lat:44.228123, lon:43.076812, shape:'hex'},
       {id:27, name:'Nalchik', lat:43.514288, lon:43.632140},
       {id:28, name:'Mozdok', lat:43.792035, lon:44.601546},
-      {id:31, name:'Vaziani', lat:41.629347, lon:45.023104},
-      {id:32, name:'Beslan', lat:43.206026, lon:44.601557},
+      {id:31, name:'Vaziani', lat:41.629347, lon:45.023104, shape:'hex'},
+      {id:32, name:'Beslan', lat:43.206026, lon:44.601557, shape:'hex'},
     ],
     206: [
       // Persian Gulf — same bases as campaign 189
-      {id:1,  name:'Abu Musa Island',      lat:25.875991, lon:55.032918},
+      {id:1,  name:'Abu Musa Island',      lat:25.875991, lon:55.032918, shape:'hex'},
       {id:2,  name:'Bandar Abbas Intl',    lat:27.217687, lon:56.378962},
       {id:3,  name:'Bandar Lengeh',        lat:26.532264, lon:54.824667},
       {id:5,  name:'Dubai Intl',           lat:25.256376, lon:55.365261},
       {id:7,  name:'Fujairah Intl',        lat:25.110940, lon:56.327351},
-      {id:8,  name:'Tunb Island AFB',      lat:26.258888, lon:55.315782},
+      {id:8,  name:'Tunb Island AFB',      lat:26.258888, lon:55.315782, shape:'hex'},
       {id:10, name:'Khasab',               lat:26.169826, lon:56.240170},
-      {id:11, name:'Lar',                  lat:27.674732, lon:54.383145},
+      {id:11, name:'Lar',                  lat:27.674732, lon:54.383145, shape:'hex'},
       {id:13, name:'Qeshm Island',         lat:26.754669, lon:55.902384},
       //{id:15, name:'Sirri Island',         lat:25.909603, lon:54.539254},
       //{id:16, name:'Tunb Kochak',          lat:26.243322, lon:55.145568},
-      {id:23, name:'Al-Bateen',            lat:24.428077, lon:54.458580},
+      {id:23, name:'Al-Bateen',            lat:24.428077, lon:54.458580, shape:'hex'},
       {id:24, name:'Kish Intl',            lat:26.528148, lon:53.981049},
-      {id:25, name:'Al Ain Intl',          lat:24.261428, lon:55.609245},
-      {id:26, name:'Lavan Island',         lat:26.811108, lon:53.353293},
-      {id:27, name:'Jiroft',               lat:28.723517, lon:57.675095},
+      {id:25, name:'Al Ain Intl',          lat:24.261428, lon:55.609245, shape:'hex'},
+      {id:26, name:'Lavan Island',         lat:26.811108, lon:53.353293, shape:'hex'},
+      {id:27, name:'Jiroft',               lat:28.723517, lon:57.675095, shape:'hex'},
       {id:28, name:'Ras Al Khaimah Intl',  lat:25.613494, lon:55.938797},
-      {id:29, name:'Liwa AFB',             lat:23.650775, lon:53.824429},
+      {id:29, name:'Liwa AFB',             lat:23.650775, lon:53.824429, shape:'hex'},
     ],
     185: [
       // Syria — E=pos_u-fe, N=pos_v-fn, fe=282801 fn=-3879866 lon0=39 (syria.js)
       {name:'Abu al-Duhur',             lat:35.732306, lon:37.104128},
       {name:'An Nasiriyah',             lat:33.918607, lon:36.865840},
       {name:'Beirut-Rafic Hariri',      lat:33.827268, lon:35.487687},
-      {name:'Damascus',                 lat:33.425508, lon:36.518512},
-      {name:'Gaziantep',                lat:36.948128, lon:37.478344},
+      {name:'Damascus',                 lat:33.425508, lon:36.518512, shape:'hex'},
+      {name:'Gaziantep',                lat:36.948128, lon:37.478344, shape:'hex'},
       {name:'Hama',                     lat:35.118044, lon:36.712379},
       {name:'Hatay',                    lat:36.362320, lon:36.287422},
       {name:'King Hussein Air College', lat:32.356680, lon:36.259855},
-      {name:'Bassel Al-Assad',          lat:35.401670, lon:35.950384},
+      {name:'Bassel Al-Assad',          lat:35.401670, lon:35.950384, shape:'hex'},
       {name:'Minakh',                   lat:36.521376, lon:37.041337},
       {name:'Ramat David',              lat:32.666411, lon:35.184166},
       {name:'Kuweires',                 lat:36.187494, lon:37.581495},
       {name:'Rene Mouawad',             lat:34.589300, lon:36.011449},
       {name:'Tiyas',                    lat:34.522629, lon:37.630123},
-      {name:'Ben Gurion',               lat:32.006079, lon:34.882423},
+      {name:'Ben Gurion',               lat:32.006079, lon:34.882423, shape:'hex'},
     ],
   },
   objectives: {
@@ -260,7 +260,7 @@ const CAMPAIGN_GEODATA = {
       {code:'CR80', name:'Gachin Bala',       lat:27.135967, lon:55.852953},
       //{code:'DN37', name:'Fujairah',          lat:25.115684, lon:56.330025},
       {code:'DN44', name:'Al Wadiyat',        lat:24.793792, lon:56.412421},
-      {code:'DP05', name:'Al Rams',           lat:25.822558, lon:56.020377},
+      {code:'DP05', name:'Al Rams',           lat:25.822558, lon:56.020377, r:7},
       {code:'DP23', name:'Dibba Al-Hisn',     lat:25.615256, lon:56.289403},
       {code:'DP26', name:'Echo Point',        lat:25.936030, lon:56.263275, r:7},
       {code:'DP29', name:'Khasab',            lat:26.182145, lon:56.248753},
@@ -788,15 +788,7 @@ function isSAMUnit(obj){
 }
 
 function samDisplayName(nm){
-  // Strip BD coalition prefixes: 'BDREDMRSAM-SA-11 Buk LN' → 'SA-11 Buk LN'
-  nm = nm.replace(/^BD(?:RED|BLUE)(?:MR|LR)SAM-/i, '');
-  const dashIdx = nm.indexOf('-');
-  if(dashIdx > 0 && !SAM_STANDALONE.has(nm)){
-    const prefix = nm.slice(0, dashIdx);
-    if(!AIRCRAFT_PREFIXES.has(prefix) && !/^[A-Z]{1,2}-?$/.test(prefix))
-      return nm.slice(dashIdx+1);
-  }
-  return nm;
+  return nm.replace(/^(?:BD(?:RED|BLUE)(?:MR|LR)SAM-|UNRESTRICTED-\w+-)/i, '');
 }
 
 // For ground vehicles: show all real vehicles (not structures), excluding 'Base' callsigns
@@ -847,7 +839,8 @@ async function initBases(merged, campaignId){
       const key='airbase_'+b.name;
       const initialCoal = _shelter3Map[key]?.initialCoal || 'Neutral';
       bases.push({key, name:b.name, code:'', lat:b.lat, lon:b.lon,
-        coalition:initialCoal, type:'airbase', isFarp:false, isFactory:false});
+      coalition:initialCoal, type:'airbase', isFarp:false, isFactory:false,
+      shape:b.shape||null});
     }
 
     // ── Objectives — directly from CAMPAIGN_GEODATA.objectives (DB coords, fixed positions)
@@ -894,9 +887,9 @@ async function initBases(merged, campaignId){
 
   _baseList=bases.map(b=>({key:b.key,name:b.name,lat:b.lat,lon:b.lon,
     coalition:b.coalition,isFarp:b.isFarp,isFactory:b.isFactory||false,
-    firstSeen:b.firstSeen||0,r:b.r||null}));
+    firstSeen:b.firstSeen||0,r:b.r||null,shape:b.shape||null}));
 
-    console.log('Base keys:', _baseList.map(b => b.key));
+    //console.log('Base keys:', _baseList.map(b => b.key));
 
   for(const b of bases) drawBase(b);
 }
@@ -909,6 +902,7 @@ function drawBase(b){
   const isFarp=b.isFarp||b.type==='farp';
   const isAB=b.type==='airbase';
   const isFactory=b.isFactory||b.type==='factory';
+  const isHex=b.shape==='hex';
 
   // Icon
   let shp;
@@ -918,7 +912,6 @@ function drawBase(b){
       <polygon points="5.5,2.5 8.5,5.5 5.5,8.5 2.5,5.5" fill="${teamColor}" opacity=".35"/>
     </svg>`;
   } else if(isFactory){
-    // Factory: gear-ish square with cross
     shp=`<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 11 11">
       <rect x="1" y="1" width="9" height="9" rx="1.5" fill="${teamColor}" opacity=".85"/>
       <line x1="5.5" y1="1" x2="5.5" y2="10" stroke="#000" stroke-width=".8" opacity=".5"/>
@@ -946,37 +939,59 @@ function drawBase(b){
   if(filters.bases) mk.addTo(map);
   baseMarkers[b.key]=mk;
 
-  // Circle: factories use green fill, others use team colour
+  // Outer shape: hex or circle
   const circFill=isFactory?'#44cc44':teamColor;
   const circFillOp=isFactory?0.06:0.05;
-  const circR = (b.r ? b.r * 1852 : 18520); // 10nm for all: objectives, FARPs, and factories. add r:7 to base/obj array to change radius to 7nm for example
-  const circ=L.circle([b.lat,b.lon],{
-  radius:circR,pane:'basePane',
-  color:teamColor,weight:2,opacity:0.75,
-  fillColor:circFill,fillOpacity:circFillOp*1.5,interactive:false,
-  });
-  if(filters.bases) circ.addTo(map);
-  baseCircles[b.key]=circ;
+  const circR=(b.r?b.r*1852:18520);
 
-  // Inner concentric ring — airbases only
-  if(isAB){
-    // Inner ring sits 2px gap inside outer stroke — approximate in metres
-    const innerR = circR - 800; // ~800m = visual 2px gap at zoom 7
-    const innerCirc = L.circle([b.lat,b.lon],{
-      radius:innerR, pane:'basePane',
-      color:teamColor, weight:1.5, opacity:0.50,
-      fill:false, interactive:false,
+  if(isHex){
+    const hexPts=(r)=>{
+      const pts=[];
+      for(let i=0;i<6;i++){
+        const angle=(Math.PI/180)*(60*i-30);
+        const dlat=(r*Math.cos(angle))/111320;
+        const dlon=(r*Math.sin(angle))/(111320*Math.cos(b.lat*Math.PI/180));
+        pts.push([b.lat+dlat,b.lon+dlon]);
+      }
+      return pts;
+    };
+    const outerHex=L.polygon(hexPts(circR),{
+      pane:'basePane',color:teamColor,weight:2,opacity:1,
+      fillColor:circFill,fillOpacity:circFillOp*1.5,interactive:false,
+      
     });
-    if(filters.bases) innerCirc.addTo(map);
-    baseInnerCircles[b.key]=innerCirc;
+    if(filters.bases) outerHex.addTo(map);
+    baseCircles[b.key]=outerHex;
+    const innerHex=L.polygon(hexPts(circR-800),{
+      pane:'basePane',color:teamColor,weight:1.5,opacity:1,
+      fill:false,interactive:false,
+    });
+    if(filters.bases) innerHex.addTo(map);
+    baseInnerCircles[b.key]=innerHex;
+  } else {
+    const circ=L.circle([b.lat,b.lon],{
+      radius:circR,pane:'basePane',
+      color:teamColor,weight:2,opacity:1,
+      fillColor:circFill,fillOpacity:circFillOp*1.5,interactive:false,
+    });
+    if(filters.bases) circ.addTo(map);
+    baseCircles[b.key]=circ;
+    if(isAB){
+      const innerCirc=L.circle([b.lat,b.lon],{
+        radius:circR-800,pane:'basePane',
+        color:teamColor,weight:1.5,opacity:0.75,
+        fill:false,interactive:false,
+      });
+      if(filters.bases) innerCirc.addTo(map);
+      baseInnerCircles[b.key]=innerCirc;
+    }
   }
 
   // Name label on map (bases & factories, not FARPs)
   if(!isFarp){
     const clr=blue?'blue':red?'red':'neutral';
-    // Objectives: prepend code to label unless name already starts with it (e.g. 'FK34 Crossroads')
-  const labelName=(!isFactory&&!isFarp&&b.code&&!b.name.startsWith(b.code))?`${b.code} ${b.name}`:b.name;
-  const displayName=isFactory?`⚙ ${b.name}`:labelName;
+    const labelName=(!isFactory&&!isFarp&&b.code&&!b.name.startsWith(b.code))?`${b.code} ${b.name}`:b.name;
+    const displayName=isFactory?`⚙ ${b.name}`:labelName;
     const lblHtml=isFactory
       ?`<div class="blabel-name ${clr}" style="font-size:12px;font-style:italic">${displayName}</div>`
       :`<div class="blabel-name ${clr}">${displayName}</div>`;
