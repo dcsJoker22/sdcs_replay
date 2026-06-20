@@ -1,0 +1,18 @@
+version: "3.8"
+services:
+  replay:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      VIRTUAL_HOST: replay.strategic-dcs.com
+      LETSENCRYPT_HOST: replay.strategic-dcs.com
+    volumes:
+      - /data/sdcs/replay:/usr/share/nginx/html
+    networks:
+      - nginx-proxy
+
+networks:
+  database:
+  nginx-proxy:
+    external: true
