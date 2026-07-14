@@ -1,14 +1,14 @@
 {
   "campaign": "2026-07-02 Persian Gulf Inverted",
-  "generated": "2026-07-13T23:09:59Z",
+  "generated": "2026-07-14T06:42:19Z",
   "sessions": 39,
   "players": {
     "-=SerGun=-": {
       "coalition": "red",
-      "flights": 32,
+      "flights": 33,
       "aa_kills_human": 3,
       "aa_kills_ai": 1,
-      "ag_kills": 58,
+      "ag_kills": 59,
       "gg_kills": 6,
       "routes_set": 6,
       "farps_built": 0,
@@ -18,13 +18,13 @@
         "AGM_65D": 23,
         "AGM_65H": 45,
         "AGM_88": 44,
-        "AGR_20_M282": 4,
+        "AGR_20_M282": 5,
         "AIM_120C": 48,
         "GBU_12": 8,
         "ZTZ_125_AP": 12,
         "ZTZ_125_HE": 10
       },
-      "weapons_total": 216
+      "weapons_total": 217
     },
     "9g - paniker": {
       "coalition": "red",
@@ -87,6 +87,18 @@
         "GBU_16": 6
       },
       "weapons_total": 121
+    },
+    "=CARNAGE=": {
+      "coalition": "red",
+      "flights": 3,
+      "aa_kills_human": 0,
+      "aa_kills_ai": 0,
+      "ag_kills": 0,
+      "gg_kills": 0,
+      "routes_set": 1,
+      "farps_built": 0,
+      "weapons_fired": {},
+      "weapons_total": 0
     },
     "=HAWKEYE=": {
       "coalition": "blue",
@@ -862,7 +874,7 @@
     },
     "Kowalski": {
       "coalition": "red",
-      "flights": 5,
+      "flights": 6,
       "aa_kills_human": 0,
       "aa_kills_ai": 0,
       "ag_kills": 0,
@@ -870,9 +882,11 @@
       "routes_set": 0,
       "farps_built": 0,
       "weapons_fired": {
-        "GBU_38": 5
+        "AIM_120C": 2,
+        "AIM_9X": 2,
+        "GBU_38": 13
       },
-      "weapons_total": 5
+      "weapons_total": 17
     },
     "LUTHOR": {
       "coalition": "blue",
@@ -1036,11 +1050,11 @@
     },
     "Mr. Wilson": {
       "coalition": "red",
-      "flights": 17,
+      "flights": 19,
       "aa_kills_human": 3,
       "aa_kills_ai": 11,
-      "ag_kills": 27,
-      "gg_kills": 16,
+      "ag_kills": 28,
+      "gg_kills": 17,
       "routes_set": 318,
       "farps_built": 1,
       "weapons_fired": {
@@ -1050,14 +1064,15 @@
         "AGM_65H": 7,
         "AGM_88": 14,
         "AIM_120C": 53,
-        "Ataka_9M120": 16,
+        "Ataka_9M120": 24,
+        "C_8OFP2": 26,
         "GBU_31_V_3B": 1,
         "GBU_38": 25,
         "REFLEX": 3,
         "ZTZ_125_AP": 9,
         "ZTZ_125_HE": 2
       },
-      "weapons_total": 133
+      "weapons_total": 167
     },
     "Mr. Zалупа Rock": {
       "coalition": "red",
@@ -1307,18 +1322,22 @@
     },
     "Saker": {
       "coalition": "red",
-      "flights": 1,
+      "flights": 6,
       "aa_kills_human": 0,
       "aa_kills_ai": 1,
-      "ag_kills": 2,
+      "ag_kills": 8,
       "gg_kills": 0,
       "routes_set": 0,
       "farps_built": 0,
       "weapons_fired": {
+        "AGM_114": 47,
         "AGM_88": 4,
-        "AIM_120C": 4
+        "AIM_120C": 4,
+        "Ataka_9M120": 7,
+        "GBU_38": 3,
+        "HYDRA_70_M151": 3
       },
-      "weapons_total": 8
+      "weapons_total": 68
     },
     "SanyaDomkrat": {
       "coalition": "red",
@@ -1352,20 +1371,22 @@
     },
     "Semtex": {
       "coalition": "red",
-      "flights": 12,
+      "flights": 16,
       "aa_kills_human": 0,
       "aa_kills_ai": 1,
-      "ag_kills": 11,
-      "gg_kills": 0,
+      "ag_kills": 21,
+      "gg_kills": 1,
       "routes_set": 0,
       "farps_built": 0,
       "weapons_fired": {
-        "AGM_114": 16,
+        "AGM_114": 39,
+        "AGM_114K": 4,
+        "AGM_65F": 2,
         "AGM_88": 4,
         "AIM_54C_Mk47": 3,
-        "GBU_38": 15
+        "GBU_38": 19
       },
-      "weapons_total": 38
+      "weapons_total": 71
     },
     "Shalfey": {
       "coalition": "red",
@@ -1463,22 +1484,27 @@
     },
     "Torolar": {
       "coalition": "red",
-      "flights": 18,
+      "flights": 23,
       "aa_kills_human": 1,
-      "aa_kills_ai": 7,
-      "ag_kills": 13,
-      "gg_kills": 2,
-      "routes_set": 97,
+      "aa_kills_ai": 8,
+      "ag_kills": 22,
+      "gg_kills": 4,
+      "routes_set": 151,
       "farps_built": 0,
       "weapons_fired": {
+        "AGM_114K": 10,
         "AIM-7P": 2,
-        "AIM_54C_Mk47": 28,
-        "GBU_12": 2,
-        "GBU_24": 4,
+        "AIM_54C_Mk47": 29,
+        "GBU_12": 4,
+        "GBU_16": 2,
+        "GBU_24": 8,
         "P_9M117": 1,
-        "X_58": 1
+        "REFLEX": 1,
+        "UOF_17_100HE": 9,
+        "X_58": 1,
+        "ZTZ_125_AP": 2
       },
-      "weapons_total": 38
+      "weapons_total": 69
     },
     "TraumaHawk": {
       "coalition": "red",
@@ -1775,12 +1801,12 @@
     },
     "Zerg": {
       "coalition": "red",
-      "flights": 27,
+      "flights": 28,
       "aa_kills_human": 2,
       "aa_kills_ai": 1,
       "ag_kills": 37,
       "gg_kills": 5,
-      "routes_set": 75,
+      "routes_set": 94,
       "farps_built": 0,
       "weapons_fired": {
         "AGM_114": 34,
@@ -1806,24 +1832,24 @@
     },
     "[ ℱƁ ] Đrαǥoŋαχ ヅ": {
       "coalition": "red",
-      "flights": 153,
+      "flights": 159,
       "aa_kills_human": 7,
-      "aa_kills_ai": 16,
-      "ag_kills": 163,
-      "gg_kills": 5,
-      "routes_set": 2471,
+      "aa_kills_ai": 17,
+      "ag_kills": 174,
+      "gg_kills": 8,
+      "routes_set": 2554,
       "farps_built": 5,
       "weapons_fired": {
         "2A46M_125_AP": 7,
         "ADM_141A": 9,
-        "AGM_114": 56,
+        "AGM_114": 84,
         "AGM_45A": 2,
         "AGM_65D": 23,
         "AGM_88": 2,
         "AIM-7P": 9,
         "AIM_120C": 10,
         "AIM_54A_Mk60": 2,
-        "AIM_54C_Mk47": 84,
+        "AIM_54C_Mk47": 86,
         "AIM_54C_Mk60": 40,
         "AIM_9": 25,
         "CBU_97": 4,
@@ -1831,18 +1857,18 @@
         "C_8": 297,
         "FIM_92C": 1,
         "GBU_12": 114,
-        "GBU_16": 88,
-        "GBU_24": 122,
+        "GBU_16": 94,
+        "GBU_24": 128,
         "GBU_38": 16,
         "HYDRA_70_M229": 60,
         "Mk_83": 1,
         "OFL_120F2_AP": 3,
         "ROCKEYE": 2,
         "SVIR": 1,
-        "ZTZ_125_AP": 1,
+        "ZTZ_125_AP": 2,
         "Zuni_127": 8
       },
-      "weapons_total": 993
+      "weapons_total": 1036
     },
     "[BJ] LDF Elena701": {
       "coalition": "red",
@@ -1923,26 +1949,29 @@
     },
     "[RT]★Djim": {
       "coalition": "red",
-      "flights": 14,
+      "flights": 15,
       "aa_kills_human": 0,
-      "aa_kills_ai": 0,
+      "aa_kills_ai": 2,
       "ag_kills": 13,
-      "gg_kills": 1,
-      "routes_set": 33,
+      "gg_kills": 5,
+      "routes_set": 39,
       "farps_built": 0,
       "weapons_fired": {
         "2A46M_125_AP": 4,
         "AGM_65F": 2,
-        "AIM_120C": 4,
+        "AGM_88": 2,
+        "AIM_120C": 8,
         "C_8OFP2": 36,
         "GBU_38": 8,
         "GBU_54_V_1B": 4,
         "SVIR": 1,
         "Vikhr_M": 3,
         "X_25MP": 2,
-        "X_58": 2
+        "X_58": 2,
+        "ZTZ_125_AP": 2,
+        "ZTZ_125_HE": 1
       },
-      "weapons_total": 66
+      "weapons_total": 75
     },
     "[TWB] Nraged": {
       "coalition": "blue",
@@ -2136,18 +2165,22 @@
     },
     "yohoho": {
       "coalition": "red",
-      "flights": 23,
+      "flights": 25,
       "aa_kills_human": 0,
       "aa_kills_ai": 0,
-      "ag_kills": 1,
+      "ag_kills": 3,
       "gg_kills": 0,
       "routes_set": 0,
       "farps_built": 0,
       "weapons_fired": {
-        "Ataka_9M120": 21,
-        "X_58": 2
+        "Ataka_9M120": 32,
+        "C_24": 2,
+        "Vikhr_M": 1,
+        "X_25MP": 4,
+        "X_29T": 2,
+        "X_58": 6
       },
-      "weapons_total": 23
+      "weapons_total": 47
     },
     "Игрок": {
       "coalition": "red",
